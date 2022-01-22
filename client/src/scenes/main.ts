@@ -1,17 +1,10 @@
+import { MOVEMENT_SPEED, ONLINE_SPEED_SCALE } from "../constants";
+
 import type { Game } from "../../types/types";
 import type { Socket } from "socket.io-client";
+import { createRectangle } from "../util/gameUtils";
 import { socket } from "..";
 import { throttleUpdate } from "../util/socketUtils";
-
-const MOVEMENT_SPEED = 500;
-
-type PhysicsRectangle = Phaser.GameObjects.Rectangle & {
-  body: Phaser.Physics.Arcade.Body;
-};
-
-interface PlayerGameObject extends PhysicsRectangle {
-  id: string;
-}
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
   active: false,
@@ -20,42 +13,45 @@ const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
 };
 
 export class GameScene extends Phaser.Scene {
-  private player?: PhysicsRectangle;
+  private player?: Game.PhysicsRectangle;
   private socket?: Socket;
-  private otherPlayers: PlayerGameObject[] = [];
+  private otherPlayers: Game.PlayerGameObject[] = [];
+  private cursorKeys?: Phaser.Types.Input.Keyboard.CursorKeys;
 
   constructor() {
     super(sceneConfig);
     this.player = undefined;
     this.socket = socket;
+    this.cursorKeys = undefined;
+  }
+
+  public create() {
+    this.cursorKeys = this.input.keyboard.createCursorKeys();
+    this.player = createRectangle(
+      this,
+      new Phaser.Math.Vector2(
+        this.scale.displaySize.width / 2,
+        this.scale.displaySize.height / 2,
+      ),
+      0x00ff00,
+      this.socket?.id || "",
+    );
   }
 
   public initPlayers(players: Game.ApiPlayerState[]) {
     for (const player of players) {
       if (player.id === this.socket?.id) continue;
-      const newPlayerObject = this.add.rectangle(
-        player.x,
-        player.y,
-        100,
-        100,
-        0xff00ff,
-      ) as PlayerGameObject;
-      newPlayerObject.id = player.id;
-      this.physics.add.existing(newPlayerObject, false);
-      this.otherPlayers.push(newPlayerObject);
+      this.addPlayer(player);
     }
   }
 
   public addPlayer(newPlayer: Game.ApiPlayerState) {
-    const newPlayerObject = this.add.rectangle(
-      newPlayer.x,
-      newPlayer.y,
-      100,
-      100,
+    const newPlayerObject = createRectangle(
+      this,
+      new Phaser.Math.Vector2(newPlayer.x, newPlayer.y),
       0xff00ff,
-    ) as PlayerGameObject;
-    newPlayerObject.id = newPlayer.id;
-    this.physics.add.existing(newPlayerObject, false);
+      newPlayer.id,
+    );
     this.otherPlayers.push(newPlayerObject);
   }
 
@@ -82,35 +78,28 @@ export class GameScene extends Phaser.Scene {
         x: player.x,
         y: player.y,
       });
-      difference.scale(10);
+      difference.scale(ONLINE_SPEED_SCALE);
       gameObject.body.setVelocity(-difference.x, -difference.y);
     }
   };
 
-  public create() {
-    this.player = this.add.rectangle(400, 400, 100, 100, 0x00ffff) as any;
-
-    if (this.player) {
-      this.physics.add.existing(this.player);
-    }
-  }
-
   public update() {
-    const cursorKeys = this.input.keyboard.createCursorKeys();
+    if (!this.cursorKeys) return;
+    if (!this.player) return;
 
     const inputVector = new Phaser.Math.Vector2();
 
-    if (cursorKeys.up.isDown) {
+    if (this.cursorKeys.up.isDown) {
       inputVector.y = -1;
-    } else if (cursorKeys.down.isDown) {
+    } else if (this.cursorKeys.down.isDown) {
       inputVector.y = 1;
     } else {
       inputVector.y = 0;
     }
 
-    if (cursorKeys.left.isDown) {
+    if (this.cursorKeys.left.isDown) {
       inputVector.x = -1;
-    } else if (cursorKeys.right.isDown) {
+    } else if (this.cursorKeys.right.isDown) {
       inputVector.x = 1;
     } else {
       inputVector.x = 0;
@@ -119,11 +108,11 @@ export class GameScene extends Phaser.Scene {
     inputVector.normalize();
     inputVector.scale(MOVEMENT_SPEED);
 
-    this.player?.body.setVelocity(inputVector.x, inputVector.y);
+    this.player.body.setVelocity(inputVector.x, inputVector.y);
 
     throttleUpdate({
-      x: this.player?.body.position.x,
-      y: this.player?.body.position.y,
+      x: this.player.body.position.x,
+      y: this.player.body.position.y,
       socket: this.socket,
     });
   }

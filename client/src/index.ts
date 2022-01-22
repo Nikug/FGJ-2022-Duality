@@ -1,30 +1,13 @@
-import type { Game } from "../types/types";
-import type { GameScene } from "./scenes/main";
+import.meta.hot;
 import Phaser from "phaser";
 import { gameConfig } from "./phaser";
+import { handleRoutes } from "./routes";
 import { io } from "socket.io-client";
 
-const backendUrl = "http://localhost:3000";
-export const socket = io(backendUrl);
+const serverUrl = __SNOWPACK_ENV__.SERVER_URL || "http://localhost:3000";
+console.log("Server url is:", serverUrl);
 
-socket.on("init", (players: Game.ApiPlayerState[]) => {
-  const scene = game.scene.getScene("Game") as GameScene;
-  scene.initPlayers(players);
-});
+export const socket = io(serverUrl);
+export const game = new Phaser.Game(gameConfig);
 
-socket.on("update", (players: Game.ApiPlayerState[]) => {
-  const scene = game.scene.getScene("Game") as GameScene;
-  scene.updatePlayers(players);
-});
-
-socket.on("newPlayer", (player: Game.ApiPlayerState) => {
-  const scene = game.scene.getScene("Game") as GameScene;
-  scene.addPlayer(player);
-});
-
-socket.on("removePlayer", (id: string) => {
-  const scene = game.scene.getScene("Game") as GameScene;
-  scene.removePlayer(id);
-});
-
-const game = new Phaser.Game(gameConfig);
+handleRoutes(socket, game);

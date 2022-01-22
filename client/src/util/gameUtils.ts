@@ -1,9 +1,20 @@
 import type { Game } from "../../types/types";
 
-export const addPlayer = (scene: Phaser.Scene, player: Game.PlayerState) => {
-  const square = scene.add.rectangle(player.x, player.y, 100, 100, 0x00ffff);
+export const createRectangle = (
+  scene: Phaser.Scene,
+  position: Phaser.Math.Vector2,
+  color: number,
+  id: string,
+): Game.PlayerGameObject => {
+  const rectangle = scene.add.rectangle(
+    position.x,
+    position.y,
+    50,
+    50,
+    color,
+  ) as Game.PlayerGameObject;
 
-  if (square) {
-    scene.physics.add.existing(square);
-  }
+  scene.physics.add.existing(rectangle);
+  rectangle.id = id;
+  return rectangle;
 };
