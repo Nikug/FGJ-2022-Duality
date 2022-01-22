@@ -3,6 +3,8 @@ import type { Socket } from "socket.io-client";
 import { socket } from "..";
 import { throttleUpdate } from "../util/socketUtils";
 
+const MOVEMENT_SPEED = 500;
+
 type PhysicsRectangle = Phaser.GameObjects.Rectangle & {
   body: Phaser.Physics.Arcade.Body;
 };
@@ -39,7 +41,7 @@ export class GameScene extends Phaser.Scene {
         0xff00ff,
       ) as PlayerGameObject;
       newPlayerObject.id = player.id;
-      this.physics.add.existing(newPlayerObject);
+      this.physics.add.existing(newPlayerObject, false);
       this.otherPlayers.push(newPlayerObject);
     }
   }
@@ -53,7 +55,7 @@ export class GameScene extends Phaser.Scene {
       0xff00ff,
     ) as PlayerGameObject;
     newPlayerObject.id = newPlayer.id;
-    this.physics.add.existing(newPlayerObject);
+    this.physics.add.existing(newPlayerObject, false);
     this.otherPlayers.push(newPlayerObject);
   }
 
@@ -76,7 +78,12 @@ export class GameScene extends Phaser.Scene {
 
       if (!gameObject) continue;
 
-      gameObject.setPosition(player.x, player.y);
+      const difference = gameObject.body.position.clone().subtract({
+        x: player.x,
+        y: player.y,
+      });
+      difference.scale(10);
+      gameObject.body.setVelocity(-difference.x, -difference.y);
     }
   };
 
@@ -91,21 +98,28 @@ export class GameScene extends Phaser.Scene {
   public update() {
     const cursorKeys = this.input.keyboard.createCursorKeys();
 
+    const inputVector = new Phaser.Math.Vector2();
+
     if (cursorKeys.up.isDown) {
-      this.player?.body.setVelocityY(-500);
+      inputVector.y = -1;
     } else if (cursorKeys.down.isDown) {
-      this.player?.body.setVelocityY(500);
+      inputVector.y = 1;
     } else {
-      this.player?.body.setVelocityY(0);
+      inputVector.y = 0;
     }
 
     if (cursorKeys.left.isDown) {
-      this.player?.body.setVelocityX(-500);
+      inputVector.x = -1;
     } else if (cursorKeys.right.isDown) {
-      this.player?.body.setVelocityX(500);
+      inputVector.x = 1;
     } else {
-      this.player?.body.setVelocityX(0);
+      inputVector.x = 0;
     }
+
+    inputVector.normalize();
+    inputVector.scale(MOVEMENT_SPEED);
+
+    this.player?.body.setVelocity(inputVector.x, inputVector.y);
 
     throttleUpdate({
       x: this.player?.body.position.x,

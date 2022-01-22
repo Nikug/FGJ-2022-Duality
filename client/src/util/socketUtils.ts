@@ -1,6 +1,6 @@
 import type { Game } from "../../types/types";
 
-const UPDATES_PER_SECOND = 60;
+const UPDATES_PER_SECOND = 30;
 const UPDATE_INTERVAL = (1 / UPDATES_PER_SECOND) * 1000;
 
 let lastState: Game.PlayerState | undefined = undefined;
