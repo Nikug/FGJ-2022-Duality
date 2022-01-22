@@ -1,4 +1,4 @@
-import type { Game } from "../../types/types";
+import type * as Game from "../../types/types";
 import { UPDATE_INTERVAL } from "../constants";
 
 let lastState: Game.PlayerState | undefined = undefined;

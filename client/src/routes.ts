@@ -1,4 +1,4 @@
-import type { Game } from "../types/types";
+import type * as Game from "../types/types";
 import type { GameScene } from "./scenes/main";
 import type { Socket } from "socket.io-client";
 

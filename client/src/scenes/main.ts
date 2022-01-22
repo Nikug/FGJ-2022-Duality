@@ -1,6 +1,6 @@
 import { MOVEMENT_SPEED, ONLINE_SPEED_SCALE } from "../constants";
 
-import type { Game } from "../../types/types";
+import type * as Game from "../../types/types";
 import type { Socket } from "socket.io-client";
 import { createRectangle } from "../util/gameUtils";
 import { socket } from "..";

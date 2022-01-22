@@ -1,4 +1,4 @@
-import type { Game } from "../../types/types";
+import type * as Game from "../../types/types";
 
 export const createRectangle = (
   scene: Phaser.Scene,

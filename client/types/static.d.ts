@@ -57,4 +57,4 @@ declare module "*.png" {
 }
 
 /* CUSTOM: ADD YOUR OWN HERE */
-declare var __SNOWPACK_ENV__: Record<string, string | undefined>;
+declare const __SNOWPACK_ENV__: Record<string, string | undefined>;
