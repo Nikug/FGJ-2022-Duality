@@ -1,3 +1,7 @@
+import type { Socket } from "socket.io-client";
+import { socket } from "..";
+import { throttleUpdate } from "../util/socketUtils";
+
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
   active: false,
   visible: false,
@@ -8,10 +12,12 @@ export class GameScene extends Phaser.Scene {
   private square?: Phaser.GameObjects.Rectangle & {
     body: Phaser.Physics.Arcade.Body;
   };
+  private socket: Socket;
 
   constructor() {
     super(sceneConfig);
     this.square = undefined;
+    this.socket = socket;
   }
 
   public create() {
@@ -40,5 +46,11 @@ export class GameScene extends Phaser.Scene {
     } else {
       this.square?.body.setVelocityX(0);
     }
+
+    throttleUpdate({
+      x: this.square?.body.position.x,
+      y: this.square?.body.position.y,
+      socket: this.socket,
+    });
   }
 }
