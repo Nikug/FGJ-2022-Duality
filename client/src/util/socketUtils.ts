@@ -1,9 +1,9 @@
-import type * as Game from "../../types/types";
+import type { PlayerState } from "../../types/types";
 import { UPDATE_INTERVAL } from "../constants";
 
-let lastState: Game.PlayerState | undefined = undefined;
+let lastState: PlayerState | undefined = undefined;
 
-export const throttleUpdate = async (state: Game.PlayerState) => {
+export const throttleUpdate = async (state: PlayerState) => {
   if (!lastState?.lastUpdate) {
     updatePlayer(state);
     return;
@@ -15,11 +15,11 @@ export const throttleUpdate = async (state: Game.PlayerState) => {
   }
 };
 
-const updatePlayer = (state: Game.PlayerState) => {
+const updatePlayer = (state: PlayerState) => {
   state.socket?.emit("move", { x: state.x, y: state.y });
   lastState = { ...state, lastUpdate: Date.now() };
 };
 
-const hasStateChanged = (state: Game.PlayerState) => {
+const hasStateChanged = (state: PlayerState) => {
   return state.x !== lastState?.x || state.y !== lastState?.y;
 };

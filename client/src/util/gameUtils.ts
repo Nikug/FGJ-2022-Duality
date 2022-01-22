@@ -1,18 +1,18 @@
-import type * as Game from "../../types/types";
+import type { PlayerGameObject } from "../../types/types";
 
 export const createRectangle = (
   scene: Phaser.Scene,
   position: Phaser.Math.Vector2,
   color: number,
   id: string,
-): Game.PlayerGameObject => {
+): PlayerGameObject => {
   const rectangle = scene.add.rectangle(
     position.x,
     position.y,
     50,
     50,
     color,
-  ) as Game.PlayerGameObject;
+  ) as PlayerGameObject;
 
   scene.physics.add.existing(rectangle);
   rectangle.id = id;

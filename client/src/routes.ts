@@ -1,19 +1,19 @@
-import type * as Game from "../types/types";
+import type { ApiPlayerState } from "../types/types";
 import type { GameScene } from "./scenes/main";
 import type { Socket } from "socket.io-client";
 
 export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
-  socket.on("init", (players: Game.ApiPlayerState[]) => {
+  socket.on("init", (players: ApiPlayerState[]) => {
     const scene = game.scene.getScene("Game") as GameScene;
     scene.initPlayers(players);
   });
 
-  socket.on("update", (players: Game.ApiPlayerState[]) => {
+  socket.on("update", (players: ApiPlayerState[]) => {
     const scene = game.scene.getScene("Game") as GameScene;
     scene.updatePlayers(players);
   });
 
-  socket.on("newPlayer", (player: Game.ApiPlayerState) => {
+  socket.on("newPlayer", (player: ApiPlayerState) => {
     const scene = game.scene.getScene("Game") as GameScene;
     scene.addPlayer(player);
   });
