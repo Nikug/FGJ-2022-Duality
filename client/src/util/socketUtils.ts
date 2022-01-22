@@ -1,6 +1,6 @@
 import type { Game } from "../../types/types";
 
-const UPDATES_PER_SECOND = 10;
+const UPDATES_PER_SECOND = 60;
 const UPDATE_INTERVAL = (1 / UPDATES_PER_SECOND) * 1000;
 
 let lastState: Game.PlayerState | undefined = undefined;
@@ -18,7 +18,6 @@ export const throttleUpdate = async (state: Game.PlayerState) => {
 };
 
 const updatePlayer = (state: Game.PlayerState) => {
-  console.log("updating!", state.socket?.id);
   state.socket?.emit("move", { x: state.x, y: state.y });
   lastState = { ...state, lastUpdate: Date.now() };
 };

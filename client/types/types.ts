@@ -7,4 +7,10 @@ export namespace Game {
     socket?: Socket;
     lastUpdate?: number;
   }
+
+  export interface ApiPlayerState {
+    x: number;
+    y: number;
+    id: string;
+  }
 }

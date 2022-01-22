@@ -1,6 +1,15 @@
+import type { Game } from "../../types/types";
 import type { Socket } from "socket.io-client";
 import { socket } from "..";
 import { throttleUpdate } from "../util/socketUtils";
+
+type PhysicsRectangle = Phaser.GameObjects.Rectangle & {
+  body: Phaser.Physics.Arcade.Body;
+};
+
+interface PlayerGameObject extends PhysicsRectangle {
+  id: string;
+}
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
   active: false,
@@ -9,22 +18,73 @@ const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
 };
 
 export class GameScene extends Phaser.Scene {
-  private square?: Phaser.GameObjects.Rectangle & {
-    body: Phaser.Physics.Arcade.Body;
-  };
-  private socket: Socket;
+  private player?: PhysicsRectangle;
+  private socket?: Socket;
+  private otherPlayers: PlayerGameObject[] = [];
 
   constructor() {
     super(sceneConfig);
-    this.square = undefined;
+    this.player = undefined;
     this.socket = socket;
   }
 
-  public create() {
-    this.square = this.add.rectangle(400, 400, 100, 100, 0x00ffff) as any;
+  public initPlayers(players: Game.ApiPlayerState[]) {
+    for (const player of players) {
+      if (player.id === this.socket?.id) continue;
+      const newPlayerObject = this.add.rectangle(
+        player.x,
+        player.y,
+        100,
+        100,
+        0xff00ff,
+      ) as PlayerGameObject;
+      newPlayerObject.id = player.id;
+      this.physics.add.existing(newPlayerObject);
+      this.otherPlayers.push(newPlayerObject);
+    }
+  }
 
-    if (this.square) {
-      this.physics.add.existing(this.square);
+  public addPlayer(newPlayer: Game.ApiPlayerState) {
+    const newPlayerObject = this.add.rectangle(
+      newPlayer.x,
+      newPlayer.y,
+      100,
+      100,
+      0xff00ff,
+    ) as PlayerGameObject;
+    newPlayerObject.id = newPlayer.id;
+    this.physics.add.existing(newPlayerObject);
+    this.otherPlayers.push(newPlayerObject);
+  }
+
+  public removePlayer(id: string) {
+    const index = this.otherPlayers.findIndex((player) => player.id === id);
+    if (index < 0) return;
+
+    const playerToRemove = this.otherPlayers.splice(index, 1);
+    playerToRemove[0].destroy();
+  }
+
+  public updatePlayers = (players: Game.ApiPlayerState[]) => {
+    for (const player of players) {
+      if (player.id === this.socket?.id) continue;
+      if (player.x == null || player.y == null) continue;
+
+      const gameObject = this.otherPlayers.find(
+        (otherPlayer) => otherPlayer.id === player.id,
+      );
+
+      if (!gameObject) continue;
+
+      gameObject.setPosition(player.x, player.y);
+    }
+  };
+
+  public create() {
+    this.player = this.add.rectangle(400, 400, 100, 100, 0x00ffff) as any;
+
+    if (this.player) {
+      this.physics.add.existing(this.player);
     }
   }
 
@@ -32,24 +92,24 @@ export class GameScene extends Phaser.Scene {
     const cursorKeys = this.input.keyboard.createCursorKeys();
 
     if (cursorKeys.up.isDown) {
-      this.square?.body.setVelocityY(-500);
+      this.player?.body.setVelocityY(-500);
     } else if (cursorKeys.down.isDown) {
-      this.square?.body.setVelocityY(500);
+      this.player?.body.setVelocityY(500);
     } else {
-      this.square?.body.setVelocityY(0);
+      this.player?.body.setVelocityY(0);
     }
 
     if (cursorKeys.left.isDown) {
-      this.square?.body.setVelocityX(-500);
+      this.player?.body.setVelocityX(-500);
     } else if (cursorKeys.right.isDown) {
-      this.square?.body.setVelocityX(500);
+      this.player?.body.setVelocityX(500);
     } else {
-      this.square?.body.setVelocityX(0);
+      this.player?.body.setVelocityX(0);
     }
 
     throttleUpdate({
-      x: this.square?.body.position.x,
-      y: this.square?.body.position.y,
+      x: this.player?.body.position.x,
+      y: this.player?.body.position.y,
       socket: this.socket,
     });
   }
