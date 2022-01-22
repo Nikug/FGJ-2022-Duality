@@ -1,3 +1,13 @@
+import dotenv from "dotenv";
+dotenv.config();
+
+import {
+  addPlayer,
+  removePlayer,
+  startGameLoop,
+  updatePlayerPosition,
+} from "./src/main";
+
 import { Server } from "socket.io";
 import cors from "cors";
 import express from "express";
@@ -11,14 +21,24 @@ app.use(cors());
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:8080",
+    origin: "*",
     methods: ["GET", "POST"],
   },
 });
 
 io.on("connection", (socket) => {
-  console.log("user connected", socket.id);
+  addPlayer(socket);
+
+  socket.on("disconnect", () => {
+    removePlayer(socket);
+  });
+
+  socket.on("move", ({ x, y }: { x: number; y: number }) => {
+    console.log("moving", x, y);
+    updatePlayerPosition(x, y, socket);
+  });
 });
+
 app.use(express.static(__dirname + "/public"));
 
 app.get("/", (req, res) => {
@@ -28,3 +48,5 @@ app.get("/", (req, res) => {
 server.listen(PORT, () => {
   console.log(`Started server on port ${PORT}`);
 });
+
+startGameLoop();
