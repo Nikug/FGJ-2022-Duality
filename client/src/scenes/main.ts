@@ -1,4 +1,9 @@
-import { MOVEMENT_SPEED, ONLINE_SPEED_SCALE } from "../constants";
+import {
+  JUMP_VELOCITY,
+  MOVEMENT_SPEED,
+  ONLINE_SPEED_SCALE,
+  PLAYER_GRAVITY,
+} from "../constants";
 
 import type * as Game from "../../types/types";
 import type { Socket } from "socket.io-client";
@@ -15,6 +20,7 @@ export class GameScene extends Phaser.Scene {
   private socket?: Socket;
   private otherPlayers: Game.PlayerGameObject[] = [];
   private cursorKeys?: Phaser.Types.Input.Keyboard.CursorKeys;
+  private platforms?: Phaser.Physics.Arcade.StaticGroup;
 
   constructor() {
     super(sceneConfig);
@@ -23,17 +29,43 @@ export class GameScene extends Phaser.Scene {
     this.cursorKeys = undefined;
   }
 
+  public preload() {
+    this.load.image("ground", "assets/platform.png");
+    this.load.image("tiles", "/assets/sprites/Project Mute Tileset V3.png");
+    this.load.tilemapTiledJSON("map", "/assets/maps/map.json");
+  }
+
   public create() {
     this.cursorKeys = this.input.keyboard.createCursorKeys();
     this.player = createRectangle(
       this,
-      new Phaser.Math.Vector2(
-        this.scale.displaySize.width / 2,
-        this.scale.displaySize.height / 2,
-      ),
+      new Phaser.Math.Vector2(128, 64),
       0x00ff00,
       this.socket?.id || "",
     );
+
+    this.platforms = this.physics.add.staticGroup();
+    const platform = this.add.image(0, 190, "ground");
+    platform.setScale(this.scale.displaySize.width / platform.scaleY, 1);
+    this.player.body.setGravityY(PLAYER_GRAVITY);
+    this.platforms.add(platform);
+    this.physics.add.collider(this.player, this.platforms);
+    this.physics.add.collider(this.player, this.otherPlayers);
+
+    const map = this.make.tilemap({
+      key: "map",
+      tileWidth: 16,
+      tileHeight: 16,
+    });
+    const tileset = map.addTilesetImage("Project Mute Tileset V3", "tiles");
+    const worldLayer = map.createLayer("World", tileset);
+    worldLayer.setCollisionByProperty({ collision: true });
+    this.physics.add.collider(this.player, worldLayer);
+
+    const mainCamera = this.cameras.main;
+    mainCamera.setZoom(2, 2);
+    mainCamera.startFollow(this.player);
+    mainCamera.setLerp(0.1, 0.1);
   }
 
   public initPlayers(players: Game.ApiPlayerState[]) {
@@ -85,28 +117,17 @@ export class GameScene extends Phaser.Scene {
     if (!this.cursorKeys) return;
     if (!this.player) return;
 
-    const inputVector = new Phaser.Math.Vector2();
-
-    if (this.cursorKeys.up.isDown) {
-      inputVector.y = -1;
-    } else if (this.cursorKeys.down.isDown) {
-      inputVector.y = 1;
-    } else {
-      inputVector.y = 0;
-    }
-
     if (this.cursorKeys.left.isDown) {
-      inputVector.x = -1;
+      this.player.body.setVelocityX(-MOVEMENT_SPEED);
     } else if (this.cursorKeys.right.isDown) {
-      inputVector.x = 1;
+      this.player.body.setVelocityX(MOVEMENT_SPEED);
     } else {
-      inputVector.x = 0;
+      this.player.body.setVelocityX(0);
     }
 
-    inputVector.normalize();
-    inputVector.scale(MOVEMENT_SPEED);
-
-    this.player.body.setVelocity(inputVector.x, inputVector.y);
+    if (this.cursorKeys.up.isDown && this.player.body.onFloor()) {
+      this.player.body.setVelocityY(-JUMP_VELOCITY);
+    }
 
     throttleUpdate({
       x: this.player.body.position.x,

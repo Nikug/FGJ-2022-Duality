@@ -7,18 +7,20 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
 
   scale: {
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: window.innerWidth - 100,
+    height: window.innerHeight - 100,
   },
 
   physics: {
     default: "arcade",
     arcade: {
+      gravity: { y: 300 },
+
       debug: true,
     },
   },
 
   parent: "game",
-  backgroundColor: "#000000",
+  backgroundColor: "#e3cfe8",
   scene: [MainMenu, GameScene],
 };
