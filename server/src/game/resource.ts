@@ -1,6 +1,7 @@
 import { getPlayers } from ".";
 import { io } from "../..";
 import { Resource, ResourceLocation, ResourceType } from "../../types/types";
+import getRandomNumber from "../utils/getRandomNumber";
 
 let globalResourceLocations: ResourceLocation[] = [];
 
@@ -63,14 +64,19 @@ export const updateResourceLocations = (
   resourceLocations: ResourceLocation[],
 ) => {
   setResourceLocations(resourceLocations);
+  addResources();
 };
 
-export const addResources = (amount: number | "ainaMaksimit") => {
-  const { basicAmount } = getAmountsByResourceType();
+/**
+ * Add resources by given amount. If amount is not given, fills every empty resource location. Will add only as many resources as there is empty locations.
+ * @param {number | undefined} amount - Number of resources to be added.
+ */
+export const addResources = (amount?: number) => {
+  //   const { basicAmount } = getAmountsByResourceType();
   const emptyLocations = getEmptyResourceLocations();
   const emptyLocationsLength = emptyLocations.length;
   const amountToAdd =
-    amount === "ainaMaksimit"
+    amount === undefined
       ? emptyLocationsLength
       : emptyLocationsLength >= amount
       ? amount
@@ -95,7 +101,7 @@ export const addResources = (amount: number | "ainaMaksimit") => {
   io.emit("updateResources", newResources);
 };
 
-export const askRandomPlayerForResourceLocations = () => {
+export const fillEmptyResourceLocations = () => {
   const players = getPlayers();
   const length = players.length;
 
@@ -103,7 +109,10 @@ export const askRandomPlayerForResourceLocations = () => {
     return;
   }
 
-  const theChosenOne = players[getRandomNumber(0, length)];
+  const randomNumber = getRandomNumber(0, length);
+  const theChosenOne = players[randomNumber];
+
+  console.log({ players, randomNumber });
 
   theChosenOne.socket.emit("giveResourceLocations");
 };

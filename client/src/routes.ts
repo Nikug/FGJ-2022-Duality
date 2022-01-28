@@ -27,4 +27,8 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
     const scene = game.scene.getScene("Game") as GameScene;
     scene.sendResourceLocations(socket);
   });
+
+  socket.on("updateResources", (resources) => {
+    console.log({ resources });
+  });
 };
