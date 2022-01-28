@@ -10,6 +10,7 @@ import type { Socket } from "socket.io-client";
 import { createRectangle } from "../util/gameUtils";
 import { socket } from "..";
 import { throttleUpdate } from "../util/socketUtils";
+import { loadLevel } from "../util/sceneUtils";
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
   active: false,
@@ -18,11 +19,10 @@ const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
 };
 
 export class GameScene extends Phaser.Scene {
-  private player?: Game.PhysicsRectangle;
+  public player?: Game.PhysicsRectangle;
   private socket?: Socket;
   private otherPlayers: Game.PlayerGameObject[] = [];
   private cursorKeys?: Phaser.Types.Input.Keyboard.CursorKeys;
-  private platforms?: Phaser.Physics.Arcade.StaticGroup;
 
   constructor() {
     super(sceneConfig);
@@ -34,6 +34,11 @@ export class GameScene extends Phaser.Scene {
   public preload() {
     this.load.image("ground", "assets/platform.png");
     this.load.image("tiles", "/assets/sprites/Project Mute Tileset V3.png");
+    this.load.image(
+      "frontTiles",
+      "/assets/sprites/Project Mute Tileset V1.png",
+    );
+    this.load.image("backTiles", "/assets/sprites/Project Mute Tileset V2.png");
     this.load.tilemapTiledJSON("map", "/assets/maps/map.json");
   }
 
@@ -46,23 +51,10 @@ export class GameScene extends Phaser.Scene {
       this.socket?.id || "",
     );
 
-    this.platforms = this.physics.add.staticGroup();
-    const platform = this.add.image(0, 190, "ground");
-    platform.setScale(this.scale.displaySize.width / platform.scaleY, 1);
     this.player.body.setGravityY(PLAYER_GRAVITY);
-    this.platforms.add(platform);
-    this.physics.add.collider(this.player, this.platforms);
     this.physics.add.collider(this.player, this.otherPlayers);
 
-    const map = this.make.tilemap({
-      key: "map",
-      tileWidth: 16,
-      tileHeight: 16,
-    });
-    const tileset = map.addTilesetImage("Project Mute Tileset V3", "tiles");
-    const worldLayer = map.createLayer("World", tileset);
-    worldLayer.setCollisionByProperty({ collision: true });
-    this.physics.add.collider(this.player, worldLayer);
+    loadLevel(this);
 
     const mainCamera = this.cameras.main;
     mainCamera.setZoom(2, 2);
