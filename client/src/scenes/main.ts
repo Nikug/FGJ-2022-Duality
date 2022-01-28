@@ -46,12 +46,7 @@ export class GameScene extends Phaser.Scene {
       this.socket?.id || "",
     );
 
-    this.platforms = this.physics.add.staticGroup();
-    const platform = this.add.image(0, 190, "ground");
-    platform.setScale(this.scale.displaySize.width / platform.scaleY, 1);
     this.player.body.setGravityY(PLAYER_GRAVITY);
-    this.platforms.add(platform);
-    this.physics.add.collider(this.player, this.platforms);
     this.physics.add.collider(this.player, this.otherPlayers);
 
     const map = this.make.tilemap({
