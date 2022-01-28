@@ -3,13 +3,16 @@ import {
   MOVEMENT_SPEED,
   ONLINE_SPEED_SCALE,
   PLAYER_GRAVITY,
+  PLAYER_PUSH_DISTANCE,
+  PLAYER_PUSH_POWER,
+  PUSH_TIMEOUT_DURATION,
 } from "../constants";
 
 import type * as Game from "../../types/types";
 import type { Socket } from "socket.io-client";
 import { createRectangle } from "../util/gameUtils";
 import { socket } from "..";
-import { throttleUpdate } from "../util/socketUtils";
+import { pushPlayer, throttleUpdate } from "../util/socketUtils";
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
   active: false,
@@ -22,6 +25,8 @@ export class GameScene extends Phaser.Scene {
   private socket?: Socket;
   private otherPlayers: Game.PlayerGameObject[] = [];
   private cursorKeys?: Phaser.Types.Input.Keyboard.CursorKeys;
+  private canMove: boolean = true;
+
   private platforms?: Phaser.Physics.Arcade.StaticGroup;
 
   constructor() {
@@ -47,7 +52,11 @@ export class GameScene extends Phaser.Scene {
     );
 
     this.platforms = this.physics.add.staticGroup();
-    const platform = this.add.image(0, 190, "ground");
+    const platform = this.add.image(
+      0,
+      this.scale.displaySize.height - 40,
+      "ground",
+    );
     platform.setScale(this.scale.displaySize.width / platform.scaleY, 1);
     this.player.body.setGravityY(PLAYER_GRAVITY);
     this.platforms.add(platform);
@@ -87,10 +96,35 @@ export class GameScene extends Phaser.Scene {
     this.otherPlayers.push(newPlayerObject);
   }
 
+  private pushPlayers() {
+    const pos = this.player?.body.position;
+    this.otherPlayers.forEach((pl) => {
+      const pl_pos = pl.body.position;
+      if (pl_pos.distance(pos!) < PLAYER_PUSH_DISTANCE) {
+        pushPlayer(
+          pl.id,
+          new Phaser.Math.Vector2(
+            pl_pos.x - pos!.x,
+            pl_pos.y - pos!.y,
+          ).normalize(),
+          this.socket,
+        );
+      }
+    });
+  }
+  public getPushed(direction: Phaser.Math.Vector2) {
+    this.canMove = false;
+
+    this.player!.body.setVelocityX(direction.x * PLAYER_PUSH_POWER);
+    this.player!.body.setVelocityY(direction.y * PLAYER_PUSH_POWER);
+    setTimeout(() => {
+      this.canMove = true;
+    }, PUSH_TIMEOUT_DURATION);
+  }
+
   public removePlayer(id: string) {
     const index = this.otherPlayers.findIndex((player) => player.id === id);
     if (index < 0) return;
-
     const playerToRemove = this.otherPlayers.splice(index, 1);
     playerToRemove[0].destroy();
   }
@@ -115,9 +149,10 @@ export class GameScene extends Phaser.Scene {
     }
   };
 
-  public update() {
+  public checkMovement() {
     if (!this.cursorKeys) return;
     if (!this.player) return;
+    if (!this.canMove) return;
 
     if (this.cursorKeys.left.isDown) {
       this.player.body.setVelocityX(-MOVEMENT_SPEED);
@@ -130,6 +165,15 @@ export class GameScene extends Phaser.Scene {
     if (this.cursorKeys.up.isDown && this.player.body.onFloor()) {
       this.player.body.setVelocityY(-JUMP_VELOCITY);
     }
+
+    if (this.cursorKeys.space.isDown) {
+      this.pushPlayers();
+    }
+  }
+
+  public update() {
+    if (!this.player) return;
+    this.checkMovement();
 
     throttleUpdate({
       x: this.player.body.position.x,

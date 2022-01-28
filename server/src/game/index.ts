@@ -17,3 +17,6 @@ export const startGameLoop = async () => {
     await new Promise((resolve) => setTimeout(resolve, UPDATE_INTERVAL));
   }
 };
+
+export const getPlayerById = (id: string) =>
+  globalPlayers.find((player) => player.socket.id === id);
