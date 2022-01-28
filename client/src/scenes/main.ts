@@ -33,21 +33,21 @@ export class GameScene extends Phaser.Scene {
 
   public preload() {
     this.load.image("ground", "assets/platform.png");
+    this.load.image("tiles", "/assets/sprites/Project Mute Tileset V3.png");
+    this.load.tilemapTiledJSON("map", "/assets/maps/map.json");
   }
 
   public create() {
     this.cursorKeys = this.input.keyboard.createCursorKeys();
     this.player = createRectangle(
       this,
-      new Phaser.Math.Vector2(
-        this.scale.displaySize.width / 2,
-        this.scale.displaySize.height / 2,
-      ),
+      new Phaser.Math.Vector2(128, 64),
       0x00ff00,
       this.socket?.id || "",
     );
+
     this.platforms = this.physics.add.staticGroup();
-    let platform = this.add.image(
+    const platform = this.add.image(
       0,
       this.scale.displaySize.height - 40,
       "ground",
@@ -57,6 +57,20 @@ export class GameScene extends Phaser.Scene {
     this.platforms.add(platform);
     this.physics.add.collider(this.player, this.platforms);
     this.physics.add.collider(this.player, this.otherPlayers);
+
+    const map = this.make.tilemap({
+      key: "map",
+      tileWidth: 16,
+      tileHeight: 16,
+    });
+    const tileset = map.addTilesetImage("Project Mute Tileset V3", "tiles");
+    const worldLayer = map.createLayer("World", tileset);
+    worldLayer.setCollisionByProperty({ collision: true });
+
+    const mainCamera = this.cameras.main;
+    mainCamera.setZoom(2, 2);
+    mainCamera.startFollow(this.player);
+    mainCamera.setLerp(0.1, 0.1);
   }
 
   public initPlayers(players: Game.ApiPlayerState[]) {
