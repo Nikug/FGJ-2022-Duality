@@ -22,4 +22,8 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
     const scene = game.scene.getScene("Game") as GameScene;
     scene.removePlayer(id);
   });
+
+  socket.on("updateResources", (stuff: string) => {
+    console.log({ stuff });
+  });
 };

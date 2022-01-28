@@ -5,3 +5,9 @@ export interface Player {
   x: number;
   y: number;
 }
+
+export interface Resource {
+  type: string;
+  x: number;
+  y: number;
+}
