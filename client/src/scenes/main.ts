@@ -7,8 +7,6 @@ import { socket } from "..";
 import { throttleUpdate } from "../util/socketUtils";
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
-  active: false,
-  visible: false,
   key: "Game",
 };
 
