@@ -1,4 +1,5 @@
 import {
+  CAN_PUSH_TIMEOUT_DURATION,
   JUMP_VELOCITY,
   MOVEMENT_SPEED,
   ONLINE_SPEED_SCALE,
@@ -26,7 +27,8 @@ export class GameScene extends Phaser.Scene {
   private socket?: Socket;
   private otherPlayers: Game.PlayerGameObject[] = [];
   private cursorKeys?: Phaser.Types.Input.Keyboard.CursorKeys;
-  private canMove: boolean = true;
+  private canMove = true;
+  private canPush = true;
 
   constructor() {
     super(sceneConfig);
@@ -85,25 +87,29 @@ export class GameScene extends Phaser.Scene {
 
   private pushPlayers() {
     const pos = this.player?.body.position;
-    this.otherPlayers.forEach((pl) => {
-      const pl_pos = pl.body.position;
-      if (pl_pos.distance(pos!) < PLAYER_PUSH_DISTANCE) {
-        pushPlayer(
-          pl.id,
-          new Phaser.Math.Vector2(
-            pl_pos.x - pos!.x,
-            pl_pos.y - pos!.y,
-          ).normalize(),
-          this.socket,
-        );
-      }
-    });
+    if (pos) {
+      this.otherPlayers.forEach((pl) => {
+        const pl_pos = pl.body.position;
+        if (pl_pos.distance(pos) < PLAYER_PUSH_DISTANCE) {
+          pushPlayer(
+            pl.id,
+            new Phaser.Math.Vector2(
+              pl_pos.x - pos.x,
+              pl_pos.y - pos.y,
+            ).normalize(),
+            this.socket,
+          );
+        }
+      });
+    }
   }
   public getPushed(direction: Phaser.Math.Vector2) {
     this.canMove = false;
 
-    this.player!.body.setVelocityX(direction.x * PLAYER_PUSH_POWER);
-    this.player!.body.setVelocityY(direction.y * PLAYER_PUSH_POWER);
+    if (this.player) {
+      this.player.body.setVelocityX(direction.x * PLAYER_PUSH_POWER);
+      this.player.body.setVelocityY(direction.y * PLAYER_PUSH_POWER);
+    }
     setTimeout(() => {
       this.canMove = true;
     }, PUSH_TIMEOUT_DURATION);
@@ -153,8 +159,12 @@ export class GameScene extends Phaser.Scene {
       this.player.body.setVelocityY(-JUMP_VELOCITY);
     }
 
-    if (this.cursorKeys.space.isDown) {
+    if (this.cursorKeys.space.isDown && this.canPush) {
+      this.canPush = false;
       this.pushPlayers();
+      setTimeout(() => {
+        this.canPush = true;
+      }, CAN_PUSH_TIMEOUT_DURATION);
     }
   }
 
