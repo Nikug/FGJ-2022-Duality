@@ -25,6 +25,11 @@ export class GameScene extends Phaser.Scene {
     this.cursorKeys = undefined;
   }
 
+  public preload() {
+    this.load.image("tiles", "/assets/sprites/Project Mute Tileset V3.png");
+    this.load.tilemapTiledJSON("map", "/assets/maps/map.json");
+  }
+
   public create() {
     this.cursorKeys = this.input.keyboard.createCursorKeys();
     this.player = createRectangle(
@@ -36,6 +41,19 @@ export class GameScene extends Phaser.Scene {
       0x00ff00,
       this.socket?.id || "",
     );
+
+    const map = this.make.tilemap({
+      key: "map",
+      tileWidth: 16,
+      tileHeight: 16,
+    });
+    const tileset = map.addTilesetImage("Project Mute Tileset V3", "tiles");
+    map.createLayer("World", tileset);
+
+    const mainCamera = this.cameras.main;
+    mainCamera.setZoom(4, 4);
+    mainCamera.startFollow(this.player);
+    mainCamera.setLerp(0.1, 0.1);
   }
 
   public initPlayers(players: Game.ApiPlayerState[]) {
