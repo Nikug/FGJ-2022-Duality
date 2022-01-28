@@ -6,3 +6,10 @@ export const JUMP_VELOCITY = 400;
 
 export const PLAYER_GRAVITY = 500;
 export const ONLINE_SPEED_SCALE = 10;
+
+export const RENDERING_ORDER = {
+  farBackground: -200,
+  background: -200,
+  player: 0,
+  foreground: 100,
+};

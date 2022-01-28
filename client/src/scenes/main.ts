@@ -59,7 +59,8 @@ export class GameScene extends Phaser.Scene {
     const mainCamera = this.cameras.main;
     mainCamera.setZoom(2, 2);
     mainCamera.startFollow(this.player);
-    mainCamera.setLerp(0.1, 0.1);
+    mainCamera.setLerp(0.05, 0.05);
+    mainCamera.roundPixels = true;
   }
 
   public initPlayers(players: Game.ApiPlayerState[]) {
