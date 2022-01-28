@@ -6,8 +6,15 @@ export interface Player {
   y: number;
 }
 
-export interface Resource {
-  type: string;
+export enum ResourceType {
+  BASIC = "basic",
+}
+
+export interface Resource extends ResourceLocation {
+  type: ResourceType;
+}
+
+export interface ResourceLocation {
   x: number;
   y: number;
 }

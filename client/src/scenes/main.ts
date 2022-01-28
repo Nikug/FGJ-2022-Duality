@@ -47,7 +47,7 @@ export class GameScene extends Phaser.Scene {
       this.socket?.id || "",
     );
     this.platforms = this.physics.add.staticGroup();
-    let platform = this.add.image(
+    const platform = this.add.image(
       0,
       this.scale.displaySize.height - 40,
       "ground",
@@ -125,5 +125,25 @@ export class GameScene extends Phaser.Scene {
       y: this.player.body.position.y,
       socket: this.socket,
     });
+  }
+
+  public sendResourceLocations(socket: Socket) {
+    // placeholder
+    const resourceLocations = [
+      {
+        x: 120,
+        y: 120,
+      },
+      {
+        x: 110,
+        y: 90,
+      },
+      {
+        x: 234,
+        y: 213,
+      },
+    ];
+
+    socket.emit("sendResourceLocations", resourceLocations);
   }
 }
