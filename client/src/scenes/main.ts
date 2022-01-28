@@ -47,11 +47,7 @@ export class GameScene extends Phaser.Scene {
     );
 
     this.platforms = this.physics.add.staticGroup();
-    const platform = this.add.image(
-      0,
-      this.scale.displaySize.height - 40,
-      "ground",
-    );
+    const platform = this.add.image(0, 190, "ground");
     platform.setScale(this.scale.displaySize.width / platform.scaleY, 1);
     this.player.body.setGravityY(PLAYER_GRAVITY);
     this.platforms.add(platform);
@@ -66,6 +62,7 @@ export class GameScene extends Phaser.Scene {
     const tileset = map.addTilesetImage("Project Mute Tileset V3", "tiles");
     const worldLayer = map.createLayer("World", tileset);
     worldLayer.setCollisionByProperty({ collision: true });
+    this.physics.add.collider(this.player, worldLayer);
 
     const mainCamera = this.cameras.main;
     mainCamera.setZoom(2, 2);
@@ -130,7 +127,7 @@ export class GameScene extends Phaser.Scene {
       this.player.body.setVelocityX(0);
     }
 
-    if (this.cursorKeys.up.isDown && this.player.body.touching.down) {
+    if (this.cursorKeys.up.isDown && this.player.body.onFloor()) {
       this.player.body.setVelocityY(-JUMP_VELOCITY);
     }
 
