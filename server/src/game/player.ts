@@ -1,6 +1,6 @@
 import { Socket } from "socket.io";
-import { getPlayers, setPlayers } from ".";
-import { Player } from "../../types/types";
+import { getPlayerById, getPlayers, setPlayers } from ".";
+import { Player, Vector2 } from "../../types/types";
 
 export const addPlayer = (socket: Socket) => {
   console.log("Adding new player", socket.id);
@@ -44,3 +44,10 @@ export const playerToClient = (player: Player) => ({
   y: player.y,
   id: player.socket.id,
 });
+
+export const pushPlayer = (playerId: string, direction: Vector2) => {
+  const player = getPlayerById(playerId);
+  if (player) {
+    player.socket?.emit("getPushed", { direction });
+  }
+};
