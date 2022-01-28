@@ -1,3 +1,4 @@
+import { RENDERING_ORDER } from "../constants";
 import type { GameScene } from "../scenes/main";
 
 export const loadLevel = (scene: GameScene) => {
@@ -22,6 +23,10 @@ export const loadLevel = (scene: GameScene) => {
   const backLayer = map.createLayer("Background", backTileset);
   const worldLayer = map.createLayer("World", tileset);
   const frontLayer = map.createLayer("Foreground", frontTileset);
+
+  backwallLayer.setDepth(RENDERING_ORDER.farBackground);
+  backLayer.setDepth(RENDERING_ORDER.background);
+  frontLayer.setDepth(RENDERING_ORDER.foreground);
 
   worldLayer.setCollisionByProperty({ collision: true });
   scene.physics.add.collider(scene.player, worldLayer);

@@ -22,4 +22,12 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
     const scene = game.scene.getScene("Game") as GameScene;
     scene.removePlayer(id);
   });
+
+  socket.on(
+    "getPushed",
+    ({ direction }: { direction: Phaser.Math.Vector2 }) => {
+      const scene = game.scene.getScene("Game") as GameScene;
+      scene.getPushed(direction);
+    },
+  );
 };

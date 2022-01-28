@@ -15,6 +15,13 @@ export interface PlayerState {
   lastUpdate?: number;
 }
 
+export interface Platform {
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+}
+
 export interface ApiPlayerState {
   x: number;
   y: number;
