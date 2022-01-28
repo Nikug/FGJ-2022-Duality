@@ -9,8 +9,8 @@ export const createRectangle = (
   const rectangle = scene.add.rectangle(
     position.x,
     position.y,
-    8,
-    8,
+    12,
+    12,
     color,
   ) as PlayerGameObject;
 
