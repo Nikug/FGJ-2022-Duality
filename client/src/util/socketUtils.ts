@@ -1,3 +1,4 @@
+import type { Socket } from "socket.io-client";
 import type { PlayerState } from "../../types/types";
 import { UPDATE_INTERVAL } from "../constants";
 
@@ -18,6 +19,14 @@ export const throttleUpdate = async (state: PlayerState) => {
 const updatePlayer = (state: PlayerState) => {
   state.socket?.emit("move", { x: state.x, y: state.y });
   lastState = { ...state, lastUpdate: Date.now() };
+};
+
+export const pushPlayer = (
+  id: string,
+  direction: Phaser.Math.Vector2,
+  socket?: Socket,
+) => {
+  socket?.emit("push", { id, direction });
 };
 
 const hasStateChanged = (state: PlayerState) => {
