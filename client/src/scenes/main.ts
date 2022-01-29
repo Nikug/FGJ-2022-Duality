@@ -7,6 +7,7 @@ import { socket } from "..";
 import { loadLevel } from "../util/sceneUtils";
 import { animationController, createAllAnimations } from "../util/characterUtils";
 import { PlayerObject } from "../classes/Player";
+import getRandomNumber from "../util/getRandomNumber";
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
   key: "Game",
@@ -43,9 +44,9 @@ export class GameScene extends Phaser.Scene {
         this.player?.resetGroundContact();
       }
     });
-
     this.map = loadLevel(this);
     createAllAnimations(this);
+    this.getRandomPlayerSpawn();
 
     const mainCamera = this.cameras.main;
     mainCamera.setZoom(2, 2);
@@ -140,5 +141,23 @@ export class GameScene extends Phaser.Scene {
     });
 
     socket.emit("sendResourceLocations", resourceLocations);
+  }
+
+  public getRandomPlayerSpawn() {
+    (async () => {
+      while (!this.map) await new Promise((resolve) => setTimeout(resolve, 100));
+      const playerSpawnLayer = this.map?.getObjectLayer(TILEMAP.spawns.player);
+      const playerSpawnsObjects = playerSpawnLayer?.objects;
+      const playerSpawnLocations = playerSpawnsObjects?.map((playerSpawnObj) => {
+        const { x, y, type, id } = playerSpawnObj;
+        return { x, y, type, id: id.toString() };
+      });
+      if (!playerSpawnLocations) {
+        return { x: 128, y: 64 };
+      }
+      const randomSpawn = playerSpawnLocations[getRandomNumber(0, playerSpawnLocations.length)];
+      console.log(randomSpawn);
+      return randomSpawn;
+    })();
   }
 }
