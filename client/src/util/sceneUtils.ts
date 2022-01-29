@@ -24,7 +24,7 @@ export const loadLevel = (scene: GameScene) => {
   frontLayer.setDepth(RENDERING_ORDER.foreground);
 
   worldLayer.setCollisionByProperty({ collision: true });
-  scene.physics.add.collider(scene.player, worldLayer);
+  scene.physics.add.collider(scene.player.physicSprite, worldLayer);
 
   return map;
 };

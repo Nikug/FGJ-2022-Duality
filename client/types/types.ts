@@ -8,6 +8,10 @@ export interface PlayerGameObject extends PhysicsRectangle {
   id: string;
 }
 
+export interface ResourceGameObject extends PhysicsRectangle {
+  id: string;
+}
+
 export interface PlayerSpriteObject extends Phaser.Types.Physics.Arcade.SpriteWithDynamicBody {
   id: string;
 }
@@ -38,6 +42,13 @@ export interface ApiPlayerState {
   x: number;
   y: number;
   id: string;
+}
+
+export interface Resource {
+  id: string;
+  x: number;
+  y: number;
+  type: string;
 }
 
 export type PlayerColors = "blue" | "green";
