@@ -2,7 +2,7 @@
 export default {
   env: {
     //SERVER_URL: "10.0.0.23:3000",
-    SERVER_URL: "http://10.0.23:3000",
+    SERVER_URL: "http://10.0.20:3000",
   },
   mount: {
     public: { url: "/", static: true },

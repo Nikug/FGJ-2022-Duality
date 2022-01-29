@@ -60,5 +60,4 @@ export const updatePlayerCount = (socket: Socket) => {
 
 export const startGame = (socket: Socket) => {
   socket.broadcast.emit("startGameForEveryone");
-  socket.emit("startGameForEveryone");
 };
