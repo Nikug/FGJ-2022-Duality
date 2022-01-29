@@ -4,7 +4,7 @@ import type * as Game from "../../types/types";
 import type { Socket } from "socket.io-client";
 import { createRectangle } from "../util/gameUtils";
 import { socket } from "..";
-import { playerCount, throttleUpdate } from "../util/socketUtils";
+import { playerCount, startGame, throttleUpdate } from "../util/socketUtils";
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
   key: "MainMenu",
@@ -33,7 +33,7 @@ export class MainMenu extends Phaser.Scene {
     const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
     const playButton = this.add.image(screenCenterX, screenCenterY, "button").setOrigin(0.5);
     playButton.setInteractive();
-    playButton.on("pointerdown", () => this.scene.start("Game"));
+    playButton.on("pointerdown", () => startGame());
 
     this.playerCountText = this.add
       .text(screenCenterX * 1.5, screenCenterY / 2, "Player count:1", {
@@ -51,6 +51,10 @@ export class MainMenu extends Phaser.Scene {
 
   public setPlayerCount(playerCount: integer) {
     this.playerCountText?.setText("Player count:" + playerCount);
+  }
+
+  public startGameForEveryone() {
+    this.scene.start("Game");
   }
 
   public update() {

@@ -57,3 +57,8 @@ export const updatePlayerCount = (socket: Socket) => {
   const players = getPlayers();
   socket.emit("playerCount", players.length);
 };
+
+export const startGame = (socket: Socket) => {
+  socket.broadcast.emit("startGameForEveryone");
+  socket.emit("startGameForEveryone");
+};

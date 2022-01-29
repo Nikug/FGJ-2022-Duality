@@ -37,3 +37,7 @@ export const addModifier = (modifier: string, duration: number, socket: Socket) 
 export const playerCount = () => {
   socket.emit("getPlayerCount");
 };
+
+export const startGame = () => {
+  socket.emit("startGame");
+};

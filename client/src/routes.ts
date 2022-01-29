@@ -100,4 +100,17 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
       }
     }
   });
+
+  socket.on("startGameForEveryone", () => {
+    const scenes = game.scene.getScenes();
+    let scene: GameScene | MainMenu | undefined;
+    for (let i = 0; i < scenes.length; i++) {
+      if (scenes[i].scene.key === "MainMenu") {
+        scene = game.scene.getScene("MainMenu") as MainMenu;
+        scene.startGameForEveryone();
+      } else {
+        scene = game.scene.getScene("Game") as GameScene;
+      }
+    }
+  });
 };

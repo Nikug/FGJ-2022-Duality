@@ -12,6 +12,7 @@ import {
   addPlayer,
   pushPlayer,
   removePlayer,
+  startGame,
   updatePlayerCount,
   updatePlayerPosition,
 } from "../game/player";
@@ -51,5 +52,9 @@ export const handleSockets = (socket: Socket) => {
 
   socket.on("getPlayerCount", () => {
     updatePlayerCount(socket);
+  });
+
+  socket.on("startGame", () => {
+    startGame(socket);
   });
 };
