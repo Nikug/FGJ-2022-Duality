@@ -14,8 +14,9 @@ import {
   PUSH_TIMEOUT_DURATION,
 } from "../constants";
 import type { GameScene } from "../scenes/main";
-import type { PlayerSpriteObject } from "../../types/types";
+import type { PlayerSpriteObject, Team } from "../../types/types";
 import { addModifier, pushPlayer, throttleUpdate } from "../util/socketUtils";
+import { getSheet } from "../util/characterUtils";
 
 export class PlayerObject {
   public id: string;
@@ -28,6 +29,7 @@ export class PlayerObject {
   private timeFromGroundContact = 0;
   private timeFromDash = 0;
   private canMove = true;
+  public team: Team;
 
   constructor(scene: GameScene, position: Phaser.Math.Vector2, key: string, id: string, socket?: Socket) {
     this.scene = scene;
@@ -36,9 +38,15 @@ export class PlayerObject {
     this.id = id;
     this.socket = socket;
     this.cursorKeys = scene.input.keyboard.createCursorKeys();
+    this.team = "coconut";
   }
 
   public resetGroundContact = () => (this.timeFromGroundContact = CAN_JUMP_DURATION);
+
+  public setTeam = (team: Team) => {
+    this.team = team;
+    this.physicSprite.setTexture(getSheet(team));
+  };
 
   public checkMovement() {
     if (!this.cursorKeys) return;

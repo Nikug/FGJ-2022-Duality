@@ -4,8 +4,6 @@ import { Player, Team, Vector2 } from "../../types/types";
 import { getResources } from "./resource";
 
 export const addPlayer = (socket: Socket) => {
-  console.log("Adding new player", socket.id);
-
   const players = getPlayers();
   const newPlayer: Player = {
     x: 0,
@@ -14,6 +12,8 @@ export const addPlayer = (socket: Socket) => {
     team: assignTeam(players),
   };
   const newPlayers = [...players, newPlayer];
+
+  console.log("Adding new player", socket.id, newPlayer.team);
 
   socket.broadcast.emit("newPlayer", playerToClient(newPlayer));
   socket.emit("init", playersToUpdate(newPlayers), getResources());
@@ -61,6 +61,7 @@ export const playerToClient = (player: Player) => ({
   x: player.x,
   y: player.y,
   id: player.socket.id,
+  team: player.team,
 });
 
 export const pushPlayer = (playerId: string, direction: Vector2) => {

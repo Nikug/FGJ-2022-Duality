@@ -62,13 +62,16 @@ export class GameScene extends Phaser.Scene {
 
   public initPlayers(players: Game.ApiPlayerState[]) {
     for (const player of players) {
-      if (player.id === this.socket?.id) continue;
+      if (player.id === this.socket?.id) {
+        this.player?.setTeam(player.team);
+        continue;
+      }
       this.addPlayer(player);
     }
   }
 
   public addPlayer(newPlayer: Game.ApiPlayerState) {
-    const newPlayerObject = createPlayer(this, new Phaser.Math.Vector2(newPlayer.x, newPlayer.y), ANIMATIONS.sheets.green, newPlayer.id);
+    const newPlayerObject = createPlayer(this, newPlayer);
     this.otherPlayers.push(newPlayerObject);
   }
 

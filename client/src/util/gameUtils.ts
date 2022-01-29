@@ -1,4 +1,5 @@
-import type { PlayerGameObject, ResourceGameObject, PlayerSpriteObject } from "../../types/types";
+import type { PlayerGameObject, ResourceGameObject, PlayerSpriteObject, ApiPlayerState } from "../../types/types";
+import { getSheet } from "./characterUtils";
 
 export const createRectangle = (scene: Phaser.Scene, position: Phaser.Math.Vector2, color: number, id: string): PlayerGameObject => {
   const rectangle = scene.add.rectangle(position.x, position.y, 12, 12, color) as PlayerGameObject;
@@ -15,9 +16,10 @@ export const createResource = (scene: Phaser.Scene, position: Phaser.Math.Vector
   return rectangle;
 };
 
-export const createPlayer = (scene: Phaser.Scene, position: Phaser.Math.Vector2, key: string, id: string) => {
-  const player = scene.physics.add.sprite(position.x, position.y, key) as PlayerSpriteObject;
-  player.id = id;
+export const createPlayer = (scene: Phaser.Scene, apiPlayer: ApiPlayerState) => {
+  const player = scene.physics.add.sprite(apiPlayer.x, apiPlayer.y, getSheet(apiPlayer.team)) as PlayerSpriteObject;
+  player.id = apiPlayer.id;
+  player.team = apiPlayer.team;
 
   return player;
 };
