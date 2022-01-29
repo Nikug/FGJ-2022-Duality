@@ -8,6 +8,7 @@ import {
   PLAYER_PUSH_DISTANCE,
   PLAYER_PUSH_POWER,
   PUSH_TIMEOUT_DURATION,
+  TILEMAP,
 } from "../constants";
 
 import type * as Game from "../../types/types";
@@ -27,6 +28,8 @@ export class GameScene extends Phaser.Scene {
   public player?: Game.PhysicsRectangle;
   private socket?: Socket;
   private otherPlayers: Game.PlayerGameObject[] = [];
+  public map?: Phaser.Tilemaps.Tilemap;
+
   private cursorKeys?: Phaser.Types.Input.Keyboard.CursorKeys;
   private canMove = true;
   private canPush = true;
@@ -37,32 +40,25 @@ export class GameScene extends Phaser.Scene {
     this.player = undefined;
     this.socket = socket;
     this.cursorKeys = undefined;
+    this.map = undefined;
   }
 
   public preload() {
     this.load.image("ground", "assets/platform.png");
-    this.load.image("tiles", "/assets/sprites/Project Mute Tileset V3.png");
-    this.load.image(
-      "frontTiles",
-      "/assets/sprites/Project Mute Tileset V1.png",
-    );
-    this.load.image("backTiles", "/assets/sprites/Project Mute Tileset V2.png");
+    this.load.image(TILEMAP.tilesets.purple.key, "/assets/sprites/Project Mute Tileset V3.png");
+    this.load.image(TILEMAP.tilesets.yellow.key, "/assets/sprites/Project Mute Tileset V1.png");
+    this.load.image(TILEMAP.tilesets.gray.key, "/assets/sprites/Project Mute Tileset V2.png");
     this.load.tilemapTiledJSON("map", "/assets/maps/map.json");
   }
 
   public create() {
     this.cursorKeys = this.input.keyboard.createCursorKeys();
-    this.player = createRectangle(
-      this,
-      new Phaser.Math.Vector2(128, 64),
-      0x00ff00,
-      this.socket?.id || "",
-    );
+    this.player = createRectangle(this, new Phaser.Math.Vector2(128, 64), 0x00ff00, this.socket?.id || "");
 
     this.player.body.setGravityY(PLAYER_GRAVITY);
     this.physics.add.collider(this.player, this.otherPlayers);
 
-    loadLevel(this);
+    this.map = loadLevel(this);
 
     const mainCamera = this.cameras.main;
     mainCamera.setZoom(2, 2);
@@ -79,12 +75,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   public addPlayer(newPlayer: Game.ApiPlayerState) {
-    const newPlayerObject = createRectangle(
-      this,
-      new Phaser.Math.Vector2(newPlayer.x, newPlayer.y),
-      0xff00ff,
-      newPlayer.id,
-    );
+    const newPlayerObject = createRectangle(this, new Phaser.Math.Vector2(newPlayer.x, newPlayer.y), 0xff00ff, newPlayer.id);
     this.otherPlayers.push(newPlayerObject);
   }
 
@@ -94,14 +85,7 @@ export class GameScene extends Phaser.Scene {
       this.otherPlayers.forEach((pl) => {
         const pl_pos = pl.body.position;
         if (pl_pos.distance(pos) < PLAYER_PUSH_DISTANCE) {
-          pushPlayer(
-            pl.id,
-            new Phaser.Math.Vector2(
-              pl_pos.x - pos.x,
-              pl_pos.y - pos.y,
-            ).normalize(),
-            this.socket,
-          );
+          pushPlayer(pl.id, new Phaser.Math.Vector2(pl_pos.x - pos.x, pl_pos.y - pos.y).normalize(), this.socket);
         }
       });
     }
@@ -131,9 +115,7 @@ export class GameScene extends Phaser.Scene {
       if (player.id === this.socket?.id) continue;
       if (player.x == null || player.y == null) continue;
 
-      const gameObject = this.otherPlayers.find(
-        (otherPlayer) => otherPlayer.id === player.id,
-      );
+      const gameObject = this.otherPlayers.find((otherPlayer) => otherPlayer.id === player.id);
 
       if (!gameObject) continue;
 
