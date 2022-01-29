@@ -2,7 +2,7 @@ import { ANIMATIONS, ONLINE_SPEED_SCALE, TILEMAP } from "../constants";
 
 import type * as Game from "../../types/types";
 import type { Socket } from "socket.io-client";
-import { applyModifiers, createPlayer, createResource } from "../util/gameUtils";
+import { applyModifiers, createPlayer, createResource, oppositeTeam } from "../util/gameUtils";
 import { socket } from "..";
 import { loadLevel } from "../util/sceneUtils";
 import { animationController, createAllAnimations } from "../util/characterUtils";
@@ -151,5 +151,10 @@ export class GameScene extends Phaser.Scene {
     const oldModifiers = [...this.gameState.modifiers];
     this.gameState.modifiers = modifiers;
     applyModifiers(this, modifiers, oldModifiers);
+  }
+  public reverseModifierTeam(type: string) {
+    this.gameState.modifiers = this.gameState.modifiers.map((modifier) =>
+      modifier.type === type ? { ...modifier, team: oppositeTeam(modifier.team) } : modifier,
+    );
   }
 }

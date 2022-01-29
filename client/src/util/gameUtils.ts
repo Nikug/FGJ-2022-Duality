@@ -27,12 +27,17 @@ export const createPlayer = (scene: Phaser.Scene, apiPlayer: ApiPlayerState) => 
   return player;
 };
 
+export const oppositeTeam = (team: Team) => (team === "coconut" ? "ananas" : "coconut");
+
 export const applyModifiers = (scene: GameScene, newModifiers: Modifier[], oldModifiers: Modifier[]) => {
   const removedModifiers = oldModifiers.filter((modifier) => newModifiers.every((newModifier) => newModifier.type !== modifier.type));
   for (const modifier of newModifiers) {
     if (modifier.type === "gravity") {
       applyGravity(scene, modifier.team);
-      setTimeout(() => applyGravity(scene, modifier.team === "coconut" ? "ananas" : "coconut"), modifier.duration / 2);
+      setTimeout(() => {
+        applyGravity(scene, oppositeTeam(modifier.team));
+        scene.reverseModifierTeam(modifier.type);
+      }, modifier.duration / 2);
     }
   }
 
