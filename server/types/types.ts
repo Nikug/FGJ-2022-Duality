@@ -29,9 +29,15 @@ export interface Vector2 {
   y: number;
 }
 
+export interface Score {
+  coconut: number;
+  ananas: number;
+}
+
 export interface GameState {
   running: boolean;
   modifiers: Modifier[];
+  score: Score;
 }
 
 export interface Modifier {

@@ -14,9 +14,35 @@ export interface ResourceGameObject extends PhysicsRectangle {
   id: string;
 }
 
+export interface Score {
+  coconut: number;
+  ananas: number;
+}
+
 export interface PlayerSpriteObject extends Phaser.Types.Physics.Arcade.SpriteWithDynamicBody {
   id: string;
   team: Team;
+}
+
+export interface PlayerStats {
+  movementSpeed: number;
+  sizeScale: number;
+  pushDistance: number;
+  pushPower: number;
+  pushTimeout: number;
+  canPushTimeout: number;
+  canJumpDuration: number;
+  canDashDuration: number;
+  dashCantMoveDuration: number;
+  dashTimeout: number;
+  dashVelocity: number;
+  jumpVelocity: number;
+}
+
+export interface PlayerSizes {
+  small: PlayerStats;
+  normal: PlayerStats;
+  big: PlayerStats;
 }
 
 export interface PlayerState {

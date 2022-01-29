@@ -10,7 +10,11 @@ export const getPlayers = () => [...globalPlayers];
 export const setPlayers = (newPlayers: Player[]) =>
   (globalPlayers = newPlayers);
 
-let globalGameState: GameState = { running: false, modifiers: [] };
+let globalGameState: GameState = {
+  running: false,
+  modifiers: [],
+  score: { coconut: 0, ananas: 0 },
+};
 export const getGameState = () => globalGameState;
 export const setGameState = (newGameState: GameState) =>
   (globalGameState = newGameState);
@@ -26,6 +30,11 @@ export const startGameLoop = async () => {
       state.modifiers = [
         {
           type: "gravity",
+          team: flipCoin() ? "coconut" : "ananas",
+          duration: UPDATE_MODIFIERS,
+        },
+        {
+          type: "bigsmall",
           team: flipCoin() ? "coconut" : "ananas",
           duration: UPDATE_MODIFIERS,
         },
