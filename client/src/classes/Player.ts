@@ -3,7 +3,7 @@ import type { Socket } from "socket.io-client";
 import { PLAYER_GRAVITY, PLAYER_SIZES } from "../constants";
 import type { GameScene } from "../scenes/main";
 import type { PlayerSpriteObject, Team, PlayerStats } from "../../types/types";
-import { addModifier, pushPlayer, throttleUpdate } from "../util/socketUtils";
+import { pushPlayer, throttleUpdate } from "../util/socketUtils";
 import { getSheet } from "../util/characterUtils";
 
 export class PlayerObject {
@@ -99,23 +99,19 @@ export class PlayerObject {
     this.physicSprite.setScale(stats.sizeScale);
   }
 
-  public checkJump(delta: number) {
+  public checkJump(delta: number, isUpsideDown: boolean) {
     if (!this.cursorKeys) return;
     if (!this.physicSprite) return;
     if (!this.canMove) return;
 
-    if (this.physicSprite.body.onFloor()) {
+    if ((!isUpsideDown && this.physicSprite.body.onFloor()) || (isUpsideDown && this.physicSprite.body.onCeiling())) {
       this.timeFromGroundContact = this.stats.canJumpDuration;
     } else if (this.timeFromGroundContact > 0) {
       this.timeFromGroundContact -= delta;
     }
 
-    if (this.cursorKeys.up.isDown && this.timeFromGroundContact > 0) {
-      this.physicSprite.body.setVelocityY(-this.stats.jumpVelocity);
-
-      if (this.socket) {
-        addModifier("New Modifier", 5, this.socket);
-      }
+    if ((this.cursorKeys.up.isDown || this.cursorKeys.down.isDown) && this.timeFromGroundContact > 0) {
+      this.physicSprite.body.setVelocityY(isUpsideDown ? this.stats.jumpVelocity : -this.stats.jumpVelocity);
 
       this.timeFromGroundContact = 0;
     }
@@ -141,14 +137,14 @@ export class PlayerObject {
     }
   }
 
-  public checkActions(delta: number) {
+  public checkActions(delta: number, isUpsideDown: boolean) {
     this.checkMovement();
     if (this.disabledTime > 0) {
       this.disabledTime -= delta;
     } else if (!this.canMove) {
       this.canMove = true;
     }
-    this.checkJump(delta);
+    this.checkJump(delta, isUpsideDown);
     this.checkDash(delta);
     throttleUpdate({
       x: this.physicSprite.body.position.x,

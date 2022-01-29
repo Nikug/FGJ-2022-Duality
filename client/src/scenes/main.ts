@@ -17,6 +17,7 @@ export class GameScene extends Phaser.Scene {
   public player?: PlayerObject;
   private socket?: Socket;
   private resources: Game.ResourceGameObject[] = [];
+  private team?: Game.Team;
   public otherPlayers: Game.PlayerSpriteObject[] = [];
   public map?: Phaser.Tilemaps.Tilemap;
   public gameState: Game.GameState;
@@ -43,7 +44,15 @@ export class GameScene extends Phaser.Scene {
   }
 
   public create() {
-    console.log("I am", this.socket?.id);
+    this.player = new PlayerObject(this, new Phaser.Math.Vector2(128, 64), ANIMATIONS.sheets.blue, this.socket?.id || "", this.socket);
+    this.player?.setTeam(this.team ? this.team : "coconut");
+    this.physics.add.collider(this.player.physicSprite, this.otherPlayers, (me, other) => {
+      const upsideDown = this.isUpsideDown();
+      if ((!upsideDown && me.body.touching.down && other.body.touching.up) || (upsideDown && me.body.touching.up && other.body.touching.down)) {
+        this.player?.resetGroundContact();
+      }
+    });
+    this.cameras.main.startFollow(this.player.physicSprite);
 
     this.map = loadLevel(this);
     createAllAnimations(this);
@@ -55,29 +64,13 @@ export class GameScene extends Phaser.Scene {
   }
 
   public initPlayers(players: Game.ApiPlayerState[]) {
-    if (!this.player) {
-      this.createOwnPlayer();
-    }
-
     for (const player of players) {
       if (player.id === this.socket?.id) {
-        this.player?.setTeam(player.team);
+        this.team = player.team;
         continue;
       }
       this.addPlayer(player);
     }
-  }
-
-  private createOwnPlayer() {
-    this.player = new PlayerObject(this, new Phaser.Math.Vector2(128, 64), ANIMATIONS.sheets.blue, this.socket?.id || "", this.socket);
-
-    this.physics.add.collider(this.player.physicSprite, this.otherPlayers, (me, other) => {
-      if (me.body.touching.down && other.body.touching.up) {
-        this.player?.resetGroundContact();
-      }
-    });
-
-    this.cameras.main.startFollow(this.player.physicSprite);
   }
 
   public addPlayer(newPlayer: Game.ApiPlayerState) {
@@ -119,7 +112,12 @@ export class GameScene extends Phaser.Scene {
   public update(time: number, delta: number) {
     if (!this.player) return;
     animationController(this);
-    this.player.checkActions(delta);
+    this.player.checkActions(delta, this.isUpsideDown());
+  }
+
+  private isUpsideDown() {
+    const gravityModifier = this.gameState.modifiers.find((modifier) => modifier.type === "gravity");
+    return this.player?.team === gravityModifier?.team;
   }
 
   public updateResources(resources: Game.Resource[] = []) {
