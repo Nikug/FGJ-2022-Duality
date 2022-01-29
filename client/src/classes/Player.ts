@@ -22,14 +22,14 @@ export class PlayerObject {
   public physicSprite: PlayerSpriteObject;
   private cursorKeys: Phaser.Types.Input.Keyboard.CursorKeys;
   private scene: GameScene;
-  private socket: Socket;
+  private socket?: Socket;
   private disabledTime = 0;
   private canPush = true;
   private timeFromGroundContact = 0;
   private timeFromDash = 0;
   private canMove = true;
 
-  constructor(scene: GameScene, position: Phaser.Math.Vector2, key: string, id: string, socket: Socket) {
+  constructor(scene: GameScene, position: Phaser.Math.Vector2, key: string, id: string, socket?: Socket) {
     this.scene = scene;
     this.physicSprite = scene.physics.add.sprite(position.x, position.y, key) as PlayerSpriteObject;
     this.physicSprite.body.setGravityY(PLAYER_GRAVITY);

@@ -15,7 +15,7 @@ const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
 };
 
 export class GameScene extends Phaser.Scene {
-  public player?: Game.PlayerSpriteObject;
+  public player?: PlayerObject;
   private socket?: Socket;
   private resources: Game.ResourceGameObject[] = [];
   public otherPlayers: Game.PlayerSpriteObject[] = [];
@@ -40,7 +40,6 @@ export class GameScene extends Phaser.Scene {
 
   public create() {
     this.player = new PlayerObject(this, new Phaser.Math.Vector2(128, 64), ANIMATIONS.sheets.blue, this.socket?.id || "", this.socket);
-
     this.physics.add.collider(this.player.physicSprite, this.otherPlayers);
 
     this.map = loadLevel(this);
@@ -105,7 +104,7 @@ export class GameScene extends Phaser.Scene {
     this.player.checkActions(delta);
   }
 
-  public updateResources(resources: Game.Resource[]) {
+  public updateResources(resources: Game.Resource[] = []) {
     const oldResources = this.resources;
 
     for (let i = 0, len = oldResources.length; i < len; i++) {
