@@ -7,6 +7,7 @@ import { socket } from "..";
 import { loadLevel } from "../util/sceneUtils";
 import { animationController, createAllAnimations } from "../util/characterUtils";
 import { PlayerObject } from "../classes/Player";
+import { collectResource } from "../util/socketUtils";
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
   key: "Game",
@@ -56,10 +57,6 @@ export class GameScene extends Phaser.Scene {
     mainCamera.startFollow(this.player.physicSprite);
     mainCamera.setLerp(0.05, 0.05);
     mainCamera.roundPixels = true;
-
-    if (this.otherPlayers.length === 0) {
-      socket.emit("initResources");
-    }
   }
 
   public initPlayers(players: Game.ApiPlayerState[]) {
@@ -131,19 +128,30 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.resources = resourceObjects;
+    if (!this.player) return;
+    this.physics.add.overlap(this.player.physicSprite, this.resources, (pl, resource) => {
+      resource.destroy();
+      if (!this.player) return;
+      collectResource((resource as Game.ResourceGameObject).id, this.player.id, this.socket);
+    });
   }
 
   public sendResourceLocations(socket: Socket) {
-    const resourceLayer = this.map?.getObjectLayer(TILEMAP.spawns.resource);
-    const resourceObjects = resourceLayer?.objects;
+    (async () => {
+      while (!this.map)
+        // define the condition as you like
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      const resourceLayer = this.map?.getObjectLayer(TILEMAP.spawns.resource);
+      const resourceObjects = resourceLayer?.objects;
 
-    const resourceLocations = resourceObjects?.map((resourceObj) => {
-      const { x, y, type, id } = resourceObj;
+      const resourceLocations = resourceObjects?.map((resourceObj) => {
+        const { x, y, type, id } = resourceObj;
 
-      return { x, y, type, id: id.toString() };
-    });
+        return { x, y, type, id: id.toString() };
+      });
 
-    socket.emit("sendResourceLocations", resourceLocations);
+      socket.emit("sendResourceLocations", resourceLocations);
+    })();
   }
 
   public setModifiers(modifiers: Game.Modifier[]) {
