@@ -44,12 +44,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   public create() {
-    this.player = new PlayerObject(this, new Phaser.Math.Vector2(128, 64), ANIMATIONS.sheets.blue, this.socket?.id || "", this.socket);
-    this.physics.add.collider(this.player.physicSprite, this.otherPlayers, (me, other) => {
-      if (me.body.touching.down && other.body.touching.up) {
-        this.player?.resetGroundContact();
-      }
-    });
     console.log("I am", this.socket?.id);
 
     this.map = loadLevel(this);
@@ -77,7 +71,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   private createOwnPlayer() {
-    this.player = new PlayerObject(this, new Phaser.Math.Vector2(128, 64), ANIMATIONS.sheets.blue, this.socket?.id || "", this.socket);
+    const randomSpawn = this.getRandomPlayerSpawn();
+    this.player = new PlayerObject(this, new Phaser.Math.Vector2(randomSpawn.x, randomSpawn.y), ANIMATIONS.sheets.blue, this.socket?.id || "", this.socket);
 
     this.physics.add.collider(this.player.physicSprite, this.otherPlayers, (me, other) => {
       if (me.body.touching.down && other.body.touching.up) {
@@ -191,20 +186,20 @@ export class GameScene extends Phaser.Scene {
   }
 
   public getRandomPlayerSpawn() {
-    (async () => {
-      while (!this.map) await new Promise((resolve) => setTimeout(resolve, 100));
-      const playerSpawnLayer = this.map?.getObjectLayer(TILEMAP.spawns.player);
-      const playerSpawnsObjects = playerSpawnLayer?.objects;
-      const playerSpawnLocations = playerSpawnsObjects?.map((playerSpawnObj) => {
-        const { x, y, type, id } = playerSpawnObj;
-        return { x, y, type, id: id.toString() };
-      });
-      if (!playerSpawnLocations) {
-        return { x: 128, y: 64 };
-      }
-      const randomSpawn = playerSpawnLocations[getRandomNumber(0, playerSpawnLocations.length)];
-      console.log(randomSpawn);
-      return randomSpawn;
-    })();
+    // (async () => {
+    //   while (!this.map) await new Promise((resolve) => setTimeout(resolve, 100));
+    const playerSpawnLayer = this.map?.getObjectLayer(TILEMAP.spawns.player);
+    const playerSpawnsObjects = playerSpawnLayer?.objects;
+    const playerSpawnLocations = playerSpawnsObjects?.map((playerSpawnObj) => {
+      const { x, y, type, id } = playerSpawnObj;
+      return { x, y, type, id: id.toString() };
+    });
+    if (!playerSpawnLocations) {
+      return { x: 128, y: 64 };
+    }
+    const randomSpawn = playerSpawnLocations[getRandomNumber(0, playerSpawnLocations.length)];
+    console.log(randomSpawn);
+    return randomSpawn;
+    // })();
   }
 }
