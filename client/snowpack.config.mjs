@@ -1,8 +1,8 @@
 /** @type {import("snowpack").SnowpackUserConfig } */
 export default {
   env: {
-    // SERVER_URL: "localhost:3000",
-    SERVER_URL: "http://10.0.23:3000",
+    SERVER_URL: "localhost:3000",
+    // SERVER_URL: "http://10.0.23:3000",
   },
   mount: {
     public: { url: "/", static: true },
