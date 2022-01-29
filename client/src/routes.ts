@@ -1,4 +1,4 @@
-import type { APIGameState, ApiPlayerState, Modifier, Resource } from "../types/types";
+import type { ApiPlayerState, Modifier, Resource } from "../types/types";
 import type { GameScene } from "./scenes/main";
 import type { Socket } from "socket.io-client";
 

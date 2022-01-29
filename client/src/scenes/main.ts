@@ -2,7 +2,7 @@ import { ANIMATIONS, ONLINE_SPEED_SCALE, TILEMAP } from "../constants";
 
 import type * as Game from "../../types/types";
 import type { Socket } from "socket.io-client";
-import { createPlayer, createResource } from "../util/gameUtils";
+import { applyModifiers, createPlayer, createResource } from "../util/gameUtils";
 import { socket } from "..";
 import { loadLevel } from "../util/sceneUtils";
 import { animationController, createAllAnimations } from "../util/characterUtils";
@@ -148,6 +148,8 @@ export class GameScene extends Phaser.Scene {
 
   public setModifiers(modifiers: Game.Modifier[]) {
     console.log("settings modifiers", modifiers);
+    const oldModifiers = [...this.gameState.modifiers];
     this.gameState.modifiers = modifiers;
+    applyModifiers(this, modifiers, oldModifiers);
   }
 }

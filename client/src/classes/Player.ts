@@ -52,6 +52,14 @@ export class PlayerObject {
     this.physicSprite.setTexture(getSheet(team));
   };
 
+  public setGravity = (direction: "down" | "up") => {
+    if (direction === "down") {
+      this.physicSprite.body.setGravityY(PLAYER_GRAVITY);
+    } else {
+      this.physicSprite.body.setGravityY(-PLAYER_GRAVITY);
+    }
+  };
+
   public checkMovement() {
     if (!this.cursorKeys) return;
     if (!this.physicSprite) return;
