@@ -10,7 +10,7 @@ export interface PlayerGameObject extends PhysicsRectangle {
   id: string;
 }
 
-export interface ResourceGameObject extends PhysicsRectangle {
+export interface ResourceGameObject extends Phaser.Types.Physics.Arcade.SpriteWithDynamicBody {
   id: string;
 }
 

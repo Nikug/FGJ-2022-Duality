@@ -6,6 +6,13 @@ import type { GameScene } from "../scenes/main";
 export const createAllAnimations = (scene: GameScene) => {
   createAnimations(scene, "blue");
   createAnimations(scene, "green");
+
+  scene.anims.create({
+    key: ANIMATIONS.sheets.resources.basic,
+    frames: scene.anims.generateFrameNumbers(ANIMATIONS.sheets.resources.basic, { start: 1, end: 1 }),
+    frameRate: ANIMATIONS.frameRate,
+    repeat: -1,
+  });
 };
 
 const createAnimations = (scene: GameScene, color: PlayerColors) => {

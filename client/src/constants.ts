@@ -103,6 +103,9 @@ export const ANIMATIONS = {
   sheets: {
     blue: "playerBlue",
     green: "playerGreen",
+    resources: {
+      basic: "resourceBasic",
+    },
   },
   frameRate: 12,
   idleThreshold: 1,
