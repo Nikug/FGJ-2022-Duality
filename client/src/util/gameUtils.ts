@@ -42,6 +42,7 @@ export const applyModifiers = (scene: GameScene, newModifiers: Modifier[], oldMo
       }, modifier.duration / 2);
     } else if (modifier.type === "bigsmall") {
       applyBigSmall(scene, modifier.team);
+      scene.events.emit("addTimer", modifier.duration / 1000, modifier.team);
       setTimeout(() => {
         applyBigSmall(scene, oppositeTeam(modifier.team));
         scene.reverseModifierTeam(modifier.type);

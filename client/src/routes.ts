@@ -60,7 +60,6 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
     scene.startGameForEveryone();
   });
   socket.on("updateScore", (score: Score) => {
-    console.log(score);
     const scene = game.scene.getScene("Game") as MainMenu;
     scene.events.emit("addScore", score);
   });
