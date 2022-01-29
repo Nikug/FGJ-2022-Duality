@@ -10,7 +10,7 @@ export const addModifier = (
   if (!gameState.modifiers.includes(newModifier)) {
     gameState.modifiers.push(newModifier);
     setGameState(gameState);
-    io.emit("updateState", gameState);
+    io.emit("addModifier", gameState);
 
     setTimeout(() => {
       gameState = getGameState();
@@ -20,7 +20,7 @@ export const addModifier = (
       );
 
       setGameState(gameState);
-      io.emit("updateState", gameState);
+      io.emit("removeModifier", gameState);
     }, modifierDurationSecond * 1000);
   }
 };

@@ -28,7 +28,14 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
     scene.getPushed(direction);
   });
 
-  socket.on("updateState", (game: APIGameState) => {
-    console.log("Updating GameState: ", game);
+  socket.on("addModifier", (gameState: APIGameState) => {
+    const scene = game.scene.getScene("Game") as GameScene;
+    scene.events.emit("addTimer", 5);
+    console.log("Updating GameState: ", gameState);
+  });
+
+  socket.on("removeModifier", (gameState: APIGameState) => {
+    const scene = game.scene.getScene("Game") as GameScene;
+    console.log("Updating GameState: ", gameState);
   });
 };
