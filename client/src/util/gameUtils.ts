@@ -1,4 +1,3 @@
-import type { Game } from "phaser";
 import type { PlayerGameObject, ResourceGameObject, PlayerSpriteObject, ApiPlayerState, Modifier, Team } from "../../types/types";
 import { PLAYER_GRAVITY } from "../constants";
 import type { GameScene } from "../scenes/main";
@@ -31,7 +30,9 @@ export const oppositeTeam = (team: Team) => (team === "coconut" ? "ananas" : "co
 
 export const applyModifiers = (scene: GameScene, newModifiers: Modifier[], oldModifiers: Modifier[]) => {
   const removedModifiers = oldModifiers.filter((modifier) => newModifiers.every((newModifier) => newModifier.type !== modifier.type));
-  for (const modifier of newModifiers) {
+  const addedModifiers = newModifiers.filter((modifier) => oldModifiers.every((newModifier) => newModifier.type !== modifier.type));
+
+  for (const modifier of addedModifiers) {
     if (modifier.type === "gravity") {
       applyGravity(scene, modifier.team);
       setTimeout(() => {
