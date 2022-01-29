@@ -1,5 +1,5 @@
 import type { Socket } from "socket.io-client";
-import type { GameState, PlayerState } from "../../types/types";
+import type { PlayerState } from "../../types/types";
 import { UPDATE_INTERVAL } from "../constants";
 
 let lastState: PlayerState | undefined = undefined;

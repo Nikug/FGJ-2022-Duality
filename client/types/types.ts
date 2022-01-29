@@ -27,8 +27,7 @@ export interface PlayerState {
 }
 
 export interface GameState {
-  modifiers: string[];
-  socket: Socket;
+  modifiers: Modifier[];
 }
 export interface APIGameState {
   modifiers: string[];
@@ -56,3 +55,9 @@ export interface Resource {
 }
 
 export type PlayerColors = "blue" | "green";
+
+export interface Modifier {
+  type: string;
+  team: Team;
+  duration: number;
+}

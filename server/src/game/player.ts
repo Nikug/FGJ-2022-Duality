@@ -1,6 +1,7 @@
 import { Socket } from "socket.io";
 import { getPlayerById, getPlayers, setPlayers } from ".";
 import { Player, Team, Vector2 } from "../../types/types";
+import { flipCoin } from "../utils/getRandomNumber";
 import { getResources } from "./resource";
 
 export const addPlayer = (socket: Socket) => {
@@ -30,7 +31,7 @@ export const assignTeam = (players: Player[]): Team => {
   );
 
   if (coconut === ananas) {
-    return Math.floor(Math.random() * 2) == 0 ? "ananas" : "coconut";
+    return flipCoin() ? "ananas" : "coconut";
   } else {
     return coconut > ananas ? "ananas" : "coconut";
   }

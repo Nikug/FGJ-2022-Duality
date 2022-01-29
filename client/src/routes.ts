@@ -1,4 +1,4 @@
-import type { APIGameState, ApiPlayerState, Resource } from "../types/types";
+import type { APIGameState, ApiPlayerState, Modifier, Resource } from "../types/types";
 import type { GameScene } from "./scenes/main";
 import type { Socket } from "socket.io-client";
 
@@ -29,15 +29,9 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
     scene.getPushed(direction);
   });
 
-  socket.on("addModifier", (gameState: APIGameState) => {
+  socket.on("updateModifiers", (modifiers: Modifier[]) => {
     const scene = game.scene.getScene("Game") as GameScene;
-    scene.events.emit("addTimer", 5);
-    console.log("Updating GameState: ", gameState);
-  });
-
-  socket.on("removeModifier", (gameState: APIGameState) => {
-    const scene = game.scene.getScene("Game") as GameScene;
-    console.log("Updating GameState: ", gameState);
+    scene.setModifiers(modifiers);
   });
 
   socket.on("giveResourceLocations", () => {

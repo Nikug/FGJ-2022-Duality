@@ -20,12 +20,14 @@ export class GameScene extends Phaser.Scene {
   private resources: Game.ResourceGameObject[] = [];
   public otherPlayers: Game.PlayerSpriteObject[] = [];
   public map?: Phaser.Tilemaps.Tilemap;
+  public gameState: Game.GameState;
 
   constructor() {
     super(sceneConfig);
     this.player = undefined;
     this.socket = socket;
     this.map = undefined;
+    this.gameState = { modifiers: [] };
   }
 
   public preload() {
@@ -142,5 +144,10 @@ export class GameScene extends Phaser.Scene {
     });
 
     socket.emit("sendResourceLocations", resourceLocations);
+  }
+
+  public setModifiers(modifiers: Game.Modifier[]) {
+    console.log("settings modifiers", modifiers);
+    this.gameState.modifiers = modifiers;
   }
 }
