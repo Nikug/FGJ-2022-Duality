@@ -59,6 +59,7 @@ export class GameScene extends Phaser.Scene {
 
   public create() {
     this.audioManager?.addAudio();
+    this.events.emit("playMusic");
     console.log("I am", this.socket?.id);
     const { map, worldLayer } = loadLevel(this);
     this.map = map;

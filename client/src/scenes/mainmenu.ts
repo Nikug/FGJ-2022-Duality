@@ -1,3 +1,4 @@
+import { AudioManager } from "../audio/audioManager";
 import { playerCount, startGame } from "../util/socketUtils";
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
@@ -8,13 +9,16 @@ export class MainMenu extends Phaser.Scene {
   private playerUpdateInterval?: NodeJS.Timer;
   private playerCountText: Phaser.GameObjects.BitmapText | undefined;
   private buttonBackground = this.hColor("#331523");
+  private audioManager: AudioManager | undefined;
 
   constructor() {
     super(sceneConfig);
+    this.audioManager = new AudioManager(this);
   }
 
   public preload() {
     this.load.image("button", "/assets/tempButton.png");
+    this.audioManager?.loadAudio();
     // this.load.bitmapFont("atari2", "assets/fonts/atari-classic2.png", "assets/fonts/atari-classic2.xml");
   }
 
@@ -28,6 +32,8 @@ export class MainMenu extends Phaser.Scene {
     this.playerUpdateInterval = setInterval(() => {
       playerCount();
     }, 500);
+    this.audioManager?.addAudio();
+    this.events.emit("playMenuMusic");
   }
 
   public shutdown() {
@@ -41,6 +47,7 @@ export class MainMenu extends Phaser.Scene {
   }
 
   public startGameForEveryone() {
+    this.events.emit("silence");
     this.scene.start("Game");
   }
 
