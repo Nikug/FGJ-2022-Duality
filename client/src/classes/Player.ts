@@ -48,6 +48,7 @@ export class PlayerObject {
   public resetGroundContact = () => (this.timeFromGroundContact = CAN_JUMP_DURATION);
 
   public setTeam = (team: Team) => {
+    console.log("setting my team to", team);
     this.team = team;
     this.physicSprite.setTexture(getSheet(team));
   };

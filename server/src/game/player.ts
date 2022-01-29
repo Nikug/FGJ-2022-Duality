@@ -1,5 +1,6 @@
 import { Socket } from "socket.io";
 import { getGameState, getPlayerById, getPlayers, setPlayers } from ".";
+import { io } from "../..";
 import { Player, Team, Vector2 } from "../../types/types";
 import { flipCoin } from "../utils/getRandomNumber";
 import { setNotRunning } from "./gameState";
@@ -24,7 +25,7 @@ export const addPlayer = (socket: Socket) => {
   console.log("Adding new player", socket.id, newPlayer.team);
 
   socket.broadcast.emit("newPlayer", playerToClient(newPlayer));
-  socket.emit("init", playersToUpdate(newPlayers), getResources());
+  io.emit("init", playersToUpdate(newPlayers), getResources());
   setPlayers(newPlayers);
 };
 
