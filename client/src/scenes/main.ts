@@ -46,13 +46,20 @@ export class GameScene extends Phaser.Scene {
     this.load.spritesheet(ANIMATIONS.sheets.coconut, "/assets/kritafiles/player_blue/player_blue_spritesheet.png", { frameWidth: 14, frameHeight: 14 });
     this.load.spritesheet(ANIMATIONS.sheets.ananas, "/assets/kritafiles/player_green/player_green_spritesheet.png", { frameWidth: 14, frameHeight: 14 });
     this.load.spritesheet(ANIMATIONS.sheets.resources.basic, "/assets/kritafiles/resource/resource_basic_spritesheet.png", { frameWidth: 12, frameHeight: 12 });
-    this.load.spritesheet(ANIMATIONS.sheets.greenSlap, "/assets/kritafiles/whip_demo_2/whip_sprite_sheet_demo.png", { frameWidth: 14, frameHeight: 14 });
-    this.load.spritesheet(ANIMATIONS.sheets.blueSlap, "/assets/kritafiles/whip_demo_2/whip_sprite_sheet_demo.png", { frameWidth: 14, frameHeight: 14 });
+    this.load.spritesheet(ANIMATIONS.sheets.slaps.coconut, "/assets/kritafiles/tentacte_whip/tentacle_whip_spritesheet.png", {
+      frameWidth: 64,
+      frameHeight: 64,
+    });
+    this.load.spritesheet(ANIMATIONS.sheets.slaps.ananas, "/assets/kritafiles/tentacte_whip/tentacle_whip_spritesheet.png", {
+      frameWidth: 64,
+      frameHeight: 64,
+    });
     this.audioManager?.loadAudio();
   }
 
   public create() {
     this.audioManager?.addAudio();
+    this.events.emit("playMusic");
     console.log("I am", this.socket?.id);
     const { map, worldLayer } = loadLevel(this);
     this.map = map;
@@ -99,9 +106,9 @@ export class GameScene extends Phaser.Scene {
     this.otherPlayers.push(newPlayerObject);
   }
 
-  public getPushed(direction: Phaser.Math.Vector2) {
+  public getPushed(slapperId: string, targetId: string, direction: Phaser.Math.Vector2) {
     if (!this.player) return;
-    this.player.getPushed(direction);
+    this.player.getPushed(slapperId, targetId, direction);
   }
 
   public removePlayer(id: string) {

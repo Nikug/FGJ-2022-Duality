@@ -1,10 +1,10 @@
 import Phaser from "phaser";
 import type { Socket } from "socket.io-client";
-import { PLAYER_GRAVITY, PLAYER_SIZES } from "../constants";
+import { ANIMATIONS, PLAYER_GRAVITY, PLAYER_SIZES } from "../constants";
 import type { GameScene } from "../scenes/main";
 import type { PlayerSpriteObject, Team, PlayerStats } from "../../types/types";
 import { pushPlayer, throttleUpdate } from "../util/socketUtils";
-import { getSheet } from "../util/characterUtils";
+import { getAnimationKey, getSheet } from "../util/characterUtils";
 
 export class PlayerObject {
   public id: string;
@@ -73,6 +73,7 @@ export class PlayerObject {
       }, this.stats.canPushTimeout);
     }
   }
+
   private pushPlayers() {
     const pos = this.physicSprite.body.position;
 
@@ -80,20 +81,38 @@ export class PlayerObject {
       this.scene.otherPlayers.forEach((pl) => {
         const pl_pos = pl.body.position;
         if (pl_pos.distance(pos) < this.stats.pushDistance) {
-          pushPlayer(pl.id, new Phaser.Math.Vector2(pl_pos.x - pos.x, pl_pos.y - pos.y).normalize(), this.socket);
+          const difference = pl_pos.clone().subtract(pos);
+          this.handleSlapAnimation(pos, difference);
+
+          pushPlayer(this.id, pl.id, difference.normalize(), this.socket);
           this.scene.events.emit("playSmack");
         }
       });
     }
   }
 
-  public getPushed(direction: Phaser.Math.Vector2) {
-    this.canMove = false;
+  private handleSlapAnimation = (startPosition: Phaser.Math.Vector2, difference: Phaser.Math.Vector2) => {
+    const slapSprite = this.scene.add.sprite(startPosition.x, startPosition.y, ANIMATIONS.sheets.slaps[this.team]);
+    slapSprite.anims.play(getAnimationKey(ANIMATIONS.slap, this.team));
+    slapSprite.setRotation(difference.angle());
+    slapSprite.setFlip(true, true);
+    slapSprite.anims.hideOnComplete = true;
+  };
 
-    this.physicSprite.body.setVelocityX(direction.x * this.stats.pushPower);
-    this.physicSprite.body.setVelocityY(direction.y * this.stats.pushPower);
-    this.disabledTime = this.stats.pushTimeout;
-    this.scene.events.emit("playSmack");
+  public getPushed(slapperId: string, targetId: string, direction: Phaser.Math.Vector2) {
+    if (targetId === this.id) {
+      this.canMove = false;
+      this.physicSprite.body.setVelocityX(direction.x * this.stats.pushPower);
+      this.physicSprite.body.setVelocityY(direction.y * this.stats.pushPower);
+      this.disabledTime = this.stats.pushTimeout;
+    }
+
+    if (slapperId === this.id) return;
+    const slapper = this.scene.otherPlayers.find((player) => player.id === slapperId);
+    if (slapper) {
+      this.handleSlapAnimation(slapper.body.position, direction);
+      this.scene.events.emit("playSmack");
+    }
   }
 
   public setStats(stats: PlayerStats) {

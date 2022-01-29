@@ -38,9 +38,20 @@ export const handleSockets = (socket: Socket) => {
     fillEmptyResourceLocations();
   });
 
-  socket.on("push", ({ id, direction }: { id: string; direction: Vector2 }) => {
-    pushPlayer(id, direction);
-  });
+  socket.on(
+    "push",
+    ({
+      id,
+      targetId,
+      direction,
+    }: {
+      id: string;
+      targetId: string;
+      direction: Vector2;
+    }) => {
+      pushPlayer(socket, id, targetId, direction);
+    },
+  );
 
   socket.on("getPlayerCount", () => {
     updatePlayerCount(socket);
