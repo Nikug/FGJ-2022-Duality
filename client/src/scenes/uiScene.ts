@@ -11,6 +11,9 @@ export class UIScene extends Phaser.Scene {
     this.scoreboard = new Scoreboard(this);
   }
 
+  preload() {
+    this.load.bitmapFont("atari", "assets/fonts/atari-classic.png", "assets/fonts/atari-classic.xml");
+  }
   create() {
     this.scoreboard?.addScoreBoard();
 
@@ -32,7 +35,7 @@ export class UIScene extends Phaser.Scene {
       this,
     );
 
-    this.scoreboard?.addScore("Maija", 300);
-    this.scoreboard?.addScore("Niku", 500);
+    this.scoreboard?.addScore("Coconut", 300);
+    this.scoreboard?.addScore("Pineapple", 500);
   }
 }

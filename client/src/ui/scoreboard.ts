@@ -12,11 +12,9 @@ export class Scoreboard {
   private scoreBoardY = 32;
   private scoreBoardMarginX = 10;
   private scoreBoardMarginY = 20;
-  private headerStyle: Phaser.Types.GameObjects.Text.TextStyle = { fontFamily: "Impact", fontSize: "20px", color: "white" };
-  private scoreStyle: Phaser.Types.GameObjects.Text.TextStyle = { fontFamily: "Impact", fontSize: "14px", color: "white" };
-  private backgroundColor: number = this.hColor("#af0098");
+  private backgroundColor: number = this.hColor("#331523");
 
-  scores: { player: string; score: number; text: Phaser.GameObjects.Text }[] = [];
+  scores: { player: string; score: number; text: Phaser.GameObjects.BitmapText }[] = [];
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -25,9 +23,8 @@ export class Scoreboard {
   public addScoreBoard() {
     const graphics = this.scene.add.graphics();
     graphics.fillStyle(this.backgroundColor, 0.9);
-    graphics.fillRoundedRect(this.scoreBoardX, this.scoreBoardY, 200, 80, 16);
-    this.scene.add.text(this.scoreBoardX + this.scoreBoardMarginX + 55, this.scoreBoardY, `SCORES`, this.headerStyle).setResolution(10);
-    //this.scene.add.text(400, 8, "Phaser 3 pixelArt: true", { font: "16px Courier", color: "#00ff00" }).setOrigin(0.5, 0).setScale(3);
+    graphics.fillRoundedRect(this.scoreBoardX, this.scoreBoardY, 250, 80, 16);
+    this.scene.add.bitmapText(this.scoreBoardX + this.scoreBoardMarginX + 65, this.scoreBoardY + 5, "atari", "SCORES").setScale(0.25);
   }
 
   public addScore(player: string, score: number) {
@@ -53,12 +50,9 @@ export class Scoreboard {
     return Phaser.Display.Color.HexStringToColor(hexColor).color;
   }
 
-  private getScoreText(score: number, player: string) {
-    return this.scene.add.text(
-      this.scoreBoardX + this.scoreBoardMarginX,
-      this.scoreBoardY + 30 + this.scores.length * this.scoreBoardMarginY,
-      `Player: ${player}, Score: ${score}`,
-      this.scoreStyle,
-    );
+  private getScoreText(score: number, team: string) {
+    return this.scene.add
+      .bitmapText(this.scoreBoardX + this.scoreBoardMarginX, this.scoreBoardY + 30 + this.scores.length * this.scoreBoardMarginY, "atari", `${team}: ${score}`)
+      .setScale(0.25);
   }
 }
