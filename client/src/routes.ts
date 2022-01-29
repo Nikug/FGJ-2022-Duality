@@ -1,26 +1,61 @@
 import type { ApiPlayerState } from "../types/types";
 import type { GameScene } from "./scenes/main";
 import type { Socket } from "socket.io-client";
+import type { MainMenu } from "./scenes/mainmenu";
 
 export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
   socket.on("init", (players: ApiPlayerState[]) => {
-    const scene = game.scene.getScene("Game") as GameScene;
-    scene.initPlayers(players);
+    const scenes = game.scene.getScenes();
+    let scene: GameScene | MainMenu | undefined;
+    for (let i = 0; i < scenes.length; i++) {
+      if (scenes[i].scene.key === "MainMenu") {
+        scene = game.scene.getScene("MainMenu") as MainMenu;
+      } else {
+        scene = game.scene.getScene("Game") as GameScene;
+      }
+    }
+
+    scene?.initPlayers(players);
   });
 
   socket.on("update", (players: ApiPlayerState[]) => {
-    const scene = game.scene.getScene("Game") as GameScene;
-    scene.updatePlayers(players);
+    const scenes = game.scene.getScenes();
+    let scene: GameScene | MainMenu | undefined;
+    for (let i = 0; i < scenes.length; i++) {
+      if (scenes[i].scene.key === "MainMenu") {
+        scene = game.scene.getScene("MainMenu") as MainMenu;
+      } else {
+        scene = game.scene.getScene("Game") as GameScene;
+      }
+    }
+    scene?.updatePlayers(players);
   });
 
   socket.on("newPlayer", (player: ApiPlayerState) => {
-    const scene = game.scene.getScene("Game") as GameScene;
-    scene.addPlayer(player);
+    const scenes = game.scene.getScenes();
+    let scene: GameScene | MainMenu | undefined;
+    for (let i = 0; i < scenes.length; i++) {
+      if (scenes[i].scene.key === "MainMenu") {
+        scene = game.scene.getScene("MainMenu") as MainMenu;
+      } else {
+        scene = game.scene.getScene("Game") as GameScene;
+      }
+    }
+
+    scene?.addPlayer(player);
   });
 
   socket.on("removePlayer", (id: string) => {
-    const scene = game.scene.getScene("Game") as GameScene;
-    scene.removePlayer(id);
+    const scenes = game.scene.getScenes();
+    let scene: GameScene | MainMenu | undefined;
+    for (let i = 0; i < scenes.length; i++) {
+      if (scenes[i].scene.key === "MainMenu") {
+        scene = game.scene.getScene("MainMenu") as MainMenu;
+      } else {
+        scene = game.scene.getScene("Game") as GameScene;
+      }
+    }
+    scene?.removePlayer(id);
   });
 
   socket.on(

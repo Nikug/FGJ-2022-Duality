@@ -20,6 +20,7 @@ export class MainMenu extends Phaser.Scene {
   private socket?: Socket;
   private otherPlayers: Game.PlayerGameObject[] = [];
   private cursorKeys?: Phaser.Types.Input.Keyboard.CursorKeys;
+  private playerCountText: Phaser.GameObjects.Text | undefined;
 
   constructor() {
     super(sceneConfig);
@@ -37,11 +38,23 @@ export class MainMenu extends Phaser.Scene {
       this.cameras.main.worldView.x + this.cameras.main.width / 2;
     const screenCenterY =
       this.cameras.main.worldView.y + this.cameras.main.height / 2;
-    const button = this.add
+    const playButton = this.add
       .image(screenCenterX, screenCenterY, "button")
       .setOrigin(0.5);
-    button.setInteractive();
-    button.on("pointerdown", () => this.scene.start("Game"));
+    playButton.setInteractive();
+    playButton.on("pointerdown", () => this.scene.start("Game"));
+
+    this.playerCountText = this.add
+      .text(
+        screenCenterX / 2,
+        screenCenterY / 2,
+        "Player count:" + this.getPlayerCount(),
+        {
+          font: "20px",
+          color: "#000000",
+        },
+      )
+      .setOrigin(0.5);
 
     this.cursorKeys = this.input.keyboard.createCursorKeys();
     this.player = createRectangle(
@@ -60,6 +73,10 @@ export class MainMenu extends Phaser.Scene {
     // mainCamera.setLerp(0.1, 0.1);
   }
 
+  public getPlayerCount() {
+    return this.otherPlayers.length + 1;
+  }
+
   public initPlayers(players: Game.ApiPlayerState[]) {
     for (const player of players) {
       if (player.id === this.socket?.id) continue;
@@ -75,6 +92,7 @@ export class MainMenu extends Phaser.Scene {
       newPlayer.id,
     );
     this.otherPlayers.push(newPlayerObject);
+    this.playerCountText?.setText("Player count:" + this.getPlayerCount());
   }
 
   public removePlayer(id: string) {
@@ -83,6 +101,7 @@ export class MainMenu extends Phaser.Scene {
 
     const playerToRemove = this.otherPlayers.splice(index, 1);
     playerToRemove[0].destroy();
+    this.playerCountText?.setText("Player count:" + this.getPlayerCount());
   }
 
   public updatePlayers = (players: Game.ApiPlayerState[]) => {
