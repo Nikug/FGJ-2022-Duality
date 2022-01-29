@@ -18,6 +18,7 @@ export class GameScene extends Phaser.Scene {
   public player?: PlayerObject;
   private socket?: Socket;
   private resources: Game.ResourceGameObject[] = [];
+  private team?: Game.Team;
   public otherPlayers: Game.PlayerSpriteObject[] = [];
   public map?: Phaser.Tilemaps.Tilemap;
   public gameState: Game.GameState;
@@ -44,7 +45,14 @@ export class GameScene extends Phaser.Scene {
   }
 
   public create() {
-    console.log("I am", this.socket?.id);
+    this.player = new PlayerObject(this, new Phaser.Math.Vector2(128, 64), ANIMATIONS.sheets.blue, this.socket?.id || "", this.socket);
+    this.player?.setTeam(this.team ? this.team : "coconut");
+    this.physics.add.collider(this.player.physicSprite, this.otherPlayers, (me, other) => {
+      if (me.body.touching.down && other.body.touching.up) {
+        this.player?.resetGroundContact();
+      }
+    });
+    this.cameras.main.startFollow(this.player.physicSprite);
 
     this.map = loadLevel(this);
     createAllAnimations(this);
@@ -57,30 +65,13 @@ export class GameScene extends Phaser.Scene {
   }
 
   public initPlayers(players: Game.ApiPlayerState[]) {
-    if (!this.player) {
-      this.createOwnPlayer();
-    }
-
     for (const player of players) {
       if (player.id === this.socket?.id) {
-        this.player?.setTeam(player.team);
+        this.team = player.team;
         continue;
       }
       this.addPlayer(player);
     }
-  }
-
-  private createOwnPlayer() {
-    const randomSpawn = this.getRandomPlayerSpawn();
-    this.player = new PlayerObject(this, new Phaser.Math.Vector2(randomSpawn.x, randomSpawn.y), ANIMATIONS.sheets.blue, this.socket?.id || "", this.socket);
-
-    this.physics.add.collider(this.player.physicSprite, this.otherPlayers, (me, other) => {
-      if (me.body.touching.down && other.body.touching.up) {
-        this.player?.resetGroundContact();
-      }
-    });
-
-    this.cameras.main.startFollow(this.player.physicSprite);
   }
 
   public addPlayer(newPlayer: Game.ApiPlayerState) {
