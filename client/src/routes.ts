@@ -31,4 +31,9 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
   socket.on("updateResources", (resources) => {
     console.log({ resources });
   });
+
+  socket.on("getPushed", ({ direction }: { direction: Phaser.Math.Vector2 }) => {
+    const scene = game.scene.getScene("Game") as GameScene;
+    scene.getPushed(direction);
+  });
 };

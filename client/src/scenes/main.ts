@@ -1,16 +1,22 @@
 import {
+  CAN_JUMP_DURATION,
+  CAN_PUSH_TIMEOUT_DURATION,
   JUMP_VELOCITY,
   MOVEMENT_SPEED,
   ONLINE_SPEED_SCALE,
   PLAYER_GRAVITY,
+  PLAYER_PUSH_DISTANCE,
+  PLAYER_PUSH_POWER,
+  PUSH_TIMEOUT_DURATION,
+  TILEMAP,
 } from "../constants";
 
 import type * as Game from "../../types/types";
 import type { Socket } from "socket.io-client";
 import { createRectangle } from "../util/gameUtils";
 import { socket } from "..";
-import { throttleUpdate } from "../util/socketUtils";
 import { loadLevel } from "../util/sceneUtils";
+import { pushPlayer, throttleUpdate } from "../util/socketUtils";
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
   active: false,
@@ -22,44 +28,43 @@ export class GameScene extends Phaser.Scene {
   public player?: Game.PhysicsRectangle;
   private socket?: Socket;
   private otherPlayers: Game.PlayerGameObject[] = [];
+  public map?: Phaser.Tilemaps.Tilemap;
+
   private cursorKeys?: Phaser.Types.Input.Keyboard.CursorKeys;
+  private canMove = true;
+  private canPush = true;
+  private timeFromGroundContact = 0;
 
   constructor() {
     super(sceneConfig);
     this.player = undefined;
     this.socket = socket;
     this.cursorKeys = undefined;
+    this.map = undefined;
   }
 
   public preload() {
     this.load.image("ground", "assets/platform.png");
-    this.load.image("tiles", "/assets/sprites/Project Mute Tileset V3.png");
-    this.load.image(
-      "frontTiles",
-      "/assets/sprites/Project Mute Tileset V1.png",
-    );
-    this.load.image("backTiles", "/assets/sprites/Project Mute Tileset V2.png");
+    this.load.image(TILEMAP.tilesets.purple.key, "/assets/sprites/Project Mute Tileset V3.png");
+    this.load.image(TILEMAP.tilesets.yellow.key, "/assets/sprites/Project Mute Tileset V1.png");
+    this.load.image(TILEMAP.tilesets.gray.key, "/assets/sprites/Project Mute Tileset V2.png");
     this.load.tilemapTiledJSON("map", "/assets/maps/map.json");
   }
 
   public create() {
     this.cursorKeys = this.input.keyboard.createCursorKeys();
-    this.player = createRectangle(
-      this,
-      new Phaser.Math.Vector2(128, 64),
-      0x00ff00,
-      this.socket?.id || "",
-    );
+    this.player = createRectangle(this, new Phaser.Math.Vector2(128, 64), 0x00ff00, this.socket?.id || "");
 
     this.player.body.setGravityY(PLAYER_GRAVITY);
     this.physics.add.collider(this.player, this.otherPlayers);
 
-    loadLevel(this);
+    this.map = loadLevel(this);
 
     const mainCamera = this.cameras.main;
     mainCamera.setZoom(2, 2);
     mainCamera.startFollow(this.player);
-    mainCamera.setLerp(0.1, 0.1);
+    mainCamera.setLerp(0.05, 0.05);
+    mainCamera.roundPixels = true;
   }
 
   public initPlayers(players: Game.ApiPlayerState[]) {
@@ -70,19 +75,37 @@ export class GameScene extends Phaser.Scene {
   }
 
   public addPlayer(newPlayer: Game.ApiPlayerState) {
-    const newPlayerObject = createRectangle(
-      this,
-      new Phaser.Math.Vector2(newPlayer.x, newPlayer.y),
-      0xff00ff,
-      newPlayer.id,
-    );
+    const newPlayerObject = createRectangle(this, new Phaser.Math.Vector2(newPlayer.x, newPlayer.y), 0xff00ff, newPlayer.id);
     this.otherPlayers.push(newPlayerObject);
+  }
+
+  private pushPlayers() {
+    const pos = this.player?.body.position;
+    if (pos) {
+      this.otherPlayers.forEach((pl) => {
+        const pl_pos = pl.body.position;
+        if (pl_pos.distance(pos) < PLAYER_PUSH_DISTANCE) {
+          pushPlayer(pl.id, new Phaser.Math.Vector2(pl_pos.x - pos.x, pl_pos.y - pos.y).normalize(), this.socket);
+        }
+      });
+    }
+  }
+
+  public getPushed(direction: Phaser.Math.Vector2) {
+    this.canMove = false;
+
+    if (this.player) {
+      this.player.body.setVelocityX(direction.x * PLAYER_PUSH_POWER);
+      this.player.body.setVelocityY(direction.y * PLAYER_PUSH_POWER);
+    }
+    setTimeout(() => {
+      this.canMove = true;
+    }, PUSH_TIMEOUT_DURATION);
   }
 
   public removePlayer(id: string) {
     const index = this.otherPlayers.findIndex((player) => player.id === id);
     if (index < 0) return;
-
     const playerToRemove = this.otherPlayers.splice(index, 1);
     playerToRemove[0].destroy();
   }
@@ -92,9 +115,7 @@ export class GameScene extends Phaser.Scene {
       if (player.id === this.socket?.id) continue;
       if (player.x == null || player.y == null) continue;
 
-      const gameObject = this.otherPlayers.find(
-        (otherPlayer) => otherPlayer.id === player.id,
-      );
+      const gameObject = this.otherPlayers.find((otherPlayer) => otherPlayer.id === player.id);
 
       if (!gameObject) continue;
 
@@ -107,9 +128,10 @@ export class GameScene extends Phaser.Scene {
     }
   };
 
-  public update() {
+  public checkMovement() {
     if (!this.cursorKeys) return;
     if (!this.player) return;
+    if (!this.canMove) return;
 
     if (this.cursorKeys.left.isDown) {
       this.player.body.setVelocityX(-MOVEMENT_SPEED);
@@ -119,9 +141,36 @@ export class GameScene extends Phaser.Scene {
       this.player.body.setVelocityX(0);
     }
 
-    if (this.cursorKeys.up.isDown && this.player.body.onFloor()) {
-      this.player.body.setVelocityY(-JUMP_VELOCITY);
+    if (this.cursorKeys.space.isDown && this.canPush) {
+      this.canPush = false;
+      this.pushPlayers();
+      setTimeout(() => {
+        this.canPush = true;
+      }, CAN_PUSH_TIMEOUT_DURATION);
     }
+  }
+
+  public checkJump(delta: number) {
+    if (!this.cursorKeys) return;
+    if (!this.player) return;
+    if (!this.canMove) return;
+
+    if (this.player.body.onFloor()) {
+      this.timeFromGroundContact = CAN_JUMP_DURATION;
+    } else if (this.timeFromGroundContact > 0) {
+      this.timeFromGroundContact -= delta;
+    }
+
+    if (this.cursorKeys.up.isDown && this.timeFromGroundContact > 0) {
+      this.player.body.setVelocityY(-JUMP_VELOCITY);
+      this.timeFromGroundContact = 0;
+    }
+  }
+
+  public update(time: number, delta: number) {
+    if (!this.player) return;
+    this.checkMovement();
+    this.checkJump(delta);
 
     throttleUpdate({
       x: this.player.body.position.x,

@@ -1,7 +1,13 @@
 import { Socket } from "socket.io";
 import { ResourceLocation } from "../../types/types";
-import { addPlayer, removePlayer, updatePlayerPosition } from "../game/player";
 import { updateResourceLocations } from "../game/resource";
+import { Vector2 } from "../../types/types";
+import {
+  addPlayer,
+  pushPlayer,
+  removePlayer,
+  updatePlayerPosition,
+} from "../game/player";
 
 export const handleSockets = (socket: Socket) => {
   addPlayer(socket);
@@ -20,4 +26,8 @@ export const handleSockets = (socket: Socket) => {
       updateResourceLocations(resourceLocations);
     },
   );
+
+  socket.on("push", ({ id, direction }: { id: string; direction: Vector2 }) => {
+    pushPlayer(id, direction);
+  });
 };

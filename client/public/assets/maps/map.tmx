@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" infinite="1" nextlayerid="5" nextobjectid="1">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" infinite="1" nextlayerid="7" nextobjectid="25">
  <editorsettings>
   <export target="map..json" format="json"/>
  </editorsettings>
@@ -1737,4 +1737,65 @@
 </chunk>
   </data>
  </layer>
+ <objectgroup id="5" name="ResourceSpawns">
+  <object id="1" name="ResourceSpawn" x="87.3333" y="102.667">
+   <point/>
+  </object>
+  <object id="2" name="ResourceSpawn" x="120.667" y="182.667">
+   <point/>
+  </object>
+  <object id="3" name="ResourceSpawn" x="120" y="262.667">
+   <point/>
+  </object>
+  <object id="4" name="ResourceSpawn" x="455.333" y="-153.333">
+   <point/>
+  </object>
+  <object id="5" name="ResourceSpawn" x="520.667" y="-72">
+   <point/>
+  </object>
+  <object id="9" name="ResourceSpawn" x="698.667" y="184">
+   <point/>
+  </object>
+  <object id="10" name="ResourceSpawn" x="394" y="170">
+   <point/>
+  </object>
+  <object id="11" name="ResourceSpawn" x="506" y="117.333">
+   <point/>
+  </object>
+  <object id="12" name="ResourceSpawn" x="427.333" y="71.3333">
+   <point/>
+  </object>
+  <object id="13" name="ResourceSpawn" x="522" y="246.667">
+   <point/>
+  </object>
+  <object id="14" name="ResourceSpawn" x="247.333" y="39.3333">
+   <point/>
+  </object>
+  <object id="15" name="ResourceSpawn" x="279.333" y="262.667">
+   <point/>
+  </object>
+  <object id="24" name="ResourceSpawn" x="680.667" y="263.333">
+   <point/>
+  </object>
+ </objectgroup>
+ <objectgroup id="6" name="PlayerSpawns">
+  <object id="16" name="PlayerSpawn" x="232.667" y="156">
+   <point/>
+  </object>
+  <object id="18" name="PlayerSpawn" x="586.667" y="120.667">
+   <point/>
+  </object>
+  <object id="20" name="PlayerSpawn" x="728.667" y="8">
+   <point/>
+  </object>
+  <object id="21" name="PlayerSpawn" x="55.3333" y="11.3333">
+   <point/>
+  </object>
+  <object id="22" name="PlayerSpawn" x="408.667" y="234">
+   <point/>
+  </object>
+  <object id="23" name="PlayerSpawn" x="376.667" y="88.6667">
+   <point/>
+  </object>
+ </objectgroup>
 </map>
