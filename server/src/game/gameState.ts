@@ -24,3 +24,12 @@ export const addModifier = (
     }, modifierDurationSecond * 1000);
   }
 };
+
+export const setRunning = () => {
+  const gameState = getGameState();
+
+  if (!gameState.running) {
+    gameState.running = true;
+    setGameState(gameState);
+  }
+};

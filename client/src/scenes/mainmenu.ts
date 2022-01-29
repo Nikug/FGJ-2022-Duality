@@ -20,10 +20,7 @@ export class MainMenu extends Phaser.Scene {
     const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
     const playButton = this.add.image(screenCenterX, screenCenterY, "button").setOrigin(0.5);
     playButton.setInteractive();
-    playButton.on("pointerdown", () => {
-      startGame();
-      this.scene.start("Game");
-    });
+    playButton.on("pointerdown", () => startGame());
 
     this.playerCountText = this.add
       .text(screenCenterX * 1.5, screenCenterY / 2, "Player count:1", {

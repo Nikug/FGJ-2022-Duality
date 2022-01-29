@@ -10,6 +10,7 @@ export interface Player {
 }
 
 export interface Game {
+  running: boolean;
   modifiers: string[];
 }
 

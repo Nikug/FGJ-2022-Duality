@@ -7,7 +7,7 @@ import {
   updateResourceLocations,
 } from "../game/resource";
 import { Vector2 } from "../../types/types";
-import { addModifier } from "../game/gameState";
+import { addModifier, setRunning } from "../game/gameState";
 import {
   addPlayer,
   pushPlayer,
@@ -56,5 +56,6 @@ export const handleSockets = (socket: Socket) => {
 
   socket.on("startGame", () => {
     startGame(socket);
+    setRunning();
   });
 };

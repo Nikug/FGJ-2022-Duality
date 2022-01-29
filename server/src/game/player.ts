@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { getPlayerById, getPlayers, setPlayers } from ".";
+import { getGameState, getPlayerById, getPlayers, setPlayers } from ".";
 import { Player, Team, Vector2 } from "../../types/types";
 import { getResources } from "./resource";
 
@@ -77,5 +77,9 @@ export const updatePlayerCount = (socket: Socket) => {
 };
 
 export const startGame = (socket: Socket) => {
-  socket.broadcast.emit("startGameForEveryone");
+  const gameState = getGameState();
+  if (!gameState.running) {
+    socket.broadcast.emit("startGameForEveryone");
+    socket.emit("startGameForEveryone");
+  }
 };
