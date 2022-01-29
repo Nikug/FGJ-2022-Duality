@@ -1,4 +1,4 @@
-import type { Score } from "../../types/types";
+import type { Score, Team } from "../../types/types";
 import { Scoreboard } from "../ui/scoreboard";
 import { Timer } from "../ui/timer";
 
@@ -30,8 +30,8 @@ export class UIScene extends Phaser.Scene {
 
     mainGame.events.on(
       "addTimer",
-      (seconds: number) => {
-        this.timer?.addTimer(seconds);
+      (seconds: number, team: Team) => {
+        this.timer?.addTimer(seconds, team);
       },
       this,
     );

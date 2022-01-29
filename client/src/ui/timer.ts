@@ -1,3 +1,5 @@
+import type { Team } from "../../types/types";
+
 /* Creates UI Timer
     Usage:
         - create new Timer() in scene constructor
@@ -21,9 +23,11 @@ export class Timer {
     this.scene = scene;
   }
 
-  public async addTimer(timeSeconds: number) {
+  public async addTimer(timeSeconds: number, team: Team) {
     // Making sure scene has been created
     if (this.scene) {
+      console.log("add timer");
+      console.log(team);
       this.createTimerFrame();
 
       // Init
@@ -31,8 +35,18 @@ export class Timer {
       this.activeTimers += 1;
 
       // Fuck interval, for loop wins
-      await this.setTimer(timeSeconds, position, this.timerObjects[position].greenRect, this.greenColor);
-      await this.setTimer(timeSeconds, position, this.timerObjects[position].blueRect, this.blueColor);
+
+      if (team === "ananas") {
+        console.log("Coconut first");
+        await this.setTimer(timeSeconds, position, this.timerObjects[position].greenRect, this.greenColor);
+        console.log("Ananas Second");
+        await this.setTimer(timeSeconds, position, this.timerObjects[position].blueRect, this.blueColor);
+      } else if (team === "coconut") {
+        console.log("Ananas first");
+        await this.setTimer(timeSeconds, position, this.timerObjects[position].blueRect, this.blueColor);
+        console.log("Coconut Second");
+        await this.setTimer(timeSeconds, position, this.timerObjects[position].greenRect, this.greenColor);
+      }
 
       // Cleanup
       this.timerObjects[position].greenRect?.destroy();
@@ -41,40 +55,6 @@ export class Timer {
       this.timerObjects.splice(position, 1);
       this.activeTimers -= 1;
     }
-  }
-
-  private setTimerInterval(currentTimerIndex: number, timeMS: number) {
-    const totalTimeMS = timeMS;
-    const intervalFreq = 500;
-    const intervalId = setInterval(() => {
-      // First half of timer
-      if (timeMS >= 0) {
-        console.log(timeMS);
-        timeMS -= intervalFreq * 2;
-        this.timerObjects[currentTimerIndex].greenRect?.destroy();
-        this.timerObjects[currentTimerIndex].greenRect = this.scene.add.rectangle(
-          this.scene.scale.width - this.timerWidth,
-          100 + currentTimerIndex * 30,
-          timeMS * (this.timerWidth / totalTimeMS),
-          25,
-          this.greenColor,
-        );
-        // Second half of timer
-      } else {
-        console.log(timeMS);
-        timeMS -= intervalFreq * 2;
-        this.timerObjects[currentTimerIndex].blueRect?.destroy();
-        this.timerObjects[currentTimerIndex].blueRect = this.scene.add.rectangle(
-          this.scene.scale.width - this.timerWidth,
-          100 + currentTimerIndex * 30,
-          -1 * timeMS * (this.timerWidth / totalTimeMS),
-          25,
-          this.blueColor,
-        );
-      }
-    }, intervalFreq);
-
-    return intervalId;
   }
 
   private createTimerFrame() {
@@ -95,6 +75,7 @@ export class Timer {
 
     currentBar.destroy();
     for (let i = 0; i < timeSeconds / 2; i++) {
+      //console.log("Width: ", barWidth, " Color: ", currentBar);
       currentBar = this.scene.add.rectangle(this.scene.scale.width - this.timerWidth, 100 + timerOrderIndex * 30, -1 * barWidth, 25, currentBarColor);
       await new Promise((resolve) => setTimeout(resolve, 1000));
       barWidth = this.timerWidth / ((i + 2 / timeSeconds) * timeSeconds);
