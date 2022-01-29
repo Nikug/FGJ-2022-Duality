@@ -40,7 +40,7 @@ export class GameScene extends Phaser.Scene {
     this.load.tilemapTiledJSON("map", "/assets/maps/map.json");
     this.load.spritesheet(ANIMATIONS.sheets.blue, "/assets/kritafiles/player_blue/player_blue_spritesheet.png", { frameWidth: 14, frameHeight: 14 });
     this.load.spritesheet(ANIMATIONS.sheets.green, "/assets/kritafiles/player_green/player_green_spritesheet.png", { frameWidth: 14, frameHeight: 14 });
-    this.load.spritesheet(ANIMATIONS.sheets.resources.basic, "/assets/kritafiles/resource.png", { frameWidth: 12, frameHeight: 12 });
+    this.load.spritesheet(ANIMATIONS.sheets.resources.basic, "/assets/kritafiles/resource/resource_basic_spritesheet.png", { frameWidth: 12, frameHeight: 12 });
   }
 
   public create() {
@@ -134,6 +134,7 @@ export class GameScene extends Phaser.Scene {
     for (let i = 0, len = resources.length; i < len; i++) {
       const resource = resources[i];
       const newResourceObject = createResource(this, new Phaser.Math.Vector2(resource.x, resource.y), 0xf5d442, resource.id);
+      newResourceObject.anims.play(ANIMATIONS.sheets.resources.basic);
       resourceObjects.push(newResourceObject);
     }
 
