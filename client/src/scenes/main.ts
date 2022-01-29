@@ -1,4 +1,4 @@
-import { ANIMATIONS, ONLINE_SPEED_SCALE, TILEMAP } from "../constants";
+import { ANIMATIONS, CAN_JUMP_DURATION, ONLINE_SPEED_SCALE, TILEMAP } from "../constants";
 
 import type * as Game from "../../types/types";
 import type { Socket } from "socket.io-client";
@@ -40,7 +40,11 @@ export class GameScene extends Phaser.Scene {
 
   public create() {
     this.player = new PlayerObject(this, new Phaser.Math.Vector2(128, 64), ANIMATIONS.sheets.blue, this.socket?.id || "", this.socket);
-    this.physics.add.collider(this.player.physicSprite, this.otherPlayers);
+    this.physics.add.collider(this.player.physicSprite, this.otherPlayers, (me, other) => {
+      if (me.body.touching.down && other.body.touching.up) {
+        this.player?.resetGroundContact();
+      }
+    });
 
     this.map = loadLevel(this);
     createAllAnimations(this);

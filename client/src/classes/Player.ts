@@ -38,6 +38,8 @@ export class PlayerObject {
     this.cursorKeys = scene.input.keyboard.createCursorKeys();
   }
 
+  public resetGroundContact = () => (this.timeFromGroundContact = CAN_JUMP_DURATION);
+
   public checkMovement() {
     if (!this.cursorKeys) return;
     if (!this.physicSprite) return;
