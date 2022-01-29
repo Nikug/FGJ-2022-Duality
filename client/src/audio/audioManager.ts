@@ -1,5 +1,7 @@
-const jungleOGG = "/assets/audio/public_assets_audio_jungle.ogg";
-const jungleMP3 = "/assets/audio/public_assets_audio_jungle.mp3";
+const dashWav = "/assets/audio/dash.wav";
+const jumpWav = "/assets/audio/jump.wav";
+const collectWav = "/assets/audio/collect.wav";
+const smackWav = "/assets/audio/smack.wav";
 
 /* Creates Audio Manager to use in scene
   Initialize AudioManager in scene create()
@@ -17,15 +19,32 @@ export class AudioManager {
   }
 
   loadAudio() {
-    this.scene.load.audio("jungle", jungleOGG, jungleMP3);
+    this.scene.load.audio("dash", dashWav);
+    this.scene.load.audio("collect", collectWav);
+    this.scene.load.audio("jump", jumpWav);
+    this.scene.load.audio("smack", smackWav);
   }
 
   addAudio() {
-    const jungle = this.scene.sound.add("jungle");
+    const dash = this.scene.sound.add("dash");
+    const collect = this.scene.sound.add("collect", { volume: 0.25 });
+    const jump = this.scene.sound.add("jump");
+    const smack = this.scene.sound.add("smack");
 
-    this.scene.events.on("playJungle", () => {
-      console.log("event");
-      jungle.play();
+    this.scene.events.on("playCollect", () => {
+      collect.play();
+    });
+
+    this.scene.events.on("playDash", () => {
+      dash.play();
+    });
+
+    this.scene.events.on("playJump", () => {
+      jump.play();
+    });
+
+    this.scene.events.on("playSmack", () => {
+      smack.play();
     });
   }
 }

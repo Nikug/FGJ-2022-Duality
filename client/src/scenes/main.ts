@@ -9,6 +9,7 @@ import { animationController, createAllAnimations } from "../util/characterUtils
 import { PlayerObject } from "../classes/Player";
 import getRandomNumber from "../util/getRandomNumber";
 import { collectResource } from "../util/socketUtils";
+import { AudioManager } from "../audio/audioManager";
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
   key: "Game",
@@ -22,6 +23,7 @@ export class GameScene extends Phaser.Scene {
   public otherPlayers: Game.PlayerSpriteObject[] = [];
   public map?: Phaser.Tilemaps.Tilemap;
   public gameState: Game.GameState;
+  private audioManager: AudioManager | undefined;
 
   constructor() {
     super(sceneConfig);
@@ -29,6 +31,7 @@ export class GameScene extends Phaser.Scene {
     this.socket = socket;
     this.map = undefined;
     this.gameState = { modifiers: [] };
+    this.audioManager = new AudioManager(this);
   }
 
   public preload() {
@@ -42,9 +45,12 @@ export class GameScene extends Phaser.Scene {
     this.load.spritesheet(ANIMATIONS.sheets.blue, "/assets/kritafiles/player_blue/player_blue_spritesheet.png", { frameWidth: 14, frameHeight: 14 });
     this.load.spritesheet(ANIMATIONS.sheets.green, "/assets/kritafiles/player_green/player_green_spritesheet.png", { frameWidth: 14, frameHeight: 14 });
     this.load.spritesheet(ANIMATIONS.sheets.resources.basic, "/assets/kritafiles/resource/resource_basic_spritesheet.png", { frameWidth: 12, frameHeight: 12 });
+    this.audioManager?.loadAudio();
   }
 
   public create() {
+    this.audioManager?.addAudio();
+    console.log("I am", this.socket?.id);
     const { map, worldLayer } = loadLevel(this);
     this.map = map;
     const randomSpawn = this.getRandomPlayerSpawn();
@@ -151,6 +157,7 @@ export class GameScene extends Phaser.Scene {
       if (!this.player) return;
 
       collectResource((resource as Game.ResourceGameObject).id, this.player.id, this.socket);
+      this.events.emit("playCollect");
     });
   }
 
