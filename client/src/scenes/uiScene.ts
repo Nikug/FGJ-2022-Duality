@@ -12,7 +12,6 @@ export class UIScene extends Phaser.Scene {
   }
 
   preload() {
-    this.timer?.loadImages();
     this.scoreboard?.loadImages();
   }
 
