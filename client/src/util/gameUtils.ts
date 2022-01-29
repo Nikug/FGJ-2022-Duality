@@ -22,6 +22,7 @@ export const createPlayer = (scene: Phaser.Scene, apiPlayer: ApiPlayerState) => 
   const player = scene.physics.add.sprite(apiPlayer.x, apiPlayer.y, getSheet(apiPlayer.team)) as PlayerSpriteObject;
   player.id = apiPlayer.id;
   player.team = apiPlayer.team;
+  player.body.syncBounds = true;
 
   return player;
 };
