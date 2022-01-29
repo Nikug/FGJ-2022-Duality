@@ -30,6 +30,8 @@ export class GameScene extends Phaser.Scene {
 
   public preload() {
     this.load.image("ground", "assets/platform.png");
+    this.load.image("clouds", "/assets/kritafiles/clous_squid.png");
+    this.load.image("clouds2", "/assets/kritafiles/clous_squid_2.png");
     this.load.image(TILEMAP.tilesets.purple.key, "/assets/sprites/Project Mute Tileset V3.png");
     this.load.image(TILEMAP.tilesets.yellow.key, "/assets/sprites/Project Mute Tileset V1.png");
     this.load.image(TILEMAP.tilesets.gray.key, "/assets/sprites/Project Mute Tileset V2.png");
