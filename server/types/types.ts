@@ -6,8 +6,21 @@ export interface Player {
   y: number;
 }
 
+
 export interface Game {
   modifiers: string[]
+
+export enum ResourceType {
+  BASIC = "basic",
+}
+
+export interface Resource extends ResourceLocation {
+  type: ResourceType;
+}
+
+export interface ResourceLocation {
+  x: number;
+  y: number;
 }
 
 export interface Vector2 {

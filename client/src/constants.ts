@@ -10,6 +10,10 @@ export const PLAYER_PUSH_POWER = 400;
 export const PUSH_TIMEOUT_DURATION = 300;
 export const CAN_PUSH_TIMEOUT_DURATION = 700;
 export const CAN_JUMP_DURATION = 100;
+export const CAN_DASH_DURATION = 100;
+export const DASH_CANT_MOVE_DURATION = 100;
+export const DASH_TIMEOUT_DURATION = 900;
+export const DASH_VELOCITY = 900;
 
 export const ONLINE_SPEED_SCALE = 10;
 
@@ -33,5 +37,9 @@ export const TILEMAP = {
     purple: { key: "tiles", name: "Project Mute Tileset V3" },
     yellow: { key: "frontTiles", name: "Project Mute Tileset V1" },
     gray: { key: "backTiles", name: "Project Mute Tileset V2" },
+  },
+  spawns: {
+    resource: "ResourceSpawn",
+    player: "PlayerSpawn",
   },
 };
