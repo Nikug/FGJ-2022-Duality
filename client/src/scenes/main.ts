@@ -65,7 +65,11 @@ export class GameScene extends Phaser.Scene {
     this.player = createPlayer(this, new Phaser.Math.Vector2(128, 64), ANIMATIONS.sheets.blue, this.socket?.id || "");
 
     this.player.body.setGravityY(PLAYER_GRAVITY);
-    this.physics.add.collider(this.player, this.otherPlayers);
+    this.physics.add.collider(this.player, this.otherPlayers, (me, other) => {
+      if (me.body.touching.down && other.body.touching.up) {
+        this.timeFromGroundContact = CAN_JUMP_DURATION;
+      }
+    });
 
     this.map = loadLevel(this);
     createAllAnimations(this);
