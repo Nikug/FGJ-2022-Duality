@@ -21,6 +21,7 @@ export class GameScene extends Phaser.Scene {
   private resources: Game.ResourceGameObject[] = [];
   private team?: Game.Team;
   public otherPlayers: Game.PlayerSpriteObject[] = [];
+  private apiPlayers?: Game.ApiPlayerState[];
   public map?: Phaser.Tilemaps.Tilemap;
   public gameState: Game.GameState;
   private audioManager: AudioManager | undefined;
@@ -45,8 +46,8 @@ export class GameScene extends Phaser.Scene {
     this.load.spritesheet(ANIMATIONS.sheets.coconut, "/assets/kritafiles/player_blue/player_blue_spritesheet.png", { frameWidth: 14, frameHeight: 14 });
     this.load.spritesheet(ANIMATIONS.sheets.ananas, "/assets/kritafiles/player_green/player_green_spritesheet.png", { frameWidth: 14, frameHeight: 14 });
     this.load.spritesheet(ANIMATIONS.sheets.resources.basic, "/assets/kritafiles/resource/resource_basic_spritesheet.png", { frameWidth: 12, frameHeight: 12 });
-    this.load.spritesheet(ANIMATIONS.sheets.greenSlap, "/assets/kritafiles/whip_demo_2/whip_sprite_sheet_demo.png", { frameWidth: 14, frameHeight: 14 });
-    this.load.spritesheet(ANIMATIONS.sheets.blueSlap, "/assets/kritafiles/whip_demo_2/whip_sprite_sheet_demo.png", { frameWidth: 14, frameHeight: 14 });
+    this.load.spritesheet(ANIMATIONS.sheets.slaps.coconut, "/assets/kritafiles/whip_demo_2/whip_sprite_sheet_demo.png", { frameWidth: 64, frameHeight: 64 });
+    this.load.spritesheet(ANIMATIONS.sheets.slaps.ananas, "assets/kritafiles/whip_demo_2/whip_sprite_sheet_demo.png", { frameWidth: 64, frameHeight: 64 });
     this.audioManager?.loadAudio();
   }
 
@@ -58,6 +59,7 @@ export class GameScene extends Phaser.Scene {
     const randomSpawn = this.getRandomPlayerSpawn();
     this.player = new PlayerObject(this, new Phaser.Math.Vector2(randomSpawn.x, randomSpawn.y), ANIMATIONS.sheets.coconut, this.socket?.id || "", this.socket);
     this.player?.setTeam(this.team ? this.team : "coconut");
+    this.generatePlayers();
     this.physics.add.collider(this.player.physicSprite, this.otherPlayers, (me, other) => {
       const upsideDown = this.isUpsideDown();
       if ((!upsideDown && me.body.touching.down && other.body.touching.up) || (upsideDown && me.body.touching.up && other.body.touching.down)) {
@@ -76,7 +78,13 @@ export class GameScene extends Phaser.Scene {
   }
 
   public initPlayers(players: Game.ApiPlayerState[]) {
-    for (const player of players) {
+    const pl = players.find((play) => play.id === this.socket?.id);
+    this.team = pl?.team;
+    this.apiPlayers = players;
+  }
+  private generatePlayers() {
+    if (!this.apiPlayers) return;
+    for (const player of this.apiPlayers) {
       if (player.id === this.socket?.id) {
         this.team = player.team;
         continue;
@@ -91,9 +99,9 @@ export class GameScene extends Phaser.Scene {
     this.otherPlayers.push(newPlayerObject);
   }
 
-  public getPushed(direction: Phaser.Math.Vector2) {
+  public getPushed(slapperId: string, targetId: string, direction: Phaser.Math.Vector2) {
     if (!this.player) return;
-    this.player.getPushed(direction);
+    this.player.getPushed(slapperId, targetId, direction);
   }
 
   public removePlayer(id: string) {
@@ -182,7 +190,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   public setModifiers(modifiers: Game.Modifier[]) {
-    console.log("settings modifiers", modifiers);
     const oldModifiers = [...this.gameState.modifiers];
     this.gameState.modifiers = modifiers;
     applyModifiers(this, modifiers, oldModifiers);
@@ -207,7 +214,6 @@ export class GameScene extends Phaser.Scene {
       return { x: 128, y: 64 };
     }
     const randomSpawn = playerSpawnLocations[getRandomNumber(0, playerSpawnLocations.length)];
-    console.log(randomSpawn);
     return randomSpawn;
     // })();
   }

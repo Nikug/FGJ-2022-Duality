@@ -77,10 +77,19 @@ export const playerToClient = (player: Player) => ({
   team: player.team,
 });
 
-export const pushPlayer = (playerId: string, direction: Vector2) => {
-  const player = getPlayerById(playerId);
+export const pushPlayer = (
+  socket: Socket,
+  playerId: string,
+  targetId: string,
+  direction: Vector2,
+) => {
+  const player = getPlayerById(targetId);
   if (player) {
-    player.socket?.emit("getPushed", { direction });
+    socket.broadcast.emit("getPushed", {
+      slapperId: playerId,
+      targetId,
+      direction,
+    });
   }
 };
 

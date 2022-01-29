@@ -1,4 +1,4 @@
-import type { ApiPlayerState, Modifier, Resource, Score } from "../types/types";
+import type { ApiPlayerState, Modifier, PoorMansVector2, Resource, Score } from "../types/types";
 import type { GameScene } from "./scenes/main";
 import type { Socket } from "socket.io-client";
 import type { MainMenu } from "./scenes/mainmenu";
@@ -25,9 +25,9 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
     scene.removePlayer(id);
   });
 
-  socket.on("getPushed", ({ direction }: { direction: Phaser.Math.Vector2 }) => {
+  socket.on("getPushed", ({ slapperId, targetId, direction }: { slapperId: string; targetId: string; direction: PoorMansVector2 }) => {
     const scene = game.scene.getScene("Game") as GameScene;
-    scene.getPushed(direction);
+    scene.getPushed(slapperId, targetId, new Phaser.Math.Vector2(direction.x, direction.y));
   });
 
   socket.on("updateModifiers", (modifiers: Modifier[]) => {
@@ -45,11 +45,6 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
     scene.updateResources(resources);
   });
 
-  socket.on("getPushed", ({ direction }: { direction: Phaser.Math.Vector2 }) => {
-    const scene = game.scene.getScene("Game") as GameScene;
-    scene.getPushed(direction);
-  });
-
   socket.on("playerCount", (playerCount) => {
     const scene = game.scene.getScene("MainMenu") as MainMenu;
     scene.setPlayerCount(playerCount);
@@ -60,7 +55,6 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
     scene.startGameForEveryone();
   });
   socket.on("updateScore", (score: Score) => {
-    console.log(score);
     const scene = game.scene.getScene("Game") as MainMenu;
     scene.events.emit("addScore", score);
   });

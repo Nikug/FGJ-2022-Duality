@@ -22,8 +22,8 @@ const updatePlayer = (state: PlayerState) => {
   lastState = { ...state, lastUpdate: Date.now() };
 };
 
-export const pushPlayer = (id: string, direction: Phaser.Math.Vector2, socket?: Socket) => {
-  socket?.emit("push", { id, direction });
+export const pushPlayer = (slapperId: string, targetId: string, direction: Phaser.Math.Vector2, socket?: Socket) => {
+  socket?.emit("push", { id: slapperId, targetId, direction });
 };
 
 const hasStateChanged = (state: PlayerState) => {
