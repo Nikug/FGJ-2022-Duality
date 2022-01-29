@@ -87,3 +87,8 @@ export interface Modifier {
   team: Team;
   duration: number;
 }
+
+export interface PoorMansVector2 {
+  x: number;
+  y: number;
+}

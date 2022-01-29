@@ -100,11 +100,14 @@ export const ANIMATIONS = {
     airRight: "airRight",
     air: "air,",
   },
+  slap: "slap",
   sheets: {
     ananas: "playerBlue",
     coconut: "playerGreen",
-    blueSlap: "playerBlueSlap",
-    greenSlap: "playerGreenSlap",
+    slaps: {
+      coconut: "playerBlueSlap",
+      ananas: "playerGreenSlap",
+    },
     resources: {
       basic: "resourceBasic",
     },
