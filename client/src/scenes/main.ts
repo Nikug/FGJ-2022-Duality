@@ -27,6 +27,8 @@ export class GameScene extends Phaser.Scene {
   public player?: Game.PhysicsRectangle;
   private socket?: Socket;
   private otherPlayers: Game.PlayerGameObject[] = [];
+  public map?: Phaser.Tilemaps.Tilemap;
+
   private cursorKeys?: Phaser.Types.Input.Keyboard.CursorKeys;
   private canMove = true;
   private canPush = true;
@@ -37,6 +39,7 @@ export class GameScene extends Phaser.Scene {
     this.player = undefined;
     this.socket = socket;
     this.cursorKeys = undefined;
+    this.map = undefined;
   }
 
   public preload() {
@@ -62,7 +65,7 @@ export class GameScene extends Phaser.Scene {
     this.player.body.setGravityY(PLAYER_GRAVITY);
     this.physics.add.collider(this.player, this.otherPlayers);
 
-    loadLevel(this);
+    this.map = loadLevel(this);
 
     const mainCamera = this.cameras.main;
     mainCamera.setZoom(2, 2);

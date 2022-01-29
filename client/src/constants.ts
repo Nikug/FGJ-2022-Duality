@@ -19,3 +19,22 @@ export const RENDERING_ORDER = {
   player: 0,
   foreground: 100,
 };
+
+export const TILEMAP = {
+  key: "map",
+  tileSize: 16,
+  layers: {
+    backwall: "Backwall",
+    background: "Background",
+    world: "World",
+    foreground: "Foreground",
+  },
+  tilesets: {
+    purple: {
+      key: "tiles",
+      name: "Project Mute Tileset V3",
+    },
+    yellow: { key: "frontTiles", name: "Project Mute Tileset V1" },
+    gray: { key: "backTiles", name: "Project Mute Tileset V2" },
+  },
+};
