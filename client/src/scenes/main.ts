@@ -1,6 +1,10 @@
 import {
+  ANIMATIONS,
   CAN_JUMP_DURATION,
   CAN_PUSH_TIMEOUT_DURATION,
+  DASH_CANT_MOVE_DURATION,
+  DASH_TIMEOUT_DURATION,
+  DASH_VELOCITY,
   JUMP_VELOCITY,
   MOVEMENT_SPEED,
   ONLINE_SPEED_SCALE,
@@ -13,10 +17,11 @@ import {
 
 import type * as Game from "../../types/types";
 import type { Socket } from "socket.io-client";
-import { createRectangle, createResource } from "../util/gameUtils";
+import { createPlayer, createResource } from "../util/gameUtils";
 import { socket } from "..";
 import { loadLevel } from "../util/sceneUtils";
-import { pushPlayer, throttleUpdate } from "../util/socketUtils";
+import { addModifier, pushPlayer, throttleUpdate } from "../util/socketUtils";
+import { animationController, createAllAnimations } from "../util/characterUtils";
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
   active: false,
@@ -25,16 +30,18 @@ const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
 };
 
 export class GameScene extends Phaser.Scene {
-  public player?: Game.PhysicsRectangle;
+  public player?: Game.PlayerSpriteObject;
   private socket?: Socket;
-  private otherPlayers: Game.PlayerGameObject[] = [];
   private resources: Game.ResourceGameObject[] = [];
+  public otherPlayers: Game.PlayerSpriteObject[] = [];
   public map?: Phaser.Tilemaps.Tilemap;
 
   private cursorKeys?: Phaser.Types.Input.Keyboard.CursorKeys;
   private canMove = true;
+  private disabledTime = 0;
   private canPush = true;
   private timeFromGroundContact = 0;
+  private timeFromDash = 0;
 
   constructor() {
     super(sceneConfig);
@@ -50,16 +57,19 @@ export class GameScene extends Phaser.Scene {
     this.load.image(TILEMAP.tilesets.yellow.key, "/assets/sprites/Project Mute Tileset V1.png");
     this.load.image(TILEMAP.tilesets.gray.key, "/assets/sprites/Project Mute Tileset V2.png");
     this.load.tilemapTiledJSON("map", "/assets/maps/map.json");
+    this.load.spritesheet(ANIMATIONS.sheets.blue, "/assets/kritafiles/player_blue/player_blue_spritesheet.png", { frameWidth: 14, frameHeight: 14 });
+    this.load.spritesheet(ANIMATIONS.sheets.green, "/assets/kritafiles/player_green/player_green_spritesheet.png", { frameWidth: 14, frameHeight: 14 });
   }
 
   public create() {
     this.cursorKeys = this.input.keyboard.createCursorKeys();
-    this.player = createRectangle(this, new Phaser.Math.Vector2(128, 64), 0x00ff00, this.socket?.id || "");
+    this.player = createPlayer(this, new Phaser.Math.Vector2(128, 64), ANIMATIONS.sheets.blue, this.socket?.id || "");
 
     this.player.body.setGravityY(PLAYER_GRAVITY);
     this.physics.add.collider(this.player, this.otherPlayers);
 
     this.map = loadLevel(this);
+    createAllAnimations(this);
 
     const mainCamera = this.cameras.main;
     mainCamera.setZoom(2, 2);
@@ -80,7 +90,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   public addPlayer(newPlayer: Game.ApiPlayerState) {
-    const newPlayerObject = createRectangle(this, new Phaser.Math.Vector2(newPlayer.x, newPlayer.y), 0xff00ff, newPlayer.id);
+    const newPlayerObject = createPlayer(this, new Phaser.Math.Vector2(newPlayer.x, newPlayer.y), ANIMATIONS.sheets.green, newPlayer.id);
     this.otherPlayers.push(newPlayerObject);
   }
 
@@ -103,9 +113,7 @@ export class GameScene extends Phaser.Scene {
       this.player.body.setVelocityX(direction.x * PLAYER_PUSH_POWER);
       this.player.body.setVelocityY(direction.y * PLAYER_PUSH_POWER);
     }
-    setTimeout(() => {
-      this.canMove = true;
-    }, PUSH_TIMEOUT_DURATION);
+    this.disabledTime = PUSH_TIMEOUT_DURATION;
   }
 
   public removePlayer(id: string) {
@@ -168,14 +176,46 @@ export class GameScene extends Phaser.Scene {
 
     if (this.cursorKeys.up.isDown && this.timeFromGroundContact > 0) {
       this.player.body.setVelocityY(-JUMP_VELOCITY);
+
+      if (this.socket) {
+        addModifier("New Modifier", 5, this.socket);
+      }
+
       this.timeFromGroundContact = 0;
+    }
+  }
+  public checkDash(delta: number) {
+    if (!this.cursorKeys) return;
+    if (!this.player) return;
+    if (!this.canMove) return;
+
+    if (this.timeFromDash > 0) {
+      this.timeFromDash -= delta;
+    }
+
+    if (this.cursorKeys.shift.isDown && this.timeFromDash <= 0) {
+      if (this.player.body.velocity.x < 0) {
+        this.player.body.setVelocityX(-DASH_VELOCITY);
+      } else {
+        this.player.body.setVelocityX(DASH_VELOCITY);
+      }
+      this.canMove = false;
+      this.disabledTime = DASH_CANT_MOVE_DURATION;
+      this.timeFromDash = DASH_TIMEOUT_DURATION;
     }
   }
 
   public update(time: number, delta: number) {
     if (!this.player) return;
+    if (this.disabledTime > 0) {
+      this.disabledTime -= delta;
+    } else if (!this.canMove) {
+      this.canMove = true;
+    }
     this.checkMovement();
     this.checkJump(delta);
+    this.checkDash(delta);
+    animationController(this);
 
     throttleUpdate({
       x: this.player.body.position.x,

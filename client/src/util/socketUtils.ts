@@ -1,5 +1,5 @@
 import type { Socket } from "socket.io-client";
-import type { PlayerState } from "../../types/types";
+import type { GameState, PlayerState } from "../../types/types";
 import { UPDATE_INTERVAL } from "../constants";
 
 let lastState: PlayerState | undefined = undefined;
@@ -21,14 +21,14 @@ const updatePlayer = (state: PlayerState) => {
   lastState = { ...state, lastUpdate: Date.now() };
 };
 
-export const pushPlayer = (
-  id: string,
-  direction: Phaser.Math.Vector2,
-  socket?: Socket,
-) => {
+export const pushPlayer = (id: string, direction: Phaser.Math.Vector2, socket?: Socket) => {
   socket?.emit("push", { id, direction });
 };
 
 const hasStateChanged = (state: PlayerState) => {
   return state.x !== lastState?.x || state.y !== lastState?.y;
+};
+
+export const addModifier = (modifier: string, duration: number, socket: Socket) => {
+  socket?.emit("addModifier", modifier, duration);
 };

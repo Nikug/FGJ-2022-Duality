@@ -6,6 +6,10 @@ export interface Player {
   y: number;
 }
 
+export interface Game {
+  modifiers: string[];
+}
+
 export enum ResourceType {
   BASIC = "basic",
 }
