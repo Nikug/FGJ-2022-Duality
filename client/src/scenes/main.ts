@@ -21,6 +21,7 @@ export class GameScene extends Phaser.Scene {
   private resources: Game.ResourceGameObject[] = [];
   private team?: Game.Team;
   public otherPlayers: Game.PlayerSpriteObject[] = [];
+  private apiPlayers?: Game.ApiPlayerState[];
   public map?: Phaser.Tilemaps.Tilemap;
   public gameState: Game.GameState;
   private audioManager: AudioManager | undefined;
@@ -58,6 +59,7 @@ export class GameScene extends Phaser.Scene {
     const randomSpawn = this.getRandomPlayerSpawn();
     this.player = new PlayerObject(this, new Phaser.Math.Vector2(randomSpawn.x, randomSpawn.y), ANIMATIONS.sheets.coconut, this.socket?.id || "", this.socket);
     this.player?.setTeam(this.team ? this.team : "coconut");
+    this.generatePlayers();
     this.physics.add.collider(this.player.physicSprite, this.otherPlayers, (me, other) => {
       const upsideDown = this.isUpsideDown();
       if ((!upsideDown && me.body.touching.down && other.body.touching.up) || (upsideDown && me.body.touching.up && other.body.touching.down)) {
@@ -76,7 +78,13 @@ export class GameScene extends Phaser.Scene {
   }
 
   public initPlayers(players: Game.ApiPlayerState[]) {
-    for (const player of players) {
+    const pl = players.find((play) => play.id === this.socket?.id);
+    this.team = pl?.team;
+    this.apiPlayers = players;
+  }
+  private generatePlayers() {
+    if (!this.apiPlayers) return;
+    for (const player of this.apiPlayers) {
       if (player.id === this.socket?.id) {
         this.team = player.team;
         continue;
