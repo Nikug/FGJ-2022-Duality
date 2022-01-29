@@ -215,7 +215,10 @@ export class GameScene extends Phaser.Scene {
     return randomSpawn;
   }
 
-  public victory(team: string) {
-    console.log(team, " wins!");
+  public async victory(team: Game.Team) {
+    this.events.emit("Victory", team);
+    this.events.emit("silence");
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+    location.reload();
   }
 }

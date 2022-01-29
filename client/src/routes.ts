@@ -1,4 +1,4 @@
-import type { ApiPlayerState, Modifier, Resource, Score } from "../types/types";
+import type { ApiPlayerState, Modifier, Resource, Score, Team } from "../types/types";
 import type { GameScene } from "./scenes/main";
 import type { Socket } from "socket.io-client";
 import type { MainMenu } from "./scenes/mainmenu";
@@ -63,12 +63,8 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
     const scene = game.scene.getScene("Game") as MainMenu;
     scene.events.emit("addScore", score);
   });
-  socket.on("coconutWin", () => {
+  socket.on("teamVictory", (team: Team) => {
     const scene = game.scene.getScene("Game") as GameScene;
-    scene.victory("Coconut");
-  });
-  socket.on("ananasWin", () => {
-    const scene = game.scene.getScene("Game") as GameScene;
-    scene.victory("Ananas");
+    scene.victory(team);
   });
 };
