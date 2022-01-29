@@ -6,6 +6,7 @@ const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
 
 export class MainMenu extends Phaser.Scene {
   private playerCountText: Phaser.GameObjects.Text | undefined;
+  private playerUpdateInterval?: NodeJS.Timer;
 
   constructor() {
     super(sceneConfig);
@@ -28,6 +29,16 @@ export class MainMenu extends Phaser.Scene {
         color: "#000000",
       })
       .setOrigin(0.5);
+
+    this.playerUpdateInterval = setInterval(() => {
+      playerCount();
+    }, 500);
+  }
+
+  public shutdown() {
+    if (this.playerUpdateInterval) {
+      clearInterval(this.playerUpdateInterval);
+    }
   }
 
   public setPlayerCount(playerCount: integer) {
@@ -36,9 +47,5 @@ export class MainMenu extends Phaser.Scene {
 
   public startGameForEveryone() {
     this.scene.start("Game");
-  }
-
-  public update() {
-    playerCount();
   }
 }
