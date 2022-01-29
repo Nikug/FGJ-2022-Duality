@@ -1,6 +1,7 @@
 import { Socket } from "socket.io";
 import { getPlayerById, getPlayers, setPlayers } from ".";
 import { Player, Vector2 } from "../../types/types";
+import { getResources } from "./resource";
 
 export const addPlayer = (socket: Socket) => {
   console.log("Adding new player", socket.id);
@@ -14,7 +15,7 @@ export const addPlayer = (socket: Socket) => {
   const newPlayers = [...players, newPlayer];
 
   socket.broadcast.emit("newPlayer", playerToClient(newPlayer));
-  socket.emit("init", playersToUpdate(newPlayers));
+  socket.emit("init", playersToUpdate(newPlayers), getResources());
   setPlayers(newPlayers);
 };
 

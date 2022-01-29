@@ -5,7 +5,7 @@ export const MOVEMENT_SPEED = 200;
 export const JUMP_VELOCITY = 400;
 
 export const PLAYER_GRAVITY = 500;
-export const PLAYER_PUSH_DISTANCE = 100;
+export const PLAYER_PUSH_DISTANCE = 32;
 export const PLAYER_PUSH_POWER = 400;
 export const PUSH_TIMEOUT_DURATION = 300;
 export const CAN_PUSH_TIMEOUT_DURATION = 700;
@@ -39,8 +39,8 @@ export const TILEMAP = {
     gray: { key: "backTiles", name: "Project Mute Tileset V2" },
   },
   spawns: {
-    resource: "ResourceSpawn",
-    player: "PlayerSpawn",
+    resource: "ResourceSpawns",
+    player: "PlayerSpawns",
   },
 };
 

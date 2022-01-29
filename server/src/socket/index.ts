@@ -1,7 +1,11 @@
 import { Socket } from "socket.io";
 import { io } from "../..";
 import { ResourceLocation } from "../../types/types";
-import { updateResourceLocations } from "../game/resource";
+import {
+  fillEmptyResourceLocations,
+  getResourceLocations,
+  updateResourceLocations,
+} from "../game/resource";
 import { Vector2 } from "../../types/types";
 import { addModifier } from "../game/gameState";
 import {
@@ -28,6 +32,10 @@ export const handleSockets = (socket: Socket) => {
       updateResourceLocations(resourceLocations);
     },
   );
+
+  socket.on("initResources", () => {
+    fillEmptyResourceLocations();
+  });
 
   socket.on("push", ({ id, direction }: { id: string; direction: Vector2 }) => {
     pushPlayer(id, direction);
