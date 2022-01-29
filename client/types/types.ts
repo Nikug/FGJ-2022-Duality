@@ -15,6 +15,14 @@ export interface PlayerState {
   lastUpdate?: number;
 }
 
+export interface GameState {
+  modifiers: string[];
+  socket: Socket;
+}
+export interface APIGameState {
+  modifiers: string[];
+}
+
 export interface Platform {
   x?: number;
   y?: number;

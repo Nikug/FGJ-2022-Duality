@@ -1,4 +1,5 @@
 import { Socket } from "socket.io";
+import { io } from "../..";
 import { Vector2 } from "../../types/types";
 import { addModifier } from "../game/gameState";
 import {
@@ -25,7 +26,7 @@ export const handleSockets = (socket: Socket) => {
   socket.on(
     "addModifier",
     (newModifier: string, modifierDurationSecond: number) => {
-      addModifier(socket, newModifier, modifierDurationSecond);
+      addModifier(newModifier, modifierDurationSecond);
     },
   );
 };

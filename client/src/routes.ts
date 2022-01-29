@@ -1,4 +1,4 @@
-import type { ApiPlayerState } from "../types/types";
+import type { APIGameState, ApiPlayerState, GameState } from "../types/types";
 import type { GameScene } from "./scenes/main";
 import type { Socket } from "socket.io-client";
 
@@ -23,11 +23,12 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
     scene.removePlayer(id);
   });
 
-  socket.on(
-    "getPushed",
-    ({ direction }: { direction: Phaser.Math.Vector2 }) => {
-      const scene = game.scene.getScene("Game") as GameScene;
-      scene.getPushed(direction);
-    },
-  );
+  socket.on("getPushed", ({ direction }: { direction: Phaser.Math.Vector2 }) => {
+    const scene = game.scene.getScene("Game") as GameScene;
+    scene.getPushed(direction);
+  });
+
+  socket.on("updateState", (game: APIGameState) => {
+    console.log("Updating GameState: ", game);
+  });
 };

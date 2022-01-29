@@ -16,7 +16,7 @@ import type { Socket } from "socket.io-client";
 import { createRectangle } from "../util/gameUtils";
 import { socket } from "..";
 import { loadLevel } from "../util/sceneUtils";
-import { pushPlayer, throttleUpdate } from "../util/socketUtils";
+import { addModifier, pushPlayer, throttleUpdate } from "../util/socketUtils";
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
   active: false,
@@ -163,6 +163,11 @@ export class GameScene extends Phaser.Scene {
 
     if (this.cursorKeys.up.isDown && this.timeFromGroundContact > 0) {
       this.player.body.setVelocityY(-JUMP_VELOCITY);
+
+      if (this.socket) {
+        addModifier("New Modifier", 5, this.socket);
+      }
+
       this.timeFromGroundContact = 0;
     }
   }

@@ -8,7 +8,7 @@ export const getPlayers = () => [...globalPlayers];
 export const setPlayers = (newPlayers: Player[]) =>
   (globalPlayers = newPlayers);
 
-let globalGameState: Game;
+let globalGameState: Game = { modifiers: [] };
 export const getGameState = () => globalGameState;
 export const setGameState = (newGameState: Game) =>
   (globalGameState = newGameState);
