@@ -1,5 +1,3 @@
-import type { GameScene } from "../scenes/main";
-
 import scoreboardImage from "/assets/scoreboard/scoreboard.png";
 
 /* Creates UI Scoreboard
@@ -10,12 +8,11 @@ import scoreboardImage from "/assets/scoreboard/scoreboard.png";
         - call timer.addScore(player, score) whenever needed
         - debug as needed :]
 */
-export class ScoreBoard {
-  private scene: GameScene;
-  scores: { player: string; score: number; text: Phaser.GameObjects.Text }[] =
-    [];
+export class Scoreboard {
+  private scene: Phaser.Scene;
+  scores: { player: string; score: number; text: Phaser.GameObjects.Text }[] = [];
 
-  constructor(scene: GameScene) {
+  constructor(scene: Phaser.Scene) {
     this.scene = scene;
   }
 
@@ -30,25 +27,18 @@ export class ScoreBoard {
   public addScore(player: string, score: number) {
     // If player not in list
     if (!this.scores.some((item) => item.player === player)) {
+      console.log("Push");
       this.scores.push({
         player: player,
         score: score,
-        text: this.scene.add.text(
-          125,
-          200 + this.scores.length * 50,
-          `Player: ${player}, Score: ${score}`,
-        ),
+        text: this.scene.add.text(125, 200 + this.scores.length * 50, `Player: ${player}, Score: ${score}`),
       });
     } else {
       for (let i = 0; i < this.scores.length; i++) {
         if (this.scores[i].player === player) {
           this.scores[i].score += score;
           this.scores[i].text.destroy();
-          this.scores[i].text = this.scene.add.text(
-            125,
-            200 + this.scores.length * 50,
-            `Player: ${player}, Score: ${this.scores[i].score}`,
-          );
+          this.scores[i].text = this.scene.add.text(125, 200 + i * 50, `Player: ${player}, Score: ${this.scores[i].score}`);
         }
       }
     }
