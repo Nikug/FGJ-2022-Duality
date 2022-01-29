@@ -13,7 +13,7 @@ import {
 
 import type * as Game from "../../types/types";
 import type { Socket } from "socket.io-client";
-import { createRectangle } from "../util/gameUtils";
+import { createRectangle, createResource } from "../util/gameUtils";
 import { socket } from "..";
 import { loadLevel } from "../util/sceneUtils";
 import { pushPlayer, throttleUpdate } from "../util/socketUtils";
@@ -28,6 +28,7 @@ export class GameScene extends Phaser.Scene {
   public player?: Game.PhysicsRectangle;
   private socket?: Socket;
   private otherPlayers: Game.PlayerGameObject[] = [];
+  private resources: Game.ResourceGameObject[] = [];
   public map?: Phaser.Tilemaps.Tilemap;
 
   private cursorKeys?: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -65,6 +66,10 @@ export class GameScene extends Phaser.Scene {
     mainCamera.startFollow(this.player);
     mainCamera.setLerp(0.05, 0.05);
     mainCamera.roundPixels = true;
+
+    if (this.otherPlayers.length === 0) {
+      socket.emit("initResources");
+    }
   }
 
   public initPlayers(players: Game.ApiPlayerState[]) {
@@ -179,25 +184,35 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
-  public sendResourceLocations(socket: Socket) {
-    const resourceLocations = this.map?.findObject("ResourceSpawn", (obj) => obj);
-    console.log({ resourceLocations });
+  public updateResources(resources: Game.Resource[]) {
+    const oldResources = this.resources;
 
-    // placeholder
-    // const resourceLocations = [
-    //   {
-    //     x: 120,
-    //     y: 120,
-    //   },
-    //   {
-    //     x: 110,
-    //     y: 90,
-    //   },
-    //   {
-    //     x: 234,
-    //     y: 213,
-    //   },
-    // ];
+    for (let i = 0, len = oldResources.length; i < len; i++) {
+      const oldResource = oldResources[i];
+
+      oldResource.destroy();
+    }
+
+    const resourceObjects: Game.ResourceGameObject[] = [];
+
+    for (let i = 0, len = resources.length; i < len; i++) {
+      const resource = resources[i];
+      const newResourceObject = createResource(this, new Phaser.Math.Vector2(resource.x, resource.y), 0xf5d442, resource.id);
+      resourceObjects.push(newResourceObject);
+    }
+
+    this.resources = resourceObjects;
+  }
+
+  public sendResourceLocations(socket: Socket) {
+    const resourceLayer = this.map?.getObjectLayer(TILEMAP.spawns.resource);
+    const resourceObjects = resourceLayer?.objects;
+
+    const resourceLocations = resourceObjects?.map((resourceObj) => {
+      const { x, y, type, id } = resourceObj;
+
+      return { x, y, type, id: id.toString() };
+    });
 
     socket.emit("sendResourceLocations", resourceLocations);
   }

@@ -35,7 +35,7 @@ export const TILEMAP = {
     gray: { key: "backTiles", name: "Project Mute Tileset V2" },
   },
   spawns: {
-    resource: "ResourceSpawn",
-    player: "PlayerSpawn",
+    resource: "ResourceSpawns",
+    player: "PlayerSpawns",
   },
 };

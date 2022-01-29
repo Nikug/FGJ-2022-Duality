@@ -8,6 +8,10 @@ export interface PlayerGameObject extends PhysicsRectangle {
   id: string;
 }
 
+export interface ResourceGameObject extends PhysicsRectangle {
+  id: string;
+}
+
 export interface PlayerState {
   x?: number;
   y?: number;
@@ -26,4 +30,11 @@ export interface ApiPlayerState {
   x: number;
   y: number;
   id: string;
+}
+
+export interface Resource {
+  id: string;
+  x: number;
+  y: number;
+  type: string;
 }

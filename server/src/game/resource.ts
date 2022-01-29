@@ -91,6 +91,7 @@ export const addResources = (amount?: number) => {
       type: ResourceType.BASIC,
       x: location.x,
       y: location.y,
+      id: location.id,
     });
   }
 
@@ -111,8 +112,6 @@ export const fillEmptyResourceLocations = () => {
 
   const randomNumber = getRandomNumber(0, length);
   const theChosenOne = players[randomNumber];
-
-  console.log({ players, randomNumber });
 
   theChosenOne.socket.emit("giveResourceLocations");
 };

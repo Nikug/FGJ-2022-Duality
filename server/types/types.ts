@@ -15,8 +15,10 @@ export interface Resource extends ResourceLocation {
 }
 
 export interface ResourceLocation {
+  id: string;
   x: number;
   y: number;
+  type: string;
 }
 
 export interface Vector2 {
