@@ -1,9 +1,3 @@
-import emptyTimerImage from "/assets/timer/emptyTimer.png";
-import quarterTimerImage from "/assets/timer/quarterTimer.png";
-import halfTimerImage from "/assets/timer/halfTimer.png";
-import fullTimerImage from "/assets/timer/fullTimer.png";
-import type { GameObjects } from "phaser";
-
 /* Creates UI Timer
     Usage:
         - create new Timer() in scene constructor
@@ -11,70 +5,100 @@ import type { GameObjects } from "phaser";
         - call timer.addTimer(seconds) whenver needed
         - debug as needed :]
 */
-
 export class Timer {
   private scene: Phaser.Scene;
   private timerHeight = 50;
+  private timerWidth = 300;
   private activeTimers = 0;
   private timerTexts: Phaser.GameObjects.Text[] = [];
+  private blueColor = this.hColor("#3264a8");
+  private greenColor = this.hColor("#4ea832");
+  private frameColor = this.hColor("#000000");
+
+  private timerObjects: { blueRect: Phaser.GameObjects.Rectangle; greenRect: Phaser.GameObjects.Rectangle; frameRect: Phaser.GameObjects.Rectangle }[] = [];
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
   }
 
-  public loadImages() {
-    this.scene.load.image("emptyTimer", emptyTimerImage);
-    this.scene.load.image("quarterTimer", quarterTimerImage);
-    this.scene.load.image("halfTimer", halfTimerImage);
-    this.scene.load.image("fullTimer", fullTimerImage);
-  }
-
   public async addTimer(timeSeconds: number) {
     // Making sure scene has been created
     if (this.scene) {
+      this.createTimerFrame();
+
       // Init
-      const timeMS = timeSeconds * 1000;
+      const position = this.activeTimers;
       this.activeTimers += 1;
 
-      // Timer order in contrast to other timers
-      const position = this.activeTimers;
-
-      // Set countdown
-      const intervalId = this.setTimerInterval(position, timeSeconds);
-
-      // Set timer images when appropriate
-      await this.setNextTimerImage("fullTimer", timeMS / 2, position);
-      await this.setNextTimerImage("halfTimer", timeMS / 4, position);
-      await this.setNextTimerImage("quarterTimer", timeMS / 4, position);
+      // Fuck interval, for loop wins
+      await this.setTimer(timeSeconds, position, this.timerObjects[position].greenRect, this.greenColor);
+      await this.setTimer(timeSeconds, position, this.timerObjects[position].blueRect, this.blueColor);
 
       // Cleanup
+      this.timerObjects[position].greenRect?.destroy();
+      this.timerObjects[position].blueRect?.destroy();
+      this.timerObjects[position].frameRect?.destroy();
+      this.timerObjects.splice(position, 1);
       this.activeTimers -= 1;
-      clearInterval(intervalId);
-      this.timerTexts[position].destroy();
     }
   }
 
-  private async setNextTimerImage(imageName: string, time: number, timerOrderNumber: number) {
-    const image = this.scene.add.image(this.scene.scale.width - 300, this.timerHeight * timerOrderNumber, imageName);
-    await new Promise((resolve) => setTimeout(resolve, time));
-    image.destroy();
-  }
-
-  private setTimerInterval(timeOrderNumber: number, timeSeconds: number) {
-    const timerPosY = timeOrderNumber * 50;
-    const timerPosX = this.scene.scale.width - 520;
-    let timerText: GameObjects.Text | null = null;
-
+  private setTimerInterval(currentTimerIndex: number, timeMS: number) {
+    const totalTimeMS = timeMS;
+    const intervalFreq = 500;
     const intervalId = setInterval(() => {
-      if (timerText) {
-        timerText.destroy();
+      // First half of timer
+      if (timeMS >= 0) {
+        console.log(timeMS);
+        timeMS -= intervalFreq * 2;
+        this.timerObjects[currentTimerIndex].greenRect?.destroy();
+        this.timerObjects[currentTimerIndex].greenRect = this.scene.add.rectangle(
+          this.scene.scale.width - this.timerWidth,
+          100 + currentTimerIndex * 30,
+          timeMS * (this.timerWidth / totalTimeMS),
+          25,
+          this.greenColor,
+        );
+        // Second half of timer
+      } else {
+        console.log(timeMS);
+        timeMS -= intervalFreq * 2;
+        this.timerObjects[currentTimerIndex].blueRect?.destroy();
+        this.timerObjects[currentTimerIndex].blueRect = this.scene.add.rectangle(
+          this.scene.scale.width - this.timerWidth,
+          100 + currentTimerIndex * 30,
+          -1 * timeMS * (this.timerWidth / totalTimeMS),
+          25,
+          this.blueColor,
+        );
       }
-
-      timerText = this.scene.add.text(timerPosX, timerPosY, timeSeconds.toString(), { font: '"Press Start 2P"', fontSize: "28px" });
-      this.timerTexts[timeOrderNumber] = timerText;
-      timeSeconds -= 1;
-    }, 1000);
+    }, intervalFreq);
 
     return intervalId;
+  }
+
+  private createTimerFrame() {
+    const blueRect = this.scene.add.rectangle(this.scene.scale.width - 300, 100, 300, 25, this.blueColor);
+    const greenRect = this.scene.add.rectangle(this.scene.scale.width - 300, 100, 300, 25, this.greenColor);
+    const frameRect = this.scene.add.rectangle(this.scene.scale.width - 300, 100, 300, 29);
+    frameRect.setStrokeStyle(4, this.frameColor);
+
+    this.timerObjects.push({ blueRect: blueRect, greenRect: greenRect, frameRect: frameRect });
+  }
+
+  private hColor(hexColor: string) {
+    return Phaser.Display.Color.HexStringToColor(hexColor).color;
+  }
+
+  private async setTimer(timeSeconds: number, timerOrderIndex: number, currentBar: Phaser.GameObjects.Rectangle, currentBarColor: number) {
+    let barWidth = this.timerWidth;
+
+    currentBar.destroy();
+    for (let i = 0; i < timeSeconds / 2; i++) {
+      currentBar = this.scene.add.rectangle(this.scene.scale.width - this.timerWidth, 100 + timerOrderIndex * 30, -1 * barWidth, 25, currentBarColor);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      barWidth = this.timerWidth / ((i + 2 / timeSeconds) * timeSeconds);
+      currentBar.destroy();
+    }
   }
 }
