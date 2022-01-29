@@ -105,6 +105,8 @@ export class PlayerObject {
     this.physicSprite.body.setVelocityX(direction.x * this.stats.pushPower);
     this.physicSprite.body.setVelocityY(direction.y * this.stats.pushPower);
     this.disabledTime = this.stats.pushTimeout;
+    console.log(direction);
+    this.handleSlapAnimation(this.physicSprite.body.position, direction);
     this.scene.events.emit("playSmack");
   }
 

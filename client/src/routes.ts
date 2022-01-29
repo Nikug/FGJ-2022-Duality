@@ -1,4 +1,4 @@
-import type { ApiPlayerState, Modifier, Resource, Score } from "../types/types";
+import type { ApiPlayerState, Modifier, PoorMansVector2, Resource, Score } from "../types/types";
 import type { GameScene } from "./scenes/main";
 import type { Socket } from "socket.io-client";
 import type { MainMenu } from "./scenes/mainmenu";
@@ -25,9 +25,9 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
     scene.removePlayer(id);
   });
 
-  socket.on("getPushed", ({ direction }: { direction: Phaser.Math.Vector2 }) => {
+  socket.on("getPushed", ({ direction }: { direction: PoorMansVector2 }) => {
     const scene = game.scene.getScene("Game") as GameScene;
-    scene.getPushed(direction);
+    scene.getPushed(new Phaser.Math.Vector2(direction.x, direction.y));
   });
 
   socket.on("updateModifiers", (modifiers: Modifier[]) => {
@@ -43,11 +43,6 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
   socket.on("updateResources", (resources: Resource[]) => {
     const scene = game.scene.getScene("Game") as GameScene;
     scene.updateResources(resources);
-  });
-
-  socket.on("getPushed", ({ direction }: { direction: Phaser.Math.Vector2 }) => {
-    const scene = game.scene.getScene("Game") as GameScene;
-    scene.getPushed(direction);
   });
 
   socket.on("playerCount", (playerCount) => {
