@@ -2,9 +2,16 @@ import { Socket } from "socket.io";
 import { getGameState, getPlayerById, getPlayers, setPlayers } from ".";
 import { Player, Team, Vector2 } from "../../types/types";
 import { flipCoin } from "../utils/getRandomNumber";
+import { setNotRunning } from "./gameState";
 import { getResources } from "./resource";
 
 export const addPlayer = (socket: Socket) => {
+  const gameState = getGameState();
+  if (gameState.running) {
+    socket.disconnect(true);
+    return;
+  }
+
   const players = getPlayers();
   const newPlayer: Player = {
     x: 0,
@@ -45,6 +52,10 @@ export const removePlayer = (socket: Socket) => {
 
   socket.broadcast.emit("removePlayer", socket.id);
   setPlayers(newPlayers);
+
+  if (newPlayers.length === 0) {
+    setNotRunning();
+  }
 };
 
 export const updatePlayerPosition = (x: number, y: number, socket: Socket) => {
