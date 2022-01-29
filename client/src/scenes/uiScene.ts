@@ -13,7 +13,7 @@ export class UIScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.bitmapFont("uifont", "assets/fonts/atari-classic.png", "assets/fonts/atari-classic.xml");
+    this.load.bitmapFont("atari", "assets/fonts/atari-classic.png", "assets/fonts/atari-classic.xml");
   }
   create() {
     this.scoreboard?.addScoreBoard();
