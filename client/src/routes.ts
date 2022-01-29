@@ -1,4 +1,4 @@
-import type { ApiPlayerState } from "../types/types";
+import type { APIGameState, ApiPlayerState, GameState } from "../types/types";
 import type { GameScene } from "./scenes/main";
 import type { Socket } from "socket.io-client";
 
@@ -23,6 +23,21 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
     scene.removePlayer(id);
   });
 
+  socket.on("getPushed", ({ direction }: { direction: Phaser.Math.Vector2 }) => {
+    const scene = game.scene.getScene("Game") as GameScene;
+    scene.getPushed(direction);
+  });
+
+  socket.on("addModifier", (gameState: APIGameState) => {
+    const scene = game.scene.getScene("Game") as GameScene;
+    scene.events.emit("addTimer", 5);
+    console.log("Updating GameState: ", gameState);
+  });
+
+  socket.on("removeModifier", (gameState: APIGameState) => {
+    const scene = game.scene.getScene("Game") as GameScene;
+    console.log("Updating GameState: ", gameState);
+
   socket.on("giveResourceLocations", () => {
     const scene = game.scene.getScene("Game") as GameScene;
     scene.sendResourceLocations(socket);
@@ -35,5 +50,6 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
   socket.on("getPushed", ({ direction }: { direction: Phaser.Math.Vector2 }) => {
     const scene = game.scene.getScene("Game") as GameScene;
     scene.getPushed(direction);
+
   });
 };
