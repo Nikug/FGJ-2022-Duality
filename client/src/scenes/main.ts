@@ -58,13 +58,7 @@ export class GameScene extends Phaser.Scene {
 
   public initPlayers(players: Game.ApiPlayerState[]) {
     if (!this.player) {
-      this.player = new PlayerObject(this, new Phaser.Math.Vector2(128, 64), ANIMATIONS.sheets.blue, this.socket?.id || "", this.socket);
-      this.physics.add.collider(this.player.physicSprite, this.otherPlayers, (me, other) => {
-        if (me.body.touching.down && other.body.touching.up) {
-          this.player?.resetGroundContact();
-        }
-      });
-      this.cameras.main.startFollow(this.player.physicSprite);
+      this.createOwnPlayer();
     }
 
     for (const player of players) {
@@ -74,6 +68,18 @@ export class GameScene extends Phaser.Scene {
       }
       this.addPlayer(player);
     }
+  }
+
+  private createOwnPlayer() {
+    this.player = new PlayerObject(this, new Phaser.Math.Vector2(128, 64), ANIMATIONS.sheets.blue, this.socket?.id || "", this.socket);
+
+    this.physics.add.collider(this.player.physicSprite, this.otherPlayers, (me, other) => {
+      if (me.body.touching.down && other.body.touching.up) {
+        this.player?.resetGroundContact();
+      }
+    });
+
+    this.cameras.main.startFollow(this.player.physicSprite);
   }
 
   public addPlayer(newPlayer: Game.ApiPlayerState) {
