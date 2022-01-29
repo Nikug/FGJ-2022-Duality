@@ -18,7 +18,7 @@ import { createPlayer, createRectangle } from "../util/gameUtils";
 import { socket } from "..";
 import { loadLevel } from "../util/sceneUtils";
 import { pushPlayer, throttleUpdate } from "../util/socketUtils";
-import { createAnimations } from "../util/characterUtils";
+import { animationController, createAnimations } from "../util/characterUtils";
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
   active: false,
@@ -175,6 +175,7 @@ export class GameScene extends Phaser.Scene {
     if (!this.player) return;
     this.checkMovement();
     this.checkJump(delta);
+    animationController(this);
 
     throttleUpdate({
       x: this.player.body.position.x,

@@ -53,4 +53,5 @@ export const ANIMATIONS = {
     blue: "playerBlue",
     green: "playerGreen",
   },
+  frameRate: 12,
 };
