@@ -28,6 +28,8 @@ export class PlayerObject {
   private timeFromGroundContact = 0;
   private timeFromDash = 0;
   private canMove = true;
+  private keyQ: Phaser.Input.Keyboard.Key;
+  private keyW: Phaser.Input.Keyboard.Key;
 
   constructor(scene: GameScene, position: Phaser.Math.Vector2, key: string, id: string, socket?: Socket) {
     this.scene = scene;
@@ -36,6 +38,8 @@ export class PlayerObject {
     this.id = id;
     this.socket = socket;
     this.cursorKeys = scene.input.keyboard.createCursorKeys();
+    this.keyQ = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
+    this.keyW = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
   }
 
   public resetGroundContact = () => (this.timeFromGroundContact = CAN_JUMP_DURATION);
@@ -53,7 +57,7 @@ export class PlayerObject {
       this.physicSprite.body.setVelocityX(0);
     }
 
-    if (this.cursorKeys.space.isDown && this.canPush) {
+    if (this.keyW.isDown && this.canPush) {
       this.canPush = false;
       this.pushPlayers();
       setTimeout(() => {
@@ -112,7 +116,7 @@ export class PlayerObject {
       this.timeFromDash -= delta;
     }
 
-    if (this.cursorKeys.shift.isDown && this.timeFromDash <= 0) {
+    if (this.keyQ.isDown && this.timeFromDash <= 0) {
       if (this.physicSprite.body.velocity.x < 0) {
         this.physicSprite.body.setVelocityX(-DASH_VELOCITY);
       } else {
