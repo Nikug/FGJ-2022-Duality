@@ -1,4 +1,4 @@
-import { ANIMATIONS, CAN_JUMP_DURATION, ONLINE_SPEED_SCALE, TILEMAP } from "../constants";
+import { ANIMATIONS, ONLINE_SPEED_SCALE, TILEMAP } from "../constants";
 
 import type * as Game from "../../types/types";
 import type { Socket } from "socket.io-client";
