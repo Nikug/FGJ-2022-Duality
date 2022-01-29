@@ -9,10 +9,13 @@ import type { Team } from "../../types/types";
 */
 export class Timer {
   private scene: Phaser.Scene;
-  private timerHeight = 50;
+  private timerHeight = 25;
+  private timerFrameSize = 4;
   private timerWidth = 300;
+  private timerOffsetX = 300;
+  private timerOffsetY = 100;
+  private timerPaddingY = 35;
   private activeTimers = 0;
-  private timerTexts: Phaser.GameObjects.Text[] = [];
   private blueColor = this.hColor("#3264a8");
   private greenColor = this.hColor("#4ea832");
   private frameColor = this.hColor("#000000");
@@ -26,44 +29,74 @@ export class Timer {
   public async addTimer(timeSeconds: number, team: Team) {
     // Making sure scene has been created
     if (this.scene) {
-      console.log("add timer");
-      console.log(team);
-      this.createTimerFrame();
-
       // Init
       const position = this.activeTimers;
       this.activeTimers += 1;
 
       // Fuck interval, for loop wins
+      const newFrame = this.createTimerFrame(team, position);
 
       if (team === "ananas") {
-        console.log("Coconut first");
-        await this.setTimer(timeSeconds, position, this.timerObjects[position].greenRect, this.greenColor);
-        console.log("Ananas Second");
-        await this.setTimer(timeSeconds, position, this.timerObjects[position].blueRect, this.blueColor);
+        await this.setTimer(timeSeconds, position, newFrame.greenRect, this.greenColor);
+        await this.setTimer(timeSeconds, position, newFrame.blueRect, this.blueColor);
       } else if (team === "coconut") {
-        console.log("Ananas first");
-        await this.setTimer(timeSeconds, position, this.timerObjects[position].blueRect, this.blueColor);
-        console.log("Coconut Second");
-        await this.setTimer(timeSeconds, position, this.timerObjects[position].greenRect, this.greenColor);
+        await this.setTimer(timeSeconds, position, newFrame.blueRect, this.blueColor);
+        await this.setTimer(timeSeconds, position, newFrame.greenRect, this.greenColor);
       }
 
       // Cleanup
-      this.timerObjects[position].greenRect?.destroy();
-      this.timerObjects[position].blueRect?.destroy();
-      this.timerObjects[position].frameRect?.destroy();
-      this.timerObjects.splice(position, 1);
-      this.activeTimers -= 1;
+      newFrame.greenRect.destroy();
+      newFrame.blueRect.destroy();
+      newFrame.frameRect.destroy();
+
+      this.activeTimers = this.activeTimers - 1;
     }
   }
 
-  private createTimerFrame() {
-    const blueRect = this.scene.add.rectangle(this.scene.scale.width - 300, 100, 300, 25, this.blueColor);
-    const greenRect = this.scene.add.rectangle(this.scene.scale.width - 300, 100, 300, 25, this.greenColor);
-    const frameRect = this.scene.add.rectangle(this.scene.scale.width - 300, 100, 300, 29);
-    frameRect.setStrokeStyle(4, this.frameColor);
+  private createTimerFrame(team: Team, position: number) {
+    // This just gets one in front of other, could use just another func for it aaa
+    let blueRect, greenRect;
+    if (team === "ananas") {
+      greenRect = this.scene.add.rectangle(
+        this.scene.scale.width - this.timerOffsetX,
+        this.timerOffsetY + position * this.timerPaddingY,
+        this.timerWidth,
+        this.timerHeight,
+        this.greenColor,
+      );
+      blueRect = this.scene.add.rectangle(
+        this.scene.scale.width - this.timerOffsetX,
+        this.timerOffsetY + position * this.timerPaddingY,
+        this.timerWidth,
+        this.timerHeight,
+        this.blueColor,
+      );
+    } else {
+      blueRect = this.scene.add.rectangle(
+        this.scene.scale.width - this.timerOffsetX,
+        this.timerOffsetY + position * this.timerPaddingY,
+        this.timerWidth,
+        this.timerHeight,
+        this.blueColor,
+      );
+      greenRect = this.scene.add.rectangle(
+        this.scene.scale.width - this.timerOffsetX,
+        this.timerOffsetY + position * this.timerPaddingY,
+        this.timerWidth,
+        this.timerHeight,
+        this.greenColor,
+      );
+    }
 
-    this.timerObjects.push({ blueRect: blueRect, greenRect: greenRect, frameRect: frameRect });
+    const frameRect = this.scene.add.rectangle(
+      this.scene.scale.width - this.timerOffsetX,
+      this.timerOffsetY + position * this.timerPaddingY,
+      this.timerWidth,
+      this.timerHeight + this.timerFrameSize,
+    );
+    frameRect.setStrokeStyle(this.timerFrameSize, this.frameColor);
+
+    return { blueRect: blueRect, greenRect: greenRect, frameRect: frameRect };
   }
 
   private hColor(hexColor: string) {
@@ -72,13 +105,19 @@ export class Timer {
 
   private async setTimer(timeSeconds: number, timerOrderIndex: number, currentBar: Phaser.GameObjects.Rectangle, currentBarColor: number) {
     let barWidth = this.timerWidth;
+    const halfTime = Math.floor(timeSeconds / 2);
 
     currentBar.destroy();
-    for (let i = 0; i < timeSeconds / 2; i++) {
-      //console.log("Width: ", barWidth, " Color: ", currentBar);
-      currentBar = this.scene.add.rectangle(this.scene.scale.width - this.timerWidth, 100 + timerOrderIndex * 30, -1 * barWidth, 25, currentBarColor);
+    for (let i = 1; i < halfTime + 1; i++) {
+      currentBar = this.scene.add.rectangle(
+        this.scene.scale.width - this.timerWidth,
+        this.timerOffsetY + timerOrderIndex * this.timerPaddingY,
+        barWidth,
+        this.timerHeight,
+        currentBarColor,
+      );
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      barWidth = this.timerWidth / ((i + 2 / timeSeconds) * timeSeconds);
+      barWidth = this.timerWidth - (i / halfTime) * this.timerWidth;
       currentBar.destroy();
     }
   }

@@ -190,7 +190,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   public setModifiers(modifiers: Game.Modifier[]) {
-    console.log("settings modifiers", modifiers);
     const oldModifiers = [...this.gameState.modifiers];
     this.gameState.modifiers = modifiers;
     applyModifiers(this, modifiers, oldModifiers);
@@ -215,7 +214,6 @@ export class GameScene extends Phaser.Scene {
       return { x: 128, y: 64 };
     }
     const randomSpawn = playerSpawnLocations[getRandomNumber(0, playerSpawnLocations.length)];
-    console.log(randomSpawn);
     return randomSpawn;
     // })();
   }
