@@ -1,9 +1,12 @@
 import { Socket } from "socket.io";
 
+export type Team = "coconut" | "ananas";
+
 export interface Player {
   socket: Socket;
   x: number;
   y: number;
+  team: Team;
 }
 
 export interface Game {
