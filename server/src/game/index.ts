@@ -1,4 +1,4 @@
-import { Player } from "../../types/types";
+import { Game, Player } from "../../types/types";
 import { UPDATE_INTERVAL } from "../constants";
 import { playersToUpdate } from "../game/player";
 
@@ -7,6 +7,11 @@ let globalPlayers: Player[] = [];
 export const getPlayers = () => [...globalPlayers];
 export const setPlayers = (newPlayers: Player[]) =>
   (globalPlayers = newPlayers);
+
+let globalGameState: Game;
+export const getGameState = () => globalGameState;
+export const setGameState = (newGameState: Game) =>
+  (globalGameState = newGameState);
 
 export const startGameLoop = async () => {
   console.log("Started game loop!");
