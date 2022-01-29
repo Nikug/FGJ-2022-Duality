@@ -81,6 +81,7 @@ export class PlayerObject {
         const pl_pos = pl.body.position;
         if (pl_pos.distance(pos) < this.stats.pushDistance) {
           pushPlayer(pl.id, new Phaser.Math.Vector2(pl_pos.x - pos.x, pl_pos.y - pos.y).normalize(), this.socket);
+          this.scene.events.emit("playSmack");
         }
       });
     }
@@ -92,6 +93,7 @@ export class PlayerObject {
     this.physicSprite.body.setVelocityX(direction.x * this.stats.pushPower);
     this.physicSprite.body.setVelocityY(direction.y * this.stats.pushPower);
     this.disabledTime = this.stats.pushTimeout;
+    this.scene.events.emit("playSmack");
   }
 
   public setStats(stats: PlayerStats) {
@@ -113,9 +115,7 @@ export class PlayerObject {
     if (this.cursorKeys.up.isDown && this.timeFromGroundContact > 0) {
       this.physicSprite.body.setVelocityY(-this.stats.jumpVelocity);
 
-      if (this.socket) {
-        addModifier("New Modifier", 5, this.socket);
-      }
+      this.scene.events.emit("playJump");
 
       this.timeFromGroundContact = 0;
     }
@@ -138,6 +138,7 @@ export class PlayerObject {
       this.canMove = false;
       this.disabledTime = this.stats.dashCantMoveDuration;
       this.timeFromDash = this.stats.dashTimeout;
+      this.scene.events.emit("playDash");
     }
   }
 
