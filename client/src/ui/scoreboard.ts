@@ -24,7 +24,7 @@ export class Scoreboard {
     const graphics = this.scene.add.graphics();
     graphics.fillStyle(this.backgroundColor, 0.9);
     graphics.fillRoundedRect(this.scoreBoardX, this.scoreBoardY, 250, 80, 16);
-    this.scene.add.bitmapText(this.scoreBoardX + this.scoreBoardMarginX + 65, this.scoreBoardY + 5, "atari", "SCORES").setScale(0.25);
+    this.scene.add.bitmapText(this.scoreBoardX + this.scoreBoardMarginX + 65, this.scoreBoardY + 5, "uifont", "SCORES").setScale(0.25);
   }
 
   public addScore(player: string, score: number) {
@@ -52,7 +52,7 @@ export class Scoreboard {
 
   private getScoreText(score: number, team: string) {
     return this.scene.add
-      .bitmapText(this.scoreBoardX + this.scoreBoardMarginX, this.scoreBoardY + 30 + this.scores.length * this.scoreBoardMarginY, "atari", `${team}: ${score}`)
+      .bitmapText(this.scoreBoardX + this.scoreBoardMarginX, this.scoreBoardY + 30 + this.scores.length * this.scoreBoardMarginY, "uifont", `${team}: ${score}`)
       .setScale(0.25);
   }
 }
