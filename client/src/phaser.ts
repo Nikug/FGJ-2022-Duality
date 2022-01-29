@@ -1,5 +1,6 @@
 import { GameScene } from "./scenes/main";
 import Phaser from "phaser";
+import { UIScene } from "./scenes/uiScene";
 
 export const gameConfig: Phaser.Types.Core.GameConfig = {
   title: "FGJ",
@@ -22,5 +23,5 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
 
   parent: "game",
   backgroundColor: "#e3cfe8",
-  scene: GameScene,
+  scene: [GameScene, UIScene],
 };
