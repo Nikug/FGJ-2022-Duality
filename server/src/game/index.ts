@@ -3,6 +3,11 @@ import { GameState, Player } from "../../types/types";
 import { UPDATE_INTERVAL, UPDATE_MODIFIERS } from "../constants";
 import { playersToUpdate } from "../game/player";
 import { flipCoin } from "../utils/getRandomNumber";
+import {
+  fillEmptyResourceLocations,
+  getResourceLocations,
+  getResources,
+} from "./resource";
 
 let globalPlayers: Player[] = [];
 
@@ -42,6 +47,10 @@ export const startGameLoop = async () => {
     }
 
     io.emit("updateModifiers", state.modifiers);
+    if (getResources().length < getResourceLocations().length / 2) {
+      fillEmptyResourceLocations();
+    }
+    console.log("current modifiers", state.modifiers);
     setGameState(state);
   }, UPDATE_MODIFIERS);
 
