@@ -2,6 +2,9 @@ import {
   ANIMATIONS,
   CAN_JUMP_DURATION,
   CAN_PUSH_TIMEOUT_DURATION,
+  DASH_CANT_MOVE_DURATION,
+  DASH_TIMEOUT_DURATION,
+  DASH_VELOCITY,
   JUMP_VELOCITY,
   MOVEMENT_SPEED,
   ONLINE_SPEED_SCALE,
@@ -34,8 +37,10 @@ export class GameScene extends Phaser.Scene {
 
   private cursorKeys?: Phaser.Types.Input.Keyboard.CursorKeys;
   private canMove = true;
+  private disabledTime = 0;
   private canPush = true;
   private timeFromGroundContact = 0;
+  private timeFromDash = 0;
 
   constructor() {
     super(sceneConfig);
@@ -103,9 +108,7 @@ export class GameScene extends Phaser.Scene {
       this.player.body.setVelocityX(direction.x * PLAYER_PUSH_POWER);
       this.player.body.setVelocityY(direction.y * PLAYER_PUSH_POWER);
     }
-    setTimeout(() => {
-      this.canMove = true;
-    }, PUSH_TIMEOUT_DURATION);
+    this.disabledTime = PUSH_TIMEOUT_DURATION;
   }
 
   public removePlayer(id: string) {
@@ -171,11 +174,37 @@ export class GameScene extends Phaser.Scene {
       this.timeFromGroundContact = 0;
     }
   }
+  public checkDash(delta: number) {
+    if (!this.cursorKeys) return;
+    if (!this.player) return;
+    if (!this.canMove) return;
+
+    if (this.timeFromDash > 0) {
+      this.timeFromDash -= delta;
+    }
+
+    if (this.cursorKeys.shift.isDown && this.timeFromDash <= 0) {
+      if (this.player.body.velocity.x < 0) {
+        this.player.body.setVelocityX(-DASH_VELOCITY);
+      } else {
+        this.player.body.setVelocityX(DASH_VELOCITY);
+      }
+      this.canMove = false;
+      this.disabledTime = DASH_CANT_MOVE_DURATION;
+      this.timeFromDash = DASH_TIMEOUT_DURATION;
+    }
+  }
 
   public update(time: number, delta: number) {
     if (!this.player) return;
+    if (this.disabledTime > 0) {
+      this.disabledTime -= delta;
+    } else if (!this.canMove) {
+      this.canMove = true;
+    }
     this.checkMovement();
     this.checkJump(delta);
+    this.checkDash(delta);
     animationController(this);
 
     throttleUpdate({
