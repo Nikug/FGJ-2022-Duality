@@ -1,4 +1,4 @@
-import type { PlayerColors, PlayerSpriteObject } from "../../types/types";
+import type { PlayerColors, PlayerSpriteObject, Team } from "../../types/types";
 import type { PlayerObject } from "../classes/Player";
 import { ANIMATIONS } from "../constants";
 import type { GameScene } from "../scenes/main";
@@ -49,13 +49,16 @@ const createAnimations = (scene: GameScene, color: PlayerColors) => {
 };
 
 const getAnimationKey = (state: string, color: PlayerColors) => `${state}-${color}`;
+export const getSheet = (team: Team) => (team === "coconut" ? ANIMATIONS.sheets.blue : ANIMATIONS.sheets.green);
+const getColor = (team: Team) => (team === "coconut" ? "blue" : "green");
 
 export const animationController = (scene: GameScene) => {
   if (!scene.player) return;
-  setPlayerAnimation(scene.player, "blue");
-  scene.otherPlayers.map((player) => setOtherPlayerAnimation(player, "green"));
+  setPlayerAnimation(scene.player);
+  scene.otherPlayers.map((player) => setOtherPlayerAnimation(player));
 };
-const setOtherPlayerAnimation = (player: PlayerSpriteObject, color: PlayerColors) => {
+const setOtherPlayerAnimation = (player: PlayerSpriteObject) => {
+  const color = getColor(player.team);
   const onFloor = player.body.onFloor();
   if (player.body.velocity.x > ANIMATIONS.idleThreshold) {
     onFloor
@@ -70,7 +73,8 @@ const setOtherPlayerAnimation = (player: PlayerSpriteObject, color: PlayerColors
   }
 };
 
-const setPlayerAnimation = (player: PlayerObject, color: PlayerColors) => {
+const setPlayerAnimation = (player: PlayerObject) => {
+  const color = getColor(player.team);
   const onFloor = player.physicSprite.body.onFloor();
   if (player.physicSprite.body.velocity.x > ANIMATIONS.idleThreshold) {
     onFloor
