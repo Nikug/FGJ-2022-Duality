@@ -1,4 +1,5 @@
 import type { PlayerColors, PlayerSpriteObject } from "../../types/types";
+import type { PlayerObject } from "../classes/Player";
 import { ANIMATIONS } from "../constants";
 import type { GameScene } from "../scenes/main";
 
@@ -51,11 +52,10 @@ const getAnimationKey = (state: string, color: PlayerColors) => `${state}-${colo
 
 export const animationController = (scene: GameScene) => {
   if (!scene.player) return;
-  setAnimation(scene.player, "blue");
-  scene.otherPlayers.map((player) => setAnimation(player, "green"));
+  setPlayerAnimation(scene.player, "blue");
+  scene.otherPlayers.map((player) => setOtherPlayerAnimation(player, "green"));
 };
-
-const setAnimation = (player: PlayerSpriteObject, color: PlayerColors) => {
+const setOtherPlayerAnimation = (player: PlayerSpriteObject, color: PlayerColors) => {
   const onFloor = player.body.onFloor();
   if (player.body.velocity.x > ANIMATIONS.idleThreshold) {
     onFloor
@@ -67,5 +67,22 @@ const setAnimation = (player: PlayerSpriteObject, color: PlayerColors) => {
       : player.anims.play(getAnimationKey(ANIMATIONS.state.airLeft, color), true);
   } else {
     onFloor ? player.anims.play(getAnimationKey(ANIMATIONS.state.idle, color), true) : player.anims.play(getAnimationKey(ANIMATIONS.state.air, color), true);
+  }
+};
+
+const setPlayerAnimation = (player: PlayerObject, color: PlayerColors) => {
+  const onFloor = player.physicSprite.body.onFloor();
+  if (player.physicSprite.body.velocity.x > ANIMATIONS.idleThreshold) {
+    onFloor
+      ? player.physicSprite.anims.play(getAnimationKey(ANIMATIONS.state.right, color), true)
+      : player.physicSprite.anims.play(getAnimationKey(ANIMATIONS.state.airRight, color), true);
+  } else if (player.physicSprite.body.velocity.x < -ANIMATIONS.idleThreshold) {
+    onFloor
+      ? player.physicSprite.anims.play(getAnimationKey(ANIMATIONS.state.left, color), true)
+      : player.physicSprite.anims.play(getAnimationKey(ANIMATIONS.state.airLeft, color), true);
+  } else {
+    onFloor
+      ? player.physicSprite.anims.play(getAnimationKey(ANIMATIONS.state.idle, color), true)
+      : player.physicSprite.anims.play(getAnimationKey(ANIMATIONS.state.air, color), true);
   }
 };
