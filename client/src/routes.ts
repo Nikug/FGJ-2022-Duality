@@ -37,6 +37,7 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
   socket.on("removeModifier", (gameState: APIGameState) => {
     const scene = game.scene.getScene("Game") as GameScene;
     console.log("Updating GameState: ", gameState);
+  });
 
   socket.on("giveResourceLocations", () => {
     const scene = game.scene.getScene("Game") as GameScene;
@@ -50,6 +51,5 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
   socket.on("getPushed", ({ direction }: { direction: Phaser.Math.Vector2 }) => {
     const scene = game.scene.getScene("Game") as GameScene;
     scene.getPushed(direction);
-
   });
 };
