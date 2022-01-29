@@ -12,10 +12,9 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
         scene = game.scene.getScene("MainMenu") as MainMenu;
       } else {
         scene = game.scene.getScene("Game") as GameScene;
+        scene.initPlayers(players);
       }
     }
-
-    scene?.initPlayers(players);
   });
 
   socket.on("update", (players: ApiPlayerState[]) => {
@@ -26,9 +25,9 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
         scene = game.scene.getScene("MainMenu") as MainMenu;
       } else {
         scene = game.scene.getScene("Game") as GameScene;
+        scene.updatePlayers(players);
       }
     }
-    scene?.updatePlayers(players);
   });
 
   socket.on("newPlayer", (player: ApiPlayerState) => {
@@ -39,10 +38,9 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
         scene = game.scene.getScene("MainMenu") as MainMenu;
       } else {
         scene = game.scene.getScene("Game") as GameScene;
+        scene.addPlayer(player);
       }
     }
-
-    scene?.addPlayer(player);
   });
 
   socket.on("removePlayer", (id: string) => {
@@ -53,9 +51,9 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
         scene = game.scene.getScene("MainMenu") as MainMenu;
       } else {
         scene = game.scene.getScene("Game") as GameScene;
+        scene.removePlayer(id);
       }
     }
-    scene?.removePlayer(id);
   });
 
   socket.on("getPushed", ({ direction }: { direction: Phaser.Math.Vector2 }) => {
@@ -86,5 +84,18 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
   socket.on("getPushed", ({ direction }: { direction: Phaser.Math.Vector2 }) => {
     const scene = game.scene.getScene("Game") as GameScene;
     scene.getPushed(direction);
+  });
+
+  socket.on("playerCount", (playerCount) => {
+    const scenes = game.scene.getScenes();
+    let scene: GameScene | MainMenu | undefined;
+    for (let i = 0; i < scenes.length; i++) {
+      if (scenes[i].scene.key === "MainMenu") {
+        scene = game.scene.getScene("MainMenu") as MainMenu;
+        scene.setPlayerCount(playerCount);
+      } else {
+        scene = game.scene.getScene("Game") as GameScene;
+      }
+    }
   });
 };

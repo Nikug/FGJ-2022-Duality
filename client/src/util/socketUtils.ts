@@ -1,4 +1,5 @@
 import type { Socket } from "socket.io-client";
+import { socket } from "..";
 import type { GameState, PlayerState } from "../../types/types";
 import { UPDATE_INTERVAL } from "../constants";
 
@@ -31,4 +32,8 @@ const hasStateChanged = (state: PlayerState) => {
 
 export const addModifier = (modifier: string, duration: number, socket: Socket) => {
   socket?.emit("addModifier", modifier, duration);
+};
+
+export const playerCount = () => {
+  socket.emit("getPlayerCount");
 };

@@ -51,3 +51,8 @@ export const pushPlayer = (playerId: string, direction: Vector2) => {
     player.socket?.emit("getPushed", { direction });
   }
 };
+
+export const updatePlayerCount = (socket: Socket) => {
+  const players = getPlayers();
+  socket.emit("playerCount", players.length);
+};

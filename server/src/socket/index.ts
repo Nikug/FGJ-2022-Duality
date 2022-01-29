@@ -8,6 +8,7 @@ import {
   addPlayer,
   pushPlayer,
   removePlayer,
+  updatePlayerCount,
   updatePlayerPosition,
 } from "../game/player";
 
@@ -39,4 +40,8 @@ export const handleSockets = (socket: Socket) => {
       addModifier(newModifier, modifierDurationSecond);
     },
   );
+
+  socket.on("getPlayerCount", () => {
+    updatePlayerCount(socket);
+  });
 };
