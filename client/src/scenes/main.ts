@@ -38,13 +38,15 @@ export class GameScene extends Phaser.Scene {
     this.load.image(TILEMAP.tilesets.yellow.key, "/assets/sprites/Project Mute Tileset V1.png");
     this.load.image(TILEMAP.tilesets.gray.key, "/assets/sprites/Project Mute Tileset V2.png");
     this.load.tilemapTiledJSON("map", "/assets/maps/map.json");
-    this.load.spritesheet(ANIMATIONS.sheets.blue, "/assets/kritafiles/player_blue/player_blue_spritesheet.png", { frameWidth: 14, frameHeight: 14 });
-    this.load.spritesheet(ANIMATIONS.sheets.green, "/assets/kritafiles/player_green/player_green_spritesheet.png", { frameWidth: 14, frameHeight: 14 });
+    this.load.spritesheet(ANIMATIONS.sheets.coconut, "/assets/kritafiles/player_blue/player_blue_spritesheet.png", { frameWidth: 14, frameHeight: 14 });
+    this.load.spritesheet(ANIMATIONS.sheets.ananas, "/assets/kritafiles/player_green/player_green_spritesheet.png", { frameWidth: 14, frameHeight: 14 });
     this.load.spritesheet(ANIMATIONS.sheets.resources.basic, "/assets/kritafiles/resource.png", { frameWidth: 12, frameHeight: 12 });
+    this.load.spritesheet(ANIMATIONS.sheets.greenSlap, "/assets/kritafiles/whip_demo_2/whip_sprite_sheet_demo.png", { frameWidth: 14, frameHeight: 14 });
+    this.load.spritesheet(ANIMATIONS.sheets.blueSlap, "/assets/kritafiles/whip_demo_2/whip_sprite_sheet_demo.png", { frameWidth: 14, frameHeight: 14 });
   }
 
   public create() {
-    this.player = new PlayerObject(this, new Phaser.Math.Vector2(128, 64), ANIMATIONS.sheets.blue, this.socket?.id || "", this.socket);
+    this.player = new PlayerObject(this, new Phaser.Math.Vector2(128, 64), ANIMATIONS.sheets.coconut, this.socket?.id || "", this.socket);
     this.player?.setTeam(this.team ? this.team : "coconut");
     this.physics.add.collider(this.player.physicSprite, this.otherPlayers, (me, other) => {
       const upsideDown = this.isUpsideDown();
