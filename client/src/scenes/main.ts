@@ -14,7 +14,7 @@ import {
 
 import type * as Game from "../../types/types";
 import type { Socket } from "socket.io-client";
-import { createPlayer, createRectangle } from "../util/gameUtils";
+import { createPlayer } from "../util/gameUtils";
 import { socket } from "..";
 import { loadLevel } from "../util/sceneUtils";
 import { pushPlayer, throttleUpdate } from "../util/socketUtils";
@@ -29,7 +29,7 @@ const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
 export class GameScene extends Phaser.Scene {
   public player?: Game.PlayerSpriteObject;
   private socket?: Socket;
-  private otherPlayers: Game.PlayerGameObject[] = [];
+  private otherPlayers: Game.PlayerSpriteObject[] = [];
   public map?: Phaser.Tilemaps.Tilemap;
 
   private cursorKeys?: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -52,6 +52,7 @@ export class GameScene extends Phaser.Scene {
     this.load.image(TILEMAP.tilesets.gray.key, "/assets/sprites/Project Mute Tileset V2.png");
     this.load.tilemapTiledJSON("map", "/assets/maps/map.json");
     this.load.spritesheet(ANIMATIONS.sheets.blue, "/assets/kritafiles/player_blue/player_blue_spritesheet.png", { frameWidth: 14, frameHeight: 14 });
+    this.load.spritesheet(ANIMATIONS.sheets.green, "/assets/kritafiles/player_green/player_green_spritesheet.png", { frameWidth: 14, frameHeight: 14 });
   }
 
   public create() {
@@ -79,7 +80,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   public addPlayer(newPlayer: Game.ApiPlayerState) {
-    const newPlayerObject = createRectangle(this, new Phaser.Math.Vector2(newPlayer.x, newPlayer.y), 0xff00ff, newPlayer.id);
+    const newPlayerObject = createPlayer(this, new Phaser.Math.Vector2(newPlayer.x, newPlayer.y), ANIMATIONS.sheets.green, newPlayer.id);
     this.otherPlayers.push(newPlayerObject);
   }
 
