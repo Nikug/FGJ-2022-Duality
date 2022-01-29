@@ -1,26 +1,15 @@
 import Phaser from "phaser";
 import type { Socket } from "socket.io-client";
-import {
-  CAN_JUMP_DURATION,
-  CAN_PUSH_TIMEOUT_DURATION,
-  DASH_CANT_MOVE_DURATION,
-  DASH_TIMEOUT_DURATION,
-  DASH_VELOCITY,
-  JUMP_VELOCITY,
-  MOVEMENT_SPEED,
-  PLAYER_GRAVITY,
-  PLAYER_PUSH_DISTANCE,
-  PLAYER_PUSH_POWER,
-  PUSH_TIMEOUT_DURATION,
-} from "../constants";
+import { PLAYER_GRAVITY, PLAYER_SIZES } from "../constants";
 import type { GameScene } from "../scenes/main";
-import type { PlayerSpriteObject, Team } from "../../types/types";
+import type { PlayerSpriteObject, Team, PlayerStats } from "../../types/types";
 import { addModifier, pushPlayer, throttleUpdate } from "../util/socketUtils";
 import { getSheet } from "../util/characterUtils";
 
 export class PlayerObject {
   public id: string;
   public physicSprite: PlayerSpriteObject;
+  private stats: PlayerStats;
   private cursorKeys: Phaser.Types.Input.Keyboard.CursorKeys;
   private scene: GameScene;
   private socket?: Socket;
@@ -43,9 +32,11 @@ export class PlayerObject {
     this.team = "coconut";
     this.keyQ = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
     this.keyW = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+    this.stats = PLAYER_SIZES.big;
+    this.setStats(PLAYER_SIZES.big);
   }
 
-  public resetGroundContact = () => (this.timeFromGroundContact = CAN_JUMP_DURATION);
+  public resetGroundContact = () => (this.timeFromGroundContact = this.stats.canJumpDuration);
 
   public setTeam = (team: Team) => {
     this.team = team;
@@ -66,9 +57,9 @@ export class PlayerObject {
     if (!this.canMove) return;
 
     if (this.cursorKeys.left.isDown) {
-      this.physicSprite.body.setVelocityX(-MOVEMENT_SPEED);
+      this.physicSprite.body.setVelocityX(-this.stats.movementSpeed);
     } else if (this.cursorKeys.right.isDown) {
-      this.physicSprite.body.setVelocityX(MOVEMENT_SPEED);
+      this.physicSprite.body.setVelocityX(this.stats.movementSpeed);
     } else {
       this.physicSprite.body.setVelocityX(0);
     }
@@ -78,7 +69,7 @@ export class PlayerObject {
       this.pushPlayers();
       setTimeout(() => {
         this.canPush = true;
-      }, CAN_PUSH_TIMEOUT_DURATION);
+      }, this.stats.canPushTimeout);
     }
   }
   private pushPlayers() {
@@ -87,7 +78,7 @@ export class PlayerObject {
     if (pos) {
       this.scene.otherPlayers.forEach((pl) => {
         const pl_pos = pl.body.position;
-        if (pl_pos.distance(pos) < PLAYER_PUSH_DISTANCE) {
+        if (pl_pos.distance(pos) < this.stats.pushDistance) {
           pushPlayer(pl.id, new Phaser.Math.Vector2(pl_pos.x - pos.x, pl_pos.y - pos.y).normalize(), this.socket);
         }
       });
@@ -97,9 +88,14 @@ export class PlayerObject {
   public getPushed(direction: Phaser.Math.Vector2) {
     this.canMove = false;
 
-    this.physicSprite.body.setVelocityX(direction.x * PLAYER_PUSH_POWER);
-    this.physicSprite.body.setVelocityY(direction.y * PLAYER_PUSH_POWER);
-    this.disabledTime = PUSH_TIMEOUT_DURATION;
+    this.physicSprite.body.setVelocityX(direction.x * this.stats.pushPower);
+    this.physicSprite.body.setVelocityY(direction.y * this.stats.pushPower);
+    this.disabledTime = this.stats.pushTimeout;
+  }
+
+  public setStats(stats: PlayerStats) {
+    this.stats = stats;
+    this.physicSprite.setScale(stats.sizeScale);
   }
 
   public checkJump(delta: number) {
@@ -108,13 +104,13 @@ export class PlayerObject {
     if (!this.canMove) return;
 
     if (this.physicSprite.body.onFloor()) {
-      this.timeFromGroundContact = CAN_JUMP_DURATION;
+      this.timeFromGroundContact = this.stats.canJumpDuration;
     } else if (this.timeFromGroundContact > 0) {
       this.timeFromGroundContact -= delta;
     }
 
     if (this.cursorKeys.up.isDown && this.timeFromGroundContact > 0) {
-      this.physicSprite.body.setVelocityY(-JUMP_VELOCITY);
+      this.physicSprite.body.setVelocityY(-this.stats.jumpVelocity);
 
       if (this.socket) {
         addModifier("New Modifier", 5, this.socket);
@@ -134,13 +130,13 @@ export class PlayerObject {
 
     if (this.keyQ.isDown && this.timeFromDash <= 0) {
       if (this.physicSprite.body.velocity.x < 0) {
-        this.physicSprite.body.setVelocityX(-DASH_VELOCITY);
+        this.physicSprite.body.setVelocityX(-this.stats.dashVelocity);
       } else {
-        this.physicSprite.body.setVelocityX(DASH_VELOCITY);
+        this.physicSprite.body.setVelocityX(this.stats.dashVelocity);
       }
       this.canMove = false;
-      this.disabledTime = DASH_CANT_MOVE_DURATION;
-      this.timeFromDash = DASH_TIMEOUT_DURATION;
+      this.disabledTime = this.stats.dashCantMoveDuration;
+      this.timeFromDash = this.stats.dashTimeout;
     }
   }
 

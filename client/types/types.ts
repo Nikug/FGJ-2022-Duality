@@ -19,6 +19,27 @@ export interface PlayerSpriteObject extends Phaser.Types.Physics.Arcade.SpriteWi
   team: Team;
 }
 
+export interface PlayerStats {
+  movementSpeed: number;
+  sizeScale: number;
+  pushDistance: number;
+  pushPower: number;
+  pushTimeout: number;
+  canPushTimeout: number;
+  canJumpDuration: number;
+  canDashDuration: number;
+  dashCantMoveDuration: number;
+  dashTimeout: number;
+  dashVelocity: number;
+  jumpVelocity: number;
+}
+
+export interface PlayerSizes {
+  small: PlayerStats;
+  normal: PlayerStats;
+  big: PlayerStats;
+}
+
 export interface PlayerState {
   x?: number;
   y?: number;
