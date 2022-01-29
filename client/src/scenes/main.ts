@@ -7,7 +7,9 @@ import { socket } from "..";
 import { loadLevel } from "../util/sceneUtils";
 import { animationController, createAllAnimations } from "../util/characterUtils";
 import { PlayerObject } from "../classes/Player";
+import getRandomNumber from "../util/getRandomNumber";
 import { collectResource } from "../util/socketUtils";
+import { AudioManager } from "../audio/audioManager";
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
   key: "Game",
@@ -21,6 +23,7 @@ export class GameScene extends Phaser.Scene {
   public otherPlayers: Game.PlayerSpriteObject[] = [];
   public map?: Phaser.Tilemaps.Tilemap;
   public gameState: Game.GameState;
+  private audioManager: AudioManager | undefined;
 
   constructor() {
     super(sceneConfig);
@@ -28,6 +31,7 @@ export class GameScene extends Phaser.Scene {
     this.socket = socket;
     this.map = undefined;
     this.gameState = { modifiers: [] };
+    this.audioManager = new AudioManager(this);
   }
 
   public preload() {
@@ -43,10 +47,17 @@ export class GameScene extends Phaser.Scene {
     this.load.spritesheet(ANIMATIONS.sheets.resources.basic, "/assets/kritafiles/resource.png", { frameWidth: 12, frameHeight: 12 });
     this.load.spritesheet(ANIMATIONS.sheets.greenSlap, "/assets/kritafiles/whip_demo_2/whip_sprite_sheet_demo.png", { frameWidth: 14, frameHeight: 14 });
     this.load.spritesheet(ANIMATIONS.sheets.blueSlap, "/assets/kritafiles/whip_demo_2/whip_sprite_sheet_demo.png", { frameWidth: 14, frameHeight: 14 });
+    this.audioManager?.loadAudio();
   }
 
   public create() {
     this.player = new PlayerObject(this, new Phaser.Math.Vector2(128, 64), ANIMATIONS.sheets.coconut, this.socket?.id || "", this.socket);
+    this.audioManager?.addAudio();
+    console.log("I am", this.socket?.id);
+    const { map, worldLayer } = loadLevel(this);
+    this.map = map;
+    const randomSpawn = this.getRandomPlayerSpawn();
+    this.player = new PlayerObject(this, new Phaser.Math.Vector2(randomSpawn.x, randomSpawn.y), ANIMATIONS.sheets.coconut, this.socket?.id || "", this.socket);
     this.player?.setTeam(this.team ? this.team : "coconut");
     this.physics.add.collider(this.player.physicSprite, this.otherPlayers, (me, other) => {
       const upsideDown = this.isUpsideDown();
@@ -54,9 +65,9 @@ export class GameScene extends Phaser.Scene {
         this.player?.resetGroundContact();
       }
     });
+    this.physics.add.collider(this.player.physicSprite, worldLayer);
     this.cameras.main.startFollow(this.player.physicSprite);
 
-    this.map = loadLevel(this);
     createAllAnimations(this);
 
     const mainCamera = this.cameras.main;
@@ -136,6 +147,7 @@ export class GameScene extends Phaser.Scene {
     for (let i = 0, len = resources.length; i < len; i++) {
       const resource = resources[i];
       const newResourceObject = createResource(this, new Phaser.Math.Vector2(resource.x, resource.y), 0xf5d442, resource.id);
+      newResourceObject.anims.play(ANIMATIONS.sheets.resources.basic);
       resourceObjects.push(newResourceObject);
     }
 
@@ -148,6 +160,7 @@ export class GameScene extends Phaser.Scene {
       if (!this.player) return;
 
       collectResource((resource as Game.ResourceGameObject).id, this.player.id, this.socket);
+      this.events.emit("playCollect");
     });
   }
 
@@ -180,5 +193,23 @@ export class GameScene extends Phaser.Scene {
     this.gameState.modifiers = this.gameState.modifiers.map((modifier) =>
       modifier.type === type ? { ...modifier, team: oppositeTeam(modifier.team) } : modifier,
     );
+  }
+
+  public getRandomPlayerSpawn() {
+    // (async () => {
+    //   while (!this.map) await new Promise((resolve) => setTimeout(resolve, 100));
+    const playerSpawnLayer = this.map?.getObjectLayer(TILEMAP.spawns.player);
+    const playerSpawnsObjects = playerSpawnLayer?.objects;
+    const playerSpawnLocations = playerSpawnsObjects?.map((playerSpawnObj) => {
+      const { x, y, type, id } = playerSpawnObj;
+      return { x, y, type, id: id.toString() };
+    });
+    if (!playerSpawnLocations) {
+      return { x: 128, y: 64 };
+    }
+    const randomSpawn = playerSpawnLocations[getRandomNumber(0, playerSpawnLocations.length)];
+    console.log(randomSpawn);
+    return randomSpawn;
+    // })();
   }
 }
