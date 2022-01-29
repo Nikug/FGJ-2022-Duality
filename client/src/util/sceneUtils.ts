@@ -10,6 +10,11 @@ export const loadLevel = (scene: GameScene) => {
     tileHeight: TILEMAP.tileSize,
   });
 
+  const happyCloud = scene.add.image(370, 0, "clouds");
+  const sadCloud = scene.add.image(460, -210, "clouds2");
+  happyCloud.setDepth(RENDERING_ORDER.farBackground);
+  sadCloud.setDepth(RENDERING_ORDER.farBackground);
+
   const tileset = map.addTilesetImage(TILEMAP.tilesets.purple.name, TILEMAP.tilesets.purple.key);
   const frontTileset = map.addTilesetImage(TILEMAP.tilesets.yellow.name, TILEMAP.tilesets.yellow.key);
   const backTileset = map.addTilesetImage(TILEMAP.tilesets.gray.name, TILEMAP.tilesets.gray.key);
