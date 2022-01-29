@@ -1,6 +1,7 @@
-import type { APIGameState, ApiPlayerState, Resource } from "../types/types";
+import type { ApiPlayerState, Modifier, Resource } from "../types/types";
 import type { GameScene } from "./scenes/main";
 import type { Socket } from "socket.io-client";
+import type { MainMenu } from "./scenes/mainmenu";
 
 export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
   socket.on("init", (players: ApiPlayerState[], resources: Resource[]) => {
@@ -29,15 +30,9 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
     scene.getPushed(direction);
   });
 
-  socket.on("addModifier", (gameState: APIGameState) => {
+  socket.on("updateModifiers", (modifiers: Modifier[]) => {
     const scene = game.scene.getScene("Game") as GameScene;
-    scene.events.emit("addTimer", 5);
-    console.log("Updating GameState: ", gameState);
-  });
-
-  socket.on("removeModifier", (gameState: APIGameState) => {
-    const scene = game.scene.getScene("Game") as GameScene;
-    console.log("Updating GameState: ", gameState);
+    scene.setModifiers(modifiers);
   });
 
   socket.on("giveResourceLocations", () => {
@@ -53,5 +48,15 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
   socket.on("getPushed", ({ direction }: { direction: Phaser.Math.Vector2 }) => {
     const scene = game.scene.getScene("Game") as GameScene;
     scene.getPushed(direction);
+  });
+
+  socket.on("playerCount", (playerCount) => {
+    const scene = game.scene.getScene("MainMenu") as MainMenu;
+    scene.setPlayerCount(playerCount);
+  });
+
+  socket.on("startGameForEveryone", () => {
+    const scene = game.scene.getScene("MainMenu") as MainMenu;
+    scene.startGameForEveryone();
   });
 };

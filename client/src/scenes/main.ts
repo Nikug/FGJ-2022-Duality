@@ -1,16 +1,14 @@
-import { ANIMATIONS, CAN_JUMP_DURATION, ONLINE_SPEED_SCALE, TILEMAP } from "../constants";
+import { ANIMATIONS, ONLINE_SPEED_SCALE, TILEMAP } from "../constants";
 
 import type * as Game from "../../types/types";
 import type { Socket } from "socket.io-client";
-import { createPlayer, createResource } from "../util/gameUtils";
+import { applyModifiers, createPlayer, createResource, oppositeTeam } from "../util/gameUtils";
 import { socket } from "..";
 import { loadLevel } from "../util/sceneUtils";
 import { animationController, createAllAnimations } from "../util/characterUtils";
 import { PlayerObject } from "../classes/Player";
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
-  active: false,
-  visible: false,
   key: "Game",
 };
 
@@ -20,12 +18,14 @@ export class GameScene extends Phaser.Scene {
   private resources: Game.ResourceGameObject[] = [];
   public otherPlayers: Game.PlayerSpriteObject[] = [];
   public map?: Phaser.Tilemaps.Tilemap;
+  public gameState: Game.GameState;
 
   constructor() {
     super(sceneConfig);
     this.player = undefined;
     this.socket = socket;
     this.map = undefined;
+    this.gameState = { modifiers: [] };
   }
 
   public preload() {
@@ -62,13 +62,16 @@ export class GameScene extends Phaser.Scene {
 
   public initPlayers(players: Game.ApiPlayerState[]) {
     for (const player of players) {
-      if (player.id === this.socket?.id) continue;
+      if (player.id === this.socket?.id) {
+        this.player?.setTeam(player.team);
+        continue;
+      }
       this.addPlayer(player);
     }
   }
 
   public addPlayer(newPlayer: Game.ApiPlayerState) {
-    const newPlayerObject = createPlayer(this, new Phaser.Math.Vector2(newPlayer.x, newPlayer.y), ANIMATIONS.sheets.green, newPlayer.id);
+    const newPlayerObject = createPlayer(this, newPlayer);
     this.otherPlayers.push(newPlayerObject);
   }
 
@@ -139,5 +142,17 @@ export class GameScene extends Phaser.Scene {
     });
 
     socket.emit("sendResourceLocations", resourceLocations);
+  }
+
+  public setModifiers(modifiers: Game.Modifier[]) {
+    console.log("settings modifiers", modifiers);
+    const oldModifiers = [...this.gameState.modifiers];
+    this.gameState.modifiers = modifiers;
+    applyModifiers(this, modifiers, oldModifiers);
+  }
+  public reverseModifierTeam(type: string) {
+    this.gameState.modifiers = this.gameState.modifiers.map((modifier) =>
+      modifier.type === type ? { ...modifier, team: oppositeTeam(modifier.team) } : modifier,
+    );
   }
 }

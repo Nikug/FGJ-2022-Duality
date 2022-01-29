@@ -1,5 +1,3 @@
-import scoreboardImage from "/assets/scoreboard/scoreboard.png";
-
 /* Creates UI Scoreboard
     Usage:
         - create new Timer() in scene constructor
@@ -10,18 +8,23 @@ import scoreboardImage from "/assets/scoreboard/scoreboard.png";
 */
 export class Scoreboard {
   private scene: Phaser.Scene;
-  scores: { player: string; score: number; text: Phaser.GameObjects.Text }[] = [];
+  private scoreBoardX = 32;
+  private scoreBoardY = 32;
+  private scoreBoardMarginX = 10;
+  private scoreBoardMarginY = 20;
+  private backgroundColor: number = this.hColor("#331523");
+
+  scores: { player: string; score: number; text: Phaser.GameObjects.BitmapText }[] = [];
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
   }
 
-  public loadImages() {
-    this.scene.load.image("scoreboard", scoreboardImage);
-  }
-
   public addScoreBoard() {
-    this.scene.add.image(250, 200, "scoreboard");
+    const graphics = this.scene.add.graphics();
+    graphics.fillStyle(this.backgroundColor, 0.9);
+    graphics.fillRoundedRect(this.scoreBoardX, this.scoreBoardY, 250, 80, 16);
+    this.scene.add.bitmapText(this.scoreBoardX + this.scoreBoardMarginX + 65, this.scoreBoardY + 5, "atari", "SCORES").setScale(0.25);
   }
 
   public addScore(player: string, score: number) {
@@ -31,16 +34,25 @@ export class Scoreboard {
       this.scores.push({
         player: player,
         score: score,
-        text: this.scene.add.text(125, 200 + this.scores.length * 50, `Player: ${player}, Score: ${score}`),
+        text: this.getScoreText(score, player),
       });
     } else {
       for (let i = 0; i < this.scores.length; i++) {
         if (this.scores[i].player === player) {
           this.scores[i].score += score;
           this.scores[i].text.destroy();
-          this.scores[i].text = this.scene.add.text(125, 200 + i * 50, `Player: ${player}, Score: ${this.scores[i].score}`);
+          this.scores[i].text = this.getScoreText(score, player);
         }
       }
     }
+  }
+  private hColor(hexColor: string) {
+    return Phaser.Display.Color.HexStringToColor(hexColor).color;
+  }
+
+  private getScoreText(score: number, team: string) {
+    return this.scene.add
+      .bitmapText(this.scoreBoardX + this.scoreBoardMarginX, this.scoreBoardY + 30 + this.scores.length * this.scoreBoardMarginY, "atari", `${team}: ${score}`)
+      .setScale(0.25);
   }
 }

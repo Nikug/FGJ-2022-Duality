@@ -1,5 +1,7 @@
 import type { Socket } from "socket.io-client";
 
+export type Team = "coconut" | "ananas";
+
 export type PhysicsRectangle = Phaser.GameObjects.Rectangle & {
   body: Phaser.Physics.Arcade.Body;
 };
@@ -14,6 +16,7 @@ export interface ResourceGameObject extends PhysicsRectangle {
 
 export interface PlayerSpriteObject extends Phaser.Types.Physics.Arcade.SpriteWithDynamicBody {
   id: string;
+  team: Team;
 }
 
 export interface PlayerState {
@@ -24,8 +27,7 @@ export interface PlayerState {
 }
 
 export interface GameState {
-  modifiers: string[];
-  socket: Socket;
+  modifiers: Modifier[];
 }
 export interface APIGameState {
   modifiers: string[];
@@ -42,6 +44,7 @@ export interface ApiPlayerState {
   x: number;
   y: number;
   id: string;
+  team: Team;
 }
 
 export interface Resource {
@@ -52,3 +55,9 @@ export interface Resource {
 }
 
 export type PlayerColors = "blue" | "green";
+
+export interface Modifier {
+  type: string;
+  team: Team;
+  duration: number;
+}

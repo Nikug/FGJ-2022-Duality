@@ -1,22 +1,40 @@
 import { Socket } from "socket.io";
-import { getPlayerById, getPlayers, setPlayers } from ".";
-import { Player, Vector2 } from "../../types/types";
+import { getGameState, getPlayerById, getPlayers, setPlayers } from ".";
+import { Player, Team, Vector2 } from "../../types/types";
+import { flipCoin } from "../utils/getRandomNumber";
 import { getResources } from "./resource";
 
 export const addPlayer = (socket: Socket) => {
-  console.log("Adding new player", socket.id);
-
   const players = getPlayers();
-  const newPlayer = {
-    x: 100,
-    y: 100,
+  const newPlayer: Player = {
+    x: 0,
+    y: 0,
     socket: socket,
+    team: assignTeam(players),
   };
   const newPlayers = [...players, newPlayer];
+
+  console.log("Adding new player", socket.id, newPlayer.team);
 
   socket.broadcast.emit("newPlayer", playerToClient(newPlayer));
   socket.emit("init", playersToUpdate(newPlayers), getResources());
   setPlayers(newPlayers);
+};
+
+export const assignTeam = (players: Player[]): Team => {
+  const { coconut, ananas } = players.reduce(
+    (prev: { coconut: number; ananas: number }, player) =>
+      player.team === "ananas"
+        ? { ...prev, ananas: prev.ananas + 1 }
+        : { ...prev, coconut: prev.coconut + 1 },
+    { coconut: 0, ananas: 0 },
+  );
+
+  if (coconut === ananas) {
+    return flipCoin() ? "ananas" : "coconut";
+  } else {
+    return coconut > ananas ? "ananas" : "coconut";
+  }
 };
 
 export const removePlayer = (socket: Socket) => {
@@ -44,11 +62,25 @@ export const playerToClient = (player: Player) => ({
   x: player.x,
   y: player.y,
   id: player.socket.id,
+  team: player.team,
 });
 
 export const pushPlayer = (playerId: string, direction: Vector2) => {
   const player = getPlayerById(playerId);
   if (player) {
     player.socket?.emit("getPushed", { direction });
+  }
+};
+
+export const updatePlayerCount = (socket: Socket) => {
+  const players = getPlayers();
+  socket.emit("playerCount", players.length);
+};
+
+export const startGame = (socket: Socket) => {
+  const gameState = getGameState();
+  if (!gameState.running) {
+    socket.broadcast.emit("startGameForEveryone");
+    socket.emit("startGameForEveryone");
   }
 };

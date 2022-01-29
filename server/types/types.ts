@@ -1,13 +1,12 @@
 import { Socket } from "socket.io";
 
+export type Team = "coconut" | "ananas";
+
 export interface Player {
   socket: Socket;
   x: number;
   y: number;
-}
-
-export interface Game {
-  modifiers: string[];
+  team: Team;
 }
 
 export enum ResourceType {
@@ -28,4 +27,15 @@ export interface ResourceLocation {
 export interface Vector2 {
   x: number;
   y: number;
+}
+
+export interface GameState {
+  running: boolean;
+  modifiers: Modifier[];
+}
+
+export interface Modifier {
+  type: string;
+  team: Team;
+  duration: number;
 }
