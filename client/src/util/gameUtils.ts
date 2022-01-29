@@ -70,16 +70,25 @@ const applyBigSmall = (scene: GameScene, team: Team) => {
 const applyGravity = (scene: GameScene, team: Team) => {
   if (scene.player?.team === team) {
     scene.player.physicSprite.setGravityY(-PLAYER_GRAVITY);
+    scene.player.physicSprite.setFlipY(true);
   } else {
     scene.player?.physicSprite.setGravityY(PLAYER_GRAVITY);
+    scene.player?.physicSprite.setFlipY(false);
   }
 
-  scene.otherPlayers.map((player) => player.setGravityY(player.team === team ? -PLAYER_GRAVITY : PLAYER_GRAVITY));
+  scene.otherPlayers.map((player) => {
+    player.setGravityY(player.team === team ? -PLAYER_GRAVITY : PLAYER_GRAVITY);
+    player.setFlipY(player.team === team);
+  });
 };
 
 const removeGravity = (scene: GameScene) => {
   scene.player?.physicSprite.setGravityY(PLAYER_GRAVITY);
-  scene.otherPlayers.map((player) => player.setGravityY(PLAYER_GRAVITY));
+  scene.player?.physicSprite.resetFlip();
+  scene.otherPlayers.map((player) => {
+    player.setGravityY(PLAYER_GRAVITY);
+    player.resetFlip();
+  });
 };
 const removeBigSmall = (scene: GameScene) => {
   scene.player?.setStats(PLAYER_SIZES.normal);

@@ -48,7 +48,8 @@ export class GameScene extends Phaser.Scene {
     this.player = new PlayerObject(this, new Phaser.Math.Vector2(128, 64), ANIMATIONS.sheets.blue, this.socket?.id || "", this.socket);
     this.player?.setTeam(this.team ? this.team : "coconut");
     this.physics.add.collider(this.player.physicSprite, this.otherPlayers, (me, other) => {
-      if (me.body.touching.down && other.body.touching.up) {
+      const upsideDown = this.isUpsideDown();
+      if ((!upsideDown && me.body.touching.down && other.body.touching.up) || (upsideDown && me.body.touching.up && other.body.touching.down)) {
         this.player?.resetGroundContact();
       }
     });
@@ -113,7 +114,12 @@ export class GameScene extends Phaser.Scene {
   public update(time: number, delta: number) {
     if (!this.player) return;
     animationController(this);
-    this.player.checkActions(delta);
+    this.player.checkActions(delta, this.isUpsideDown());
+  }
+
+  private isUpsideDown() {
+    const gravityModifier = this.gameState.modifiers.find((modifier) => modifier.type === "gravity");
+    return this.player?.team === gravityModifier?.team;
   }
 
   public updateResources(resources: Game.Resource[] = []) {
