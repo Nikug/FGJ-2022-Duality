@@ -9,6 +9,7 @@ export const PLAYER_PUSH_DISTANCE = 100;
 export const PLAYER_PUSH_POWER = 400;
 export const PUSH_TIMEOUT_DURATION = 300;
 export const CAN_PUSH_TIMEOUT_DURATION = 700;
+export const CAN_JUMP_DURATION = 100;
 
 export const ONLINE_SPEED_SCALE = 10;
 

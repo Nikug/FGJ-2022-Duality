@@ -1,4 +1,5 @@
 import {
+  CAN_JUMP_DURATION,
   CAN_PUSH_TIMEOUT_DURATION,
   JUMP_VELOCITY,
   MOVEMENT_SPEED,
@@ -29,6 +30,7 @@ export class GameScene extends Phaser.Scene {
   private cursorKeys?: Phaser.Types.Input.Keyboard.CursorKeys;
   private canMove = true;
   private canPush = true;
+  private timeFromGroundContact = 0;
 
   constructor() {
     super(sceneConfig);
@@ -104,6 +106,7 @@ export class GameScene extends Phaser.Scene {
       });
     }
   }
+
   public getPushed(direction: Phaser.Math.Vector2) {
     this.canMove = false;
 
@@ -156,10 +159,6 @@ export class GameScene extends Phaser.Scene {
       this.player.body.setVelocityX(0);
     }
 
-    if (this.cursorKeys.up.isDown && this.player.body.onFloor()) {
-      this.player.body.setVelocityY(-JUMP_VELOCITY);
-    }
-
     if (this.cursorKeys.space.isDown && this.canPush) {
       this.canPush = false;
       this.pushPlayers();
@@ -169,9 +168,27 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  public update() {
+  public checkJump(delta: number) {
+    if (!this.cursorKeys) return;
+    if (!this.player) return;
+    if (!this.canMove) return;
+
+    if (this.player.body.onFloor()) {
+      this.timeFromGroundContact = CAN_JUMP_DURATION;
+    } else if (this.timeFromGroundContact > 0) {
+      this.timeFromGroundContact -= delta;
+    }
+
+    if (this.cursorKeys.up.isDown && this.timeFromGroundContact > 0) {
+      this.player.body.setVelocityY(-JUMP_VELOCITY);
+      this.timeFromGroundContact = 0;
+    }
+  }
+
+  public update(time: number, delta: number) {
     if (!this.player) return;
     this.checkMovement();
+    this.checkJump(delta);
 
     throttleUpdate({
       x: this.player.body.position.x,
