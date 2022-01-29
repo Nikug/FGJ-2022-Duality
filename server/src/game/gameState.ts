@@ -1,2 +1,10 @@
 import { getGameState, setGameState } from ".";
-import { io } from "../..";
+
+export const setRunning = () => {
+  const gameState = getGameState();
+
+  if (!gameState.running) {
+    gameState.running = true;
+    setGameState(gameState);
+  }
+};

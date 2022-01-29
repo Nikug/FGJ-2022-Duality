@@ -1,6 +1,7 @@
 import type { ApiPlayerState, Modifier, Resource } from "../types/types";
 import type { GameScene } from "./scenes/main";
 import type { Socket } from "socket.io-client";
+import type { MainMenu } from "./scenes/mainmenu";
 
 export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
   socket.on("init", (players: ApiPlayerState[], resources: Resource[]) => {
@@ -47,5 +48,15 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
   socket.on("getPushed", ({ direction }: { direction: Phaser.Math.Vector2 }) => {
     const scene = game.scene.getScene("Game") as GameScene;
     scene.getPushed(direction);
+  });
+
+  socket.on("playerCount", (playerCount) => {
+    const scene = game.scene.getScene("MainMenu") as MainMenu;
+    scene.setPlayerCount(playerCount);
+  });
+
+  socket.on("startGameForEveryone", () => {
+    const scene = game.scene.getScene("MainMenu") as MainMenu;
+    scene.startGameForEveryone();
   });
 };

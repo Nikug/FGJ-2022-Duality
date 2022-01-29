@@ -30,6 +30,7 @@ export interface Vector2 {
 }
 
 export interface GameState {
+  running: boolean;
   modifiers: Modifier[];
 }
 

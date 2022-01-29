@@ -9,8 +9,6 @@ import { animationController, createAllAnimations } from "../util/characterUtils
 import { PlayerObject } from "../classes/Player";
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
-  active: false,
-  visible: false,
   key: "Game",
 };
 

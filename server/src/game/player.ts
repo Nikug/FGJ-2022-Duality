@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { getPlayerById, getPlayers, setPlayers } from ".";
+import { getGameState, getPlayerById, getPlayers, setPlayers } from ".";
 import { Player, Team, Vector2 } from "../../types/types";
 import { flipCoin } from "../utils/getRandomNumber";
 import { getResources } from "./resource";
@@ -69,5 +69,18 @@ export const pushPlayer = (playerId: string, direction: Vector2) => {
   const player = getPlayerById(playerId);
   if (player) {
     player.socket?.emit("getPushed", { direction });
+  }
+};
+
+export const updatePlayerCount = (socket: Socket) => {
+  const players = getPlayers();
+  socket.emit("playerCount", players.length);
+};
+
+export const startGame = (socket: Socket) => {
+  const gameState = getGameState();
+  if (!gameState.running) {
+    socket.broadcast.emit("startGameForEveryone");
+    socket.emit("startGameForEveryone");
   }
 };
