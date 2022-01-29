@@ -22,6 +22,7 @@ export const createPlayer = (scene: Phaser.Scene, apiPlayer: ApiPlayerState) => 
   const player = scene.physics.add.sprite(apiPlayer.x, apiPlayer.y, getSheet(apiPlayer.team)) as PlayerSpriteObject;
   player.id = apiPlayer.id;
   player.team = apiPlayer.team;
+  player.body.syncBounds = true;
 
   return player;
 };
@@ -35,6 +36,7 @@ export const applyModifiers = (scene: GameScene, newModifiers: Modifier[], oldMo
   for (const modifier of addedModifiers) {
     if (modifier.type === "gravity") {
       applyGravity(scene, modifier.team);
+      scene.events.emit("addTimer", modifier.duration / 1000, modifier.team);
       setTimeout(() => {
         applyGravity(scene, oppositeTeam(modifier.team));
         scene.reverseModifierTeam(modifier.type);
