@@ -203,8 +203,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   public getRandomPlayerSpawn() {
-    // (async () => {
-    //   while (!this.map) await new Promise((resolve) => setTimeout(resolve, 100));
     const playerSpawnLayer = this.map?.getObjectLayer(TILEMAP.spawns.player);
     const playerSpawnsObjects = playerSpawnLayer?.objects;
     const playerSpawnLocations = playerSpawnsObjects?.map((playerSpawnObj) => {
@@ -217,6 +215,9 @@ export class GameScene extends Phaser.Scene {
     const randomSpawn = playerSpawnLocations[getRandomNumber(0, playerSpawnLocations.length)];
     console.log(randomSpawn);
     return randomSpawn;
-    // })();
+  }
+
+  public victory(team: string) {
+    console.log(team, " wins!");
   }
 }
