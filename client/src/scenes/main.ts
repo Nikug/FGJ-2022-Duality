@@ -45,7 +45,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   public create() {
-    this.player = new PlayerObject(this, new Phaser.Math.Vector2(128, 64), ANIMATIONS.sheets.blue, this.socket?.id || "", this.socket);
+    const { map, worldLayer } = loadLevel(this);
+    this.map = map;
+    const randomSpawn = this.getRandomPlayerSpawn();
+    this.player = new PlayerObject(this, new Phaser.Math.Vector2(randomSpawn.x, randomSpawn.y), ANIMATIONS.sheets.blue, this.socket?.id || "", this.socket);
     this.player?.setTeam(this.team ? this.team : "coconut");
     this.physics.add.collider(this.player.physicSprite, this.otherPlayers, (me, other) => {
       const upsideDown = this.isUpsideDown();
@@ -53,11 +56,10 @@ export class GameScene extends Phaser.Scene {
         this.player?.resetGroundContact();
       }
     });
+    this.physics.add.collider(this.player.physicSprite, worldLayer);
     this.cameras.main.startFollow(this.player.physicSprite);
 
-    this.map = loadLevel(this);
     createAllAnimations(this);
-    this.getRandomPlayerSpawn();
 
     const mainCamera = this.cameras.main;
     mainCamera.setZoom(2, 2);
