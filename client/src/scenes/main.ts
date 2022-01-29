@@ -2,12 +2,13 @@ import { ANIMATIONS, ONLINE_SPEED_SCALE, TILEMAP } from "../constants";
 
 import type * as Game from "../../types/types";
 import type { Socket } from "socket.io-client";
-import { createPlayer, createResource } from "../util/gameUtils";
+import { applyModifiers, createPlayer, createResource, oppositeTeam } from "../util/gameUtils";
 import { socket } from "..";
 import { loadLevel } from "../util/sceneUtils";
 import { animationController, createAllAnimations } from "../util/characterUtils";
 import { PlayerObject } from "../classes/Player";
 import getRandomNumber from "../util/getRandomNumber";
+import { collectResource } from "../util/socketUtils";
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
   key: "Game",
@@ -19,22 +20,27 @@ export class GameScene extends Phaser.Scene {
   private resources: Game.ResourceGameObject[] = [];
   public otherPlayers: Game.PlayerSpriteObject[] = [];
   public map?: Phaser.Tilemaps.Tilemap;
+  public gameState: Game.GameState;
 
   constructor() {
     super(sceneConfig);
     this.player = undefined;
     this.socket = socket;
     this.map = undefined;
+    this.gameState = { modifiers: [] };
   }
 
   public preload() {
     this.load.image("ground", "assets/platform.png");
+    this.load.image("clouds", "/assets/kritafiles/clous_squid.png");
+    this.load.image("clouds2", "/assets/kritafiles/clous_squid_2.png");
     this.load.image(TILEMAP.tilesets.purple.key, "/assets/sprites/Project Mute Tileset V3.png");
     this.load.image(TILEMAP.tilesets.yellow.key, "/assets/sprites/Project Mute Tileset V1.png");
     this.load.image(TILEMAP.tilesets.gray.key, "/assets/sprites/Project Mute Tileset V2.png");
     this.load.tilemapTiledJSON("map", "/assets/maps/map.json");
     this.load.spritesheet(ANIMATIONS.sheets.blue, "/assets/kritafiles/player_blue/player_blue_spritesheet.png", { frameWidth: 14, frameHeight: 14 });
     this.load.spritesheet(ANIMATIONS.sheets.green, "/assets/kritafiles/player_green/player_green_spritesheet.png", { frameWidth: 14, frameHeight: 14 });
+    this.load.spritesheet(ANIMATIONS.sheets.resources.basic, "/assets/kritafiles/resource.png", { frameWidth: 12, frameHeight: 12 });
   }
 
   public create() {
@@ -44,22 +50,23 @@ export class GameScene extends Phaser.Scene {
         this.player?.resetGroundContact();
       }
     });
+    console.log("I am", this.socket?.id);
+
     this.map = loadLevel(this);
     createAllAnimations(this);
     this.getRandomPlayerSpawn();
 
     const mainCamera = this.cameras.main;
     mainCamera.setZoom(2, 2);
-    mainCamera.startFollow(this.player.physicSprite);
     mainCamera.setLerp(0.05, 0.05);
     mainCamera.roundPixels = true;
-
-    if (this.otherPlayers.length === 0) {
-      socket.emit("initResources");
-    }
   }
 
   public initPlayers(players: Game.ApiPlayerState[]) {
+    if (!this.player) {
+      this.createOwnPlayer();
+    }
+
     for (const player of players) {
       if (player.id === this.socket?.id) {
         this.player?.setTeam(player.team);
@@ -69,7 +76,20 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  private createOwnPlayer() {
+    this.player = new PlayerObject(this, new Phaser.Math.Vector2(128, 64), ANIMATIONS.sheets.blue, this.socket?.id || "", this.socket);
+
+    this.physics.add.collider(this.player.physicSprite, this.otherPlayers, (me, other) => {
+      if (me.body.touching.down && other.body.touching.up) {
+        this.player?.resetGroundContact();
+      }
+    });
+
+    this.cameras.main.startFollow(this.player.physicSprite);
+  }
+
   public addPlayer(newPlayer: Game.ApiPlayerState) {
+    if (this.otherPlayers.some((player) => player.id === newPlayer.id)) return;
     const newPlayerObject = createPlayer(this, newPlayer);
     this.otherPlayers.push(newPlayerObject);
   }
@@ -128,19 +148,46 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.resources = resourceObjects;
+
+    if (!this.player) return;
+    this.physics.add.overlap(this.player.physicSprite, this.resources, (pl, resource) => {
+      resource.destroy();
+
+      if (!this.player) return;
+
+      collectResource((resource as Game.ResourceGameObject).id, this.player.id, this.socket);
+    });
   }
 
   public sendResourceLocations(socket: Socket) {
-    const resourceLayer = this.map?.getObjectLayer(TILEMAP.spawns.resource);
-    const resourceObjects = resourceLayer?.objects;
+    (async () => {
+      while (!this.map)
+        // define the condition as you like
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      const resourceLayer = this.map?.getObjectLayer(TILEMAP.spawns.resource);
+      const resourceObjects = resourceLayer?.objects;
 
-    const resourceLocations = resourceObjects?.map((resourceObj) => {
-      const { x, y, type, id } = resourceObj;
+      const resourceLocations = resourceObjects?.map((resourceObj) => {
+        const { x, y, type, id } = resourceObj;
 
-      return { x, y, type, id: id.toString() };
-    });
+        return { x, y, type, id: id.toString() };
+      });
 
-    socket.emit("sendResourceLocations", resourceLocations);
+      socket.emit("sendResourceLocations", resourceLocations);
+    })();
+  }
+
+  public setModifiers(modifiers: Game.Modifier[]) {
+    console.log("settings modifiers", modifiers);
+    const oldModifiers = [...this.gameState.modifiers];
+    this.gameState.modifiers = modifiers;
+    applyModifiers(this, modifiers, oldModifiers);
+  }
+
+  public reverseModifierTeam(type: string) {
+    this.gameState.modifiers = this.gameState.modifiers.map((modifier) =>
+      modifier.type === type ? { ...modifier, team: oppositeTeam(modifier.team) } : modifier,
+    );
   }
 
   public getRandomPlayerSpawn() {

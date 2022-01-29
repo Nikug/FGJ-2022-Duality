@@ -1,9 +1,18 @@
 import { Socket } from "socket.io";
 import { getGameState, getPlayerById, getPlayers, setPlayers } from ".";
+import { io } from "../..";
 import { Player, Team, Vector2 } from "../../types/types";
+import { flipCoin } from "../utils/getRandomNumber";
+import { setNotRunning } from "./gameState";
 import { getResources } from "./resource";
 
 export const addPlayer = (socket: Socket) => {
+  const gameState = getGameState();
+  if (gameState.running) {
+    socket.disconnect(true);
+    return;
+  }
+
   const players = getPlayers();
   const newPlayer: Player = {
     x: 0,
@@ -16,7 +25,7 @@ export const addPlayer = (socket: Socket) => {
   console.log("Adding new player", socket.id, newPlayer.team);
 
   socket.broadcast.emit("newPlayer", playerToClient(newPlayer));
-  socket.emit("init", playersToUpdate(newPlayers), getResources());
+  io.emit("init", playersToUpdate(newPlayers), getResources());
   setPlayers(newPlayers);
 };
 
@@ -30,7 +39,7 @@ export const assignTeam = (players: Player[]): Team => {
   );
 
   if (coconut === ananas) {
-    return Math.floor(Math.random() * 2) == 0 ? "ananas" : "coconut";
+    return flipCoin() ? "ananas" : "coconut";
   } else {
     return coconut > ananas ? "ananas" : "coconut";
   }
@@ -44,6 +53,10 @@ export const removePlayer = (socket: Socket) => {
 
   socket.broadcast.emit("removePlayer", socket.id);
   setPlayers(newPlayers);
+
+  if (newPlayers.length === 0) {
+    setNotRunning();
+  }
 };
 
 export const updatePlayerPosition = (x: number, y: number, socket: Socket) => {

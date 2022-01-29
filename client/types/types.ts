@@ -10,13 +10,39 @@ export interface PlayerGameObject extends PhysicsRectangle {
   id: string;
 }
 
-export interface ResourceGameObject extends PhysicsRectangle {
+export interface ResourceGameObject extends Phaser.Types.Physics.Arcade.SpriteWithDynamicBody {
   id: string;
+}
+
+export interface Score {
+  coconut: number;
+  ananas: number;
 }
 
 export interface PlayerSpriteObject extends Phaser.Types.Physics.Arcade.SpriteWithDynamicBody {
   id: string;
   team: Team;
+}
+
+export interface PlayerStats {
+  movementSpeed: number;
+  sizeScale: number;
+  pushDistance: number;
+  pushPower: number;
+  pushTimeout: number;
+  canPushTimeout: number;
+  canJumpDuration: number;
+  canDashDuration: number;
+  dashCantMoveDuration: number;
+  dashTimeout: number;
+  dashVelocity: number;
+  jumpVelocity: number;
+}
+
+export interface PlayerSizes {
+  small: PlayerStats;
+  normal: PlayerStats;
+  big: PlayerStats;
 }
 
 export interface PlayerState {
@@ -27,8 +53,7 @@ export interface PlayerState {
 }
 
 export interface GameState {
-  modifiers: string[];
-  socket: Socket;
+  modifiers: Modifier[];
 }
 export interface APIGameState {
   modifiers: string[];
@@ -56,3 +81,9 @@ export interface Resource {
 }
 
 export type PlayerColors = "blue" | "green";
+
+export interface Modifier {
+  type: string;
+  team: Team;
+  duration: number;
+}

@@ -1,3 +1,4 @@
+import type { Score } from "../../types/types";
 import { Scoreboard } from "../ui/scoreboard";
 import { Timer } from "../ui/timer";
 
@@ -21,8 +22,8 @@ export class UIScene extends Phaser.Scene {
 
     mainGame.events.on(
       "addScore",
-      (player: string, score: number) => {
-        this.scoreboard?.addScore(player, score);
+      (Score: Score) => {
+        this.scoreboard?.addScore(Score);
       },
       this,
     );
@@ -34,8 +35,5 @@ export class UIScene extends Phaser.Scene {
       },
       this,
     );
-
-    this.scoreboard?.addScore("Coconut", 300);
-    this.scoreboard?.addScore("Pineapple", 500);
   }
 }

@@ -1,6 +1,6 @@
 import type { Socket } from "socket.io-client";
 import { socket } from "..";
-import type { GameState, PlayerState } from "../../types/types";
+import type { PlayerState } from "../../types/types";
 import { UPDATE_INTERVAL } from "../constants";
 
 let lastState: PlayerState | undefined = undefined;
@@ -40,4 +40,8 @@ export const playerCount = () => {
 
 export const startGame = () => {
   socket.emit("startGame");
+};
+
+export const collectResource = (id: string, playerId?: string, socket?: Socket) => {
+  socket?.emit("collectResource", { id, playerId });
 };

@@ -5,7 +5,9 @@ const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
 };
 
 export class MainMenu extends Phaser.Scene {
-  private playerCountText: Phaser.GameObjects.Text | undefined;
+  private playerUpdateInterval?: NodeJS.Timer;
+  private playerCountText: Phaser.GameObjects.BitmapText | undefined;
+  private buttonBackground = this.hColor("#331523");
 
   constructor() {
     super(sceneConfig);
@@ -13,32 +15,36 @@ export class MainMenu extends Phaser.Scene {
 
   public preload() {
     this.load.image("button", "/assets/tempButton.png");
+    // this.load.bitmapFont("atari2", "assets/fonts/atari-classic2.png", "assets/fonts/atari-classic2.xml");
   }
 
   public create() {
-    const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
-    const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
-    const playButton = this.add.image(screenCenterX, screenCenterY, "button").setOrigin(0.5);
-    playButton.setInteractive();
+    const playButton = this.add.rectangle(this.scale.width / 2, this.scale.height / 2, 300, 100, this.buttonBackground);
+    playButton.setInteractive({ useHandCursor: true });
     playButton.on("pointerdown", () => startGame());
+    // this.add.bitmapText(this.scale.width / 2 - 128, this.scale.height / 2 - 30, "atari2", "PLAY").setScale(1);
+    // this.playerCountText = this.add.bitmapText(this.scale.width / 2 - 220, this.scale.height / 2 + 100, "atari2", "Getting other players..").setScale(0.5);
 
-    this.playerCountText = this.add
-      .text(screenCenterX * 1.5, screenCenterY / 2, "Player count:1", {
-        font: "20px",
-        color: "#000000",
-      })
-      .setOrigin(0.5);
+    this.playerUpdateInterval = setInterval(() => {
+      playerCount();
+    }, 500);
+  }
+
+  public shutdown() {
+    if (this.playerUpdateInterval) {
+      clearInterval(this.playerUpdateInterval);
+    }
   }
 
   public setPlayerCount(playerCount: integer) {
-    this.playerCountText?.setText("Player count:" + playerCount);
+    // this.playerCountText?.setText("Player count:" + playerCount);
   }
 
   public startGameForEveryone() {
     this.scene.start("Game");
   }
 
-  public update() {
-    playerCount();
+  private hColor(hexColor: string) {
+    return Phaser.Display.Color.HexStringToColor(hexColor).color;
   }
 }

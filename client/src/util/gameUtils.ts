@@ -1,4 +1,6 @@
-import type { PlayerGameObject, ResourceGameObject, PlayerSpriteObject, ApiPlayerState } from "../../types/types";
+import type { PlayerGameObject, ResourceGameObject, PlayerSpriteObject, ApiPlayerState, Modifier, Team } from "../../types/types";
+import { ANIMATIONS, PLAYER_GRAVITY, PLAYER_SIZES } from "../constants";
+import type { GameScene } from "../scenes/main";
 import { getSheet } from "./characterUtils";
 
 export const createRectangle = (scene: Phaser.Scene, position: Phaser.Math.Vector2, color: number, id: string): PlayerGameObject => {
@@ -10,10 +12,10 @@ export const createRectangle = (scene: Phaser.Scene, position: Phaser.Math.Vecto
 };
 
 export const createResource = (scene: Phaser.Scene, position: Phaser.Math.Vector2, color: number, id: string): ResourceGameObject => {
-  const rectangle = scene.add.rectangle(position.x, position.y, 12, 12, color) as ResourceGameObject;
+  const coin = scene.physics.add.sprite(position.x, position.y, ANIMATIONS.sheets.resources.basic) as ResourceGameObject;
 
-  rectangle.id = id;
-  return rectangle;
+  coin.id = id;
+  return coin;
 };
 
 export const createPlayer = (scene: Phaser.Scene, apiPlayer: ApiPlayerState) => {
@@ -22,4 +24,64 @@ export const createPlayer = (scene: Phaser.Scene, apiPlayer: ApiPlayerState) => 
   player.team = apiPlayer.team;
 
   return player;
+};
+
+export const oppositeTeam = (team: Team) => (team === "coconut" ? "ananas" : "coconut");
+
+export const applyModifiers = (scene: GameScene, newModifiers: Modifier[], oldModifiers: Modifier[]) => {
+  const removedModifiers = oldModifiers.filter((modifier) => newModifiers.every((newModifier) => newModifier.type !== modifier.type));
+  const addedModifiers = newModifiers.filter((modifier) => oldModifiers.every((newModifier) => newModifier.type !== modifier.type));
+
+  for (const modifier of addedModifiers) {
+    if (modifier.type === "gravity") {
+      applyGravity(scene, modifier.team);
+      setTimeout(() => {
+        applyGravity(scene, oppositeTeam(modifier.team));
+        scene.reverseModifierTeam(modifier.type);
+      }, modifier.duration / 2);
+    } else if (modifier.type === "bigsmall") {
+      applyBigSmall(scene, modifier.team);
+      setTimeout(() => {
+        applyBigSmall(scene, oppositeTeam(modifier.team));
+        scene.reverseModifierTeam(modifier.type);
+      }, modifier.duration / 2);
+    }
+  }
+
+  for (const modifier of removedModifiers) {
+    if (modifier.type === "gravity") {
+      removeGravity(scene);
+    } else if (modifier.type === "bigsmall") {
+      removeBigSmall(scene);
+    }
+  }
+};
+
+const applyBigSmall = (scene: GameScene, team: Team) => {
+  if (scene.player?.team === team) {
+    scene.player?.setStats(PLAYER_SIZES.big);
+  } else {
+    scene.player?.setStats(PLAYER_SIZES.small);
+  }
+
+  scene.otherPlayers.map((player) => player.setScale(player.team === team ? PLAYER_SIZES.big.sizeScale : PLAYER_SIZES.small.sizeScale));
+};
+
+const applyGravity = (scene: GameScene, team: Team) => {
+  if (scene.player?.team === team) {
+    scene.player.physicSprite.setGravityY(-PLAYER_GRAVITY);
+  } else {
+    scene.player?.physicSprite.setGravityY(PLAYER_GRAVITY);
+  }
+
+  scene.otherPlayers.map((player) => player.setGravityY(player.team === team ? -PLAYER_GRAVITY : PLAYER_GRAVITY));
+};
+
+const removeGravity = (scene: GameScene) => {
+  scene.player?.physicSprite.setGravityY(PLAYER_GRAVITY);
+  scene.otherPlayers.map((player) => player.setGravityY(PLAYER_GRAVITY));
+};
+const removeBigSmall = (scene: GameScene) => {
+  scene.player?.setStats(PLAYER_SIZES.normal);
+  scene.otherPlayers.map((player) => player.setScale(PLAYER_SIZES.normal.sizeScale));
 };

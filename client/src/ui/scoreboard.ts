@@ -1,9 +1,8 @@
+import type { Score } from "../../types/types";
+
 /* Creates UI Scoreboard
     Usage:
-        - create new Timer() in scene constructor
-        - call timer.loadImages() in scene preload
-        - call timer.addScoreBoard() in create
-        - call timer.addScore(player, score) whenever needed
+      - I dont even know at this point
         - debug as needed :]
 */
 export class Scoreboard {
@@ -13,6 +12,8 @@ export class Scoreboard {
   private scoreBoardMarginX = 10;
   private scoreBoardMarginY = 20;
   private backgroundColor: number = this.hColor("#331523");
+  private scoresText1: Phaser.GameObjects.BitmapText | undefined;
+  private scoresText2: Phaser.GameObjects.BitmapText | undefined;
 
   scores: { player: string; score: number; text: Phaser.GameObjects.BitmapText }[] = [];
 
@@ -25,34 +26,17 @@ export class Scoreboard {
     graphics.fillStyle(this.backgroundColor, 0.9);
     graphics.fillRoundedRect(this.scoreBoardX, this.scoreBoardY, 250, 80, 16);
     this.scene.add.bitmapText(this.scoreBoardX + this.scoreBoardMarginX + 65, this.scoreBoardY + 5, "atari", "SCORES").setScale(0.25);
+    this.scoresText1 = this.scene.add.bitmapText(this.scoreBoardX + this.scoreBoardMarginX, this.scoreBoardY + 30, "atari", `Ananas: 0`).setScale(0.25);
+    this.scoresText2 = this.scene.add
+      .bitmapText(this.scoreBoardX + this.scoreBoardMarginX, this.scoreBoardY + 30 + this.scoreBoardMarginY, "atari", `Coconut: 0`)
+      .setScale(0.25);
   }
 
-  public addScore(player: string, score: number) {
-    // If player not in list
-    if (!this.scores.some((item) => item.player === player)) {
-      console.log("Push");
-      this.scores.push({
-        player: player,
-        score: score,
-        text: this.getScoreText(score, player),
-      });
-    } else {
-      for (let i = 0; i < this.scores.length; i++) {
-        if (this.scores[i].player === player) {
-          this.scores[i].score += score;
-          this.scores[i].text.destroy();
-          this.scores[i].text = this.getScoreText(score, player);
-        }
-      }
-    }
+  public addScore(Score: Score) {
+    this.scoresText1?.setText(`Ananas: ${Score.ananas}`);
+    this.scoresText2?.setText(`Coconut: ${Score.coconut}`);
   }
   private hColor(hexColor: string) {
     return Phaser.Display.Color.HexStringToColor(hexColor).color;
-  }
-
-  private getScoreText(score: number, team: string) {
-    return this.scene.add
-      .bitmapText(this.scoreBoardX + this.scoreBoardMarginX, this.scoreBoardY + 30 + this.scores.length * this.scoreBoardMarginY, "atari", `${team}: ${score}`)
-      .setScale(0.25);
   }
 }

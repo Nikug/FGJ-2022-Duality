@@ -9,11 +9,6 @@ export interface Player {
   team: Team;
 }
 
-export interface Game {
-  running: boolean;
-  modifiers: string[];
-}
-
 export enum ResourceType {
   BASIC = "basic",
 }
@@ -32,4 +27,21 @@ export interface ResourceLocation {
 export interface Vector2 {
   x: number;
   y: number;
+}
+
+export interface Score {
+  coconut: number;
+  ananas: number;
+}
+
+export interface GameState {
+  running: boolean;
+  modifiers: Modifier[];
+  score: Score;
+}
+
+export interface Modifier {
+  type: string;
+  team: Team;
+  duration: number;
 }
