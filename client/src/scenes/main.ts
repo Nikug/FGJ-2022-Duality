@@ -39,27 +39,26 @@ export class GameScene extends Phaser.Scene {
     this.load.tilemapTiledJSON("map", "/assets/maps/map.json");
     this.load.spritesheet(ANIMATIONS.sheets.blue, "/assets/kritafiles/player_blue/player_blue_spritesheet.png", { frameWidth: 14, frameHeight: 14 });
     this.load.spritesheet(ANIMATIONS.sheets.green, "/assets/kritafiles/player_green/player_green_spritesheet.png", { frameWidth: 14, frameHeight: 14 });
+    this.load.spritesheet(ANIMATIONS.sheets.resources.basic, "/assets/kritafiles/resource.png", { frameWidth: 12, frameHeight: 12 });
   }
 
   public create() {
-    this.player = new PlayerObject(this, new Phaser.Math.Vector2(128, 64), ANIMATIONS.sheets.blue, this.socket?.id || "", this.socket);
-    this.physics.add.collider(this.player.physicSprite, this.otherPlayers, (me, other) => {
-      if (me.body.touching.down && other.body.touching.up) {
-        this.player?.resetGroundContact();
-      }
-    });
+    console.log("I am", this.socket?.id);
 
     this.map = loadLevel(this);
     createAllAnimations(this);
 
     const mainCamera = this.cameras.main;
     mainCamera.setZoom(2, 2);
-    mainCamera.startFollow(this.player.physicSprite);
     mainCamera.setLerp(0.05, 0.05);
     mainCamera.roundPixels = true;
   }
 
   public initPlayers(players: Game.ApiPlayerState[]) {
+    if (!this.player) {
+      this.createOwnPlayer();
+    }
+
     for (const player of players) {
       if (player.id === this.socket?.id) {
         this.player?.setTeam(player.team);
@@ -69,7 +68,20 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  private createOwnPlayer() {
+    this.player = new PlayerObject(this, new Phaser.Math.Vector2(128, 64), ANIMATIONS.sheets.blue, this.socket?.id || "", this.socket);
+
+    this.physics.add.collider(this.player.physicSprite, this.otherPlayers, (me, other) => {
+      if (me.body.touching.down && other.body.touching.up) {
+        this.player?.resetGroundContact();
+      }
+    });
+
+    this.cameras.main.startFollow(this.player.physicSprite);
+  }
+
   public addPlayer(newPlayer: Game.ApiPlayerState) {
+    if (this.otherPlayers.some((player) => player.id === newPlayer.id)) return;
     const newPlayerObject = createPlayer(this, newPlayer);
     this.otherPlayers.push(newPlayerObject);
   }
@@ -128,10 +140,13 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.resources = resourceObjects;
+
     if (!this.player) return;
     this.physics.add.overlap(this.player.physicSprite, this.resources, (pl, resource) => {
       resource.destroy();
+
       if (!this.player) return;
+
       collectResource((resource as Game.ResourceGameObject).id, this.player.id, this.socket);
     });
   }
@@ -160,6 +175,7 @@ export class GameScene extends Phaser.Scene {
     this.gameState.modifiers = modifiers;
     applyModifiers(this, modifiers, oldModifiers);
   }
+
   public reverseModifierTeam(type: string) {
     this.gameState.modifiers = this.gameState.modifiers.map((modifier) =>
       modifier.type === type ? { ...modifier, team: oppositeTeam(modifier.team) } : modifier,

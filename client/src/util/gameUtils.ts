@@ -1,5 +1,5 @@
 import type { PlayerGameObject, ResourceGameObject, PlayerSpriteObject, ApiPlayerState, Modifier, Team } from "../../types/types";
-import { PLAYER_GRAVITY, PLAYER_SIZES } from "../constants";
+import { ANIMATIONS, PLAYER_GRAVITY, PLAYER_SIZES } from "../constants";
 import type { GameScene } from "../scenes/main";
 import { getSheet } from "./characterUtils";
 
@@ -12,10 +12,10 @@ export const createRectangle = (scene: Phaser.Scene, position: Phaser.Math.Vecto
 };
 
 export const createResource = (scene: Phaser.Scene, position: Phaser.Math.Vector2, color: number, id: string): ResourceGameObject => {
-  const rectangle = scene.add.rectangle(position.x, position.y, 12, 12, color) as ResourceGameObject;
-  scene.physics.add.existing(rectangle, true);
-  rectangle.id = id;
-  return rectangle;
+  const coin = scene.physics.add.sprite(position.x, position.y, ANIMATIONS.sheets.resources.basic) as ResourceGameObject;
+
+  coin.id = id;
+  return coin;
 };
 
 export const createPlayer = (scene: Phaser.Scene, apiPlayer: ApiPlayerState) => {
@@ -30,7 +30,9 @@ export const oppositeTeam = (team: Team) => (team === "coconut" ? "ananas" : "co
 
 export const applyModifiers = (scene: GameScene, newModifiers: Modifier[], oldModifiers: Modifier[]) => {
   const removedModifiers = oldModifiers.filter((modifier) => newModifiers.every((newModifier) => newModifier.type !== modifier.type));
-  for (const modifier of newModifiers) {
+  const addedModifiers = newModifiers.filter((modifier) => oldModifiers.every((newModifier) => newModifier.type !== modifier.type));
+
+  for (const modifier of addedModifiers) {
     if (modifier.type === "gravity") {
       applyGravity(scene, modifier.team);
       setTimeout(() => {

@@ -1,5 +1,5 @@
-import jungleOGG from "/assets/audio/public_assets_audio_jungle.ogg";
-import jungleMP3 from "/assets/audio/public_assets_audio_jungle.mp3";
+const jungleOGG = "/assets/audio/public_assets_audio_jungle.ogg";
+const jungleMP3 = "/assets/audio/public_assets_audio_jungle.mp3";
 
 /* Creates Audio Manager to use in scene
   Initialize AudioManager in scene create()
