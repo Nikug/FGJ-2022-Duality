@@ -53,10 +53,17 @@ const createAnimations = (scene: GameScene, team: Team) => {
     frameRate: ANIMATIONS.frameRate,
     repeat: -1,
   });
+  scene.anims.create({
+    key: getAnimationKey(ANIMATIONS.slap, team),
+    frames: scene.anims.generateFrameNumbers(ANIMATIONS.sheets.slaps[team], { start: 0, end: 8 }),
+    frameRate: ANIMATIONS.frameRate * 2,
+    repeat: -1,
+  });
 };
 
-const getAnimationKey = (state: string, team: Team) => `${state}-${team}`;
+export const getAnimationKey = (state: string, team: Team) => `${state}-${team}`;
 export const getSheet = (team: Team) => ANIMATIONS.sheets[team];
+export const getSlapSheet = (team: Team) => ANIMATIONS.sheets.slaps[team];
 
 export const animationController = (scene: GameScene) => {
   if (!scene.player) return;

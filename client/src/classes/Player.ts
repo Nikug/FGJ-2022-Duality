@@ -1,10 +1,10 @@
 import Phaser from "phaser";
 import type { Socket } from "socket.io-client";
-import { PLAYER_GRAVITY, PLAYER_SIZES } from "../constants";
+import { ANIMATIONS, PLAYER_GRAVITY, PLAYER_SIZES } from "../constants";
 import type { GameScene } from "../scenes/main";
 import type { PlayerSpriteObject, Team, PlayerStats } from "../../types/types";
 import { pushPlayer, throttleUpdate } from "../util/socketUtils";
-import { getSheet } from "../util/characterUtils";
+import { getAnimationKey, getSheet } from "../util/characterUtils";
 
 export class PlayerObject {
   public id: string;
@@ -73,6 +73,7 @@ export class PlayerObject {
       }, this.stats.canPushTimeout);
     }
   }
+
   private pushPlayers() {
     const pos = this.physicSprite.body.position;
 
@@ -80,7 +81,13 @@ export class PlayerObject {
       this.scene.otherPlayers.forEach((pl) => {
         const pl_pos = pl.body.position;
         if (pl_pos.distance(pos) < this.stats.pushDistance) {
-          pushPlayer(pl.id, new Phaser.Math.Vector2(pl_pos.x - pos.x, pl_pos.y - pos.y).normalize(), this.socket);
+          const difference = pl_pos.clone().subtract(pos);
+          const slapSprite = this.scene.add.sprite(pos.x, pos.y, ANIMATIONS.sheets.slaps[this.team]);
+          console.log(this.team);
+          slapSprite.anims.play(getAnimationKey(ANIMATIONS.slap, this.team));
+          slapSprite.setRotation(difference.angle());
+
+          pushPlayer(pl.id, difference.normalize(), this.socket);
           this.scene.events.emit("playSmack");
         }
       });
