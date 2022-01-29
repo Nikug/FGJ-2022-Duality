@@ -58,4 +58,5 @@ export const ANIMATIONS = {
     green: "playerGreen",
   },
   frameRate: 12,
+  idleThreshold: 1,
 };

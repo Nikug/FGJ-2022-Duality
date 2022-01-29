@@ -21,7 +21,7 @@ import { createPlayer } from "../util/gameUtils";
 import { socket } from "..";
 import { loadLevel } from "../util/sceneUtils";
 import { pushPlayer, throttleUpdate } from "../util/socketUtils";
-import { animationController, createAnimations } from "../util/characterUtils";
+import { animationController, createAllAnimations } from "../util/characterUtils";
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
   active: false,
@@ -32,7 +32,7 @@ const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
 export class GameScene extends Phaser.Scene {
   public player?: Game.PlayerSpriteObject;
   private socket?: Socket;
-  private otherPlayers: Game.PlayerSpriteObject[] = [];
+  public otherPlayers: Game.PlayerSpriteObject[] = [];
   public map?: Phaser.Tilemaps.Tilemap;
 
   private cursorKeys?: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -68,7 +68,7 @@ export class GameScene extends Phaser.Scene {
     this.physics.add.collider(this.player, this.otherPlayers);
 
     this.map = loadLevel(this);
-    createAnimations(this);
+    createAllAnimations(this);
 
     const mainCamera = this.cameras.main;
     mainCamera.setZoom(2, 2);

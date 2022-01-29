@@ -31,3 +31,5 @@ export interface ApiPlayerState {
   y: number;
   id: string;
 }
+
+export type PlayerColors = "blue" | "green";
