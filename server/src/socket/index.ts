@@ -1,6 +1,7 @@
 import { Socket } from "socket.io";
 import { ResourceLocation } from "../../types/types";
 import {
+  collectResource,
   fillEmptyResourceLocations,
   updateResourceLocations,
 } from "../game/resource";
@@ -49,4 +50,10 @@ export const handleSockets = (socket: Socket) => {
     startGame(socket);
     setRunning();
   });
+  socket.on(
+    "collectResource",
+    ({ id, playerId }: { id: string; playerId: string }) => {
+      collectResource(id, playerId);
+    },
+  );
 };

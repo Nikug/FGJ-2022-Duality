@@ -41,3 +41,7 @@ export const playerCount = () => {
 export const startGame = () => {
   socket.emit("startGame");
 };
+
+export const collectResource = (id: string, playerId?: string, socket?: Socket) => {
+  socket?.emit("collectResource", { id, playerId });
+};

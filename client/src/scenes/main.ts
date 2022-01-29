@@ -7,6 +7,7 @@ import { socket } from "..";
 import { loadLevel } from "../util/sceneUtils";
 import { animationController, createAllAnimations } from "../util/characterUtils";
 import { PlayerObject } from "../classes/Player";
+import { collectResource } from "../util/socketUtils";
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
   key: "Game",
@@ -131,6 +132,12 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.resources = resourceObjects;
+    if (!this.player) return;
+    this.physics.add.overlap(this.player.physicSprite, this.resources, (pl, resource) => {
+      resource.destroy();
+      if (!this.player) return;
+      collectResource((resource as Game.ResourceGameObject).id, this.player.id, this.socket);
+    });
   }
 
   public sendResourceLocations(socket: Socket) {

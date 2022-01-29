@@ -14,7 +14,7 @@ export const createRectangle = (scene: Phaser.Scene, position: Phaser.Math.Vecto
 
 export const createResource = (scene: Phaser.Scene, position: Phaser.Math.Vector2, color: number, id: string): ResourceGameObject => {
   const rectangle = scene.add.rectangle(position.x, position.y, 12, 12, color) as ResourceGameObject;
-
+  scene.physics.add.existing(rectangle, true);
   rectangle.id = id;
   return rectangle;
 };

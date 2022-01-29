@@ -67,6 +67,13 @@ export const updateResourceLocations = (
   addResources();
 };
 
+export const collectResource = (id: string, playerId: string) => {
+  const index = globalResources.findIndex((resource) => resource.id === id);
+  if (index < 0) return;
+  globalResources.splice(index, 1);
+  io.emit("updateResources", globalResources);
+};
+
 /**
  * Add resources by given amount. If amount is not given, fills every empty resource location. Will add only as many resources as there is empty locations.
  * @param {number | undefined} amount - Number of resources to be added.
