@@ -180,21 +180,24 @@ export class GameScene extends Phaser.Scene {
   }
 
   public sendResourceLocations(socket: Socket) {
+    const resourceLocations = this.map?.findObject("ResourceSpawn", (obj) => obj);
+    console.log({ resourceLocations });
+
     // placeholder
-    const resourceLocations = [
-      {
-        x: 120,
-        y: 120,
-      },
-      {
-        x: 110,
-        y: 90,
-      },
-      {
-        x: 234,
-        y: 213,
-      },
-    ];
+    // const resourceLocations = [
+    //   {
+    //     x: 120,
+    //     y: 120,
+    //   },
+    //   {
+    //     x: 110,
+    //     y: 90,
+    //   },
+    //   {
+    //     x: 234,
+    //     y: 213,
+    //   },
+    // ];
 
     socket.emit("sendResourceLocations", resourceLocations);
   }

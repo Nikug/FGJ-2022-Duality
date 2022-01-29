@@ -34,4 +34,8 @@ export const TILEMAP = {
     yellow: { key: "frontTiles", name: "Project Mute Tileset V1" },
     gray: { key: "backTiles", name: "Project Mute Tileset V2" },
   },
+  spawns: {
+    resource: "ResourceSpawn",
+    player: "PlayerSpawn",
+  },
 };
