@@ -82,10 +82,7 @@ export class PlayerObject {
         const pl_pos = pl.body.position;
         if (pl_pos.distance(pos) < this.stats.pushDistance) {
           const difference = pl_pos.clone().subtract(pos);
-          const slapSprite = this.scene.add.sprite(pos.x, pos.y, ANIMATIONS.sheets.slaps[this.team]);
-          console.log(this.team);
-          slapSprite.anims.play(getAnimationKey(ANIMATIONS.slap, this.team));
-          slapSprite.setRotation(difference.angle());
+          this.handleSlapAnimation(pos, difference);
 
           pushPlayer(pl.id, difference.normalize(), this.socket);
           this.scene.events.emit("playSmack");
@@ -93,6 +90,14 @@ export class PlayerObject {
       });
     }
   }
+
+  private handleSlapAnimation = (startPosition: Phaser.Math.Vector2, difference: Phaser.Math.Vector2) => {
+    const slapSprite = this.scene.add.sprite(startPosition.x, startPosition.y, ANIMATIONS.sheets.slaps[this.team]);
+    slapSprite.anims.play(getAnimationKey(ANIMATIONS.slap, this.team));
+    slapSprite.setRotation(difference.angle());
+    slapSprite.setFlip(true, true);
+    slapSprite.anims.hideOnComplete = true;
+  };
 
   public getPushed(direction: Phaser.Math.Vector2) {
     this.canMove = false;
