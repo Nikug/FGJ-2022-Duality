@@ -55,8 +55,8 @@ const createAnimations = (scene: GameScene, team: Team) => {
   });
   scene.anims.create({
     key: getAnimationKey(ANIMATIONS.slap, team),
-    frames: scene.anims.generateFrameNumbers(ANIMATIONS.sheets.slaps[team], { start: 0, end: 8 }),
-    frameRate: ANIMATIONS.frameRate * 2,
+    frames: scene.anims.generateFrameNumbers(ANIMATIONS.sheets.slaps[team], { start: 8, end: 0 }),
+    frameRate: ANIMATIONS.frameRate * 3,
     repeat: 0,
   });
 };

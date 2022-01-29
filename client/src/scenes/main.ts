@@ -99,9 +99,9 @@ export class GameScene extends Phaser.Scene {
     this.otherPlayers.push(newPlayerObject);
   }
 
-  public getPushed(direction: Phaser.Math.Vector2) {
+  public getPushed(slapperId: string, targetId: string, direction: Phaser.Math.Vector2) {
     if (!this.player) return;
-    this.player.getPushed(direction);
+    this.player.getPushed(slapperId, targetId, direction);
   }
 
   public removePlayer(id: string) {

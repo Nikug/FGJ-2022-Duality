@@ -84,7 +84,7 @@ export class PlayerObject {
           const difference = pl_pos.clone().subtract(pos);
           this.handleSlapAnimation(pos, difference);
 
-          pushPlayer(pl.id, difference.normalize(), this.socket);
+          pushPlayer(this.id, pl.id, difference.normalize(), this.socket);
           this.scene.events.emit("playSmack");
         }
       });
@@ -99,15 +99,20 @@ export class PlayerObject {
     slapSprite.anims.hideOnComplete = true;
   };
 
-  public getPushed(direction: Phaser.Math.Vector2) {
-    this.canMove = false;
+  public getPushed(slapperId: string, targetId: string, direction: Phaser.Math.Vector2) {
+    if (targetId === this.id) {
+      this.canMove = false;
+      this.physicSprite.body.setVelocityX(direction.x * this.stats.pushPower);
+      this.physicSprite.body.setVelocityY(direction.y * this.stats.pushPower);
+      this.disabledTime = this.stats.pushTimeout;
+    }
 
-    this.physicSprite.body.setVelocityX(direction.x * this.stats.pushPower);
-    this.physicSprite.body.setVelocityY(direction.y * this.stats.pushPower);
-    this.disabledTime = this.stats.pushTimeout;
-    console.log(direction);
-    this.handleSlapAnimation(this.physicSprite.body.position, direction);
-    this.scene.events.emit("playSmack");
+    if (slapperId === this.id) return;
+    const slapper = this.scene.otherPlayers.find((player) => player.id === slapperId);
+    if (slapper) {
+      this.handleSlapAnimation(slapper.body.position, direction);
+      this.scene.events.emit("playSmack");
+    }
   }
 
   public setStats(stats: PlayerStats) {

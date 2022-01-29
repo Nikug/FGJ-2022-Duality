@@ -25,9 +25,9 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
     scene.removePlayer(id);
   });
 
-  socket.on("getPushed", ({ direction }: { direction: PoorMansVector2 }) => {
+  socket.on("getPushed", ({ slapperId, targetId, direction }: { slapperId: string; targetId: string; direction: PoorMansVector2 }) => {
     const scene = game.scene.getScene("Game") as GameScene;
-    scene.getPushed(new Phaser.Math.Vector2(direction.x, direction.y));
+    scene.getPushed(slapperId, targetId, new Phaser.Math.Vector2(direction.x, direction.y));
   });
 
   socket.on("updateModifiers", (modifiers: Modifier[]) => {
