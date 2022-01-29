@@ -9,7 +9,7 @@ export const createAllAnimations = (scene: GameScene) => {
 
   scene.anims.create({
     key: ANIMATIONS.sheets.resources.basic,
-    frames: scene.anims.generateFrameNumbers(ANIMATIONS.sheets.resources.basic, { start: 1, end: 20 }),
+    frames: scene.anims.generateFrameNumbers(ANIMATIONS.sheets.resources.basic, { start: 0, end: 19 }),
     frameRate: ANIMATIONS.frameRate,
     repeat: -1,
   });
