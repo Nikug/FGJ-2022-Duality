@@ -7,6 +7,7 @@ import { socket } from "..";
 import { loadLevel } from "../util/sceneUtils";
 import { animationController, createAllAnimations } from "../util/characterUtils";
 import { PlayerObject } from "../classes/Player";
+import getRandomNumber from "../util/getRandomNumber";
 import { collectResource } from "../util/socketUtils";
 import { AudioManager } from "../audio/audioManager";
 
@@ -50,7 +51,10 @@ export class GameScene extends Phaser.Scene {
   public create() {
     this.audioManager?.addAudio();
     console.log("I am", this.socket?.id);
-    this.player = new PlayerObject(this, new Phaser.Math.Vector2(128, 64), ANIMATIONS.sheets.blue, this.socket?.id || "", this.socket);
+    const { map, worldLayer } = loadLevel(this);
+    this.map = map;
+    const randomSpawn = this.getRandomPlayerSpawn();
+    this.player = new PlayerObject(this, new Phaser.Math.Vector2(randomSpawn.x, randomSpawn.y), ANIMATIONS.sheets.blue, this.socket?.id || "", this.socket);
     this.player?.setTeam(this.team ? this.team : "coconut");
     this.physics.add.collider(this.player.physicSprite, this.otherPlayers, (me, other) => {
       const upsideDown = this.isUpsideDown();
@@ -58,9 +62,9 @@ export class GameScene extends Phaser.Scene {
         this.player?.resetGroundContact();
       }
     });
+    this.physics.add.collider(this.player.physicSprite, worldLayer);
     this.cameras.main.startFollow(this.player.physicSprite);
 
-    this.map = loadLevel(this);
     createAllAnimations(this);
 
     const mainCamera = this.cameras.main;
@@ -186,5 +190,23 @@ export class GameScene extends Phaser.Scene {
     this.gameState.modifiers = this.gameState.modifiers.map((modifier) =>
       modifier.type === type ? { ...modifier, team: oppositeTeam(modifier.team) } : modifier,
     );
+  }
+
+  public getRandomPlayerSpawn() {
+    // (async () => {
+    //   while (!this.map) await new Promise((resolve) => setTimeout(resolve, 100));
+    const playerSpawnLayer = this.map?.getObjectLayer(TILEMAP.spawns.player);
+    const playerSpawnsObjects = playerSpawnLayer?.objects;
+    const playerSpawnLocations = playerSpawnsObjects?.map((playerSpawnObj) => {
+      const { x, y, type, id } = playerSpawnObj;
+      return { x, y, type, id: id.toString() };
+    });
+    if (!playerSpawnLocations) {
+      return { x: 128, y: 64 };
+    }
+    const randomSpawn = playerSpawnLocations[getRandomNumber(0, playerSpawnLocations.length)];
+    console.log(randomSpawn);
+    return randomSpawn;
+    // })();
   }
 }

@@ -2,8 +2,6 @@ import { RENDERING_ORDER, TILEMAP } from "../constants";
 import type { GameScene } from "../scenes/main";
 
 export const loadLevel = (scene: GameScene) => {
-  if (!scene.player) return;
-
   const map = scene.make.tilemap({
     key: TILEMAP.key,
     tileWidth: TILEMAP.tileSize,
@@ -29,7 +27,6 @@ export const loadLevel = (scene: GameScene) => {
   frontLayer.setDepth(RENDERING_ORDER.foreground);
 
   worldLayer.setCollisionByProperty({ collision: true });
-  scene.physics.add.collider(scene.player.physicSprite, worldLayer);
 
-  return map;
+  return { map, worldLayer };
 };
