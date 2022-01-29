@@ -8,3 +8,12 @@ export const setRunning = () => {
     setGameState(gameState);
   }
 };
+
+export const setNotRunning = () => {
+  const gameState = getGameState();
+
+  if (gameState.running) {
+    gameState.running = false;
+    setGameState(gameState);
+  }
+};
