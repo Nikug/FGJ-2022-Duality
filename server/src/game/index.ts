@@ -42,7 +42,6 @@ export const startGameLoop = async () => {
     }
 
     io.emit("updateModifiers", state.modifiers);
-    console.log("current modifiers", state.modifiers);
     setGameState(state);
   }, UPDATE_MODIFIERS);
 
