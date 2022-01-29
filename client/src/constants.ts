@@ -30,10 +30,7 @@ export const TILEMAP = {
     foreground: "Foreground",
   },
   tilesets: {
-    purple: {
-      key: "tiles",
-      name: "Project Mute Tileset V3",
-    },
+    purple: { key: "tiles", name: "Project Mute Tileset V3" },
     yellow: { key: "frontTiles", name: "Project Mute Tileset V1" },
     gray: { key: "backTiles", name: "Project Mute Tileset V2" },
   },
