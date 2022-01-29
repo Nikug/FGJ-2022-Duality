@@ -11,10 +11,6 @@ export class UIScene extends Phaser.Scene {
     this.scoreboard = new Scoreboard(this);
   }
 
-  preload() {
-    this.scoreboard?.loadImages();
-  }
-
   create() {
     this.scoreboard?.addScoreBoard();
 
@@ -35,5 +31,8 @@ export class UIScene extends Phaser.Scene {
       },
       this,
     );
+
+    this.scoreboard?.addScore("Maija", 300);
+    this.scoreboard?.addScore("Niku", 500);
   }
 }
