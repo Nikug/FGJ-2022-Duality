@@ -1,4 +1,5 @@
 import {
+  ANIMATIONS,
   CAN_JUMP_DURATION,
   CAN_PUSH_TIMEOUT_DURATION,
   JUMP_VELOCITY,
@@ -13,10 +14,11 @@ import {
 
 import type * as Game from "../../types/types";
 import type { Socket } from "socket.io-client";
-import { createRectangle } from "../util/gameUtils";
+import { createPlayer, createRectangle } from "../util/gameUtils";
 import { socket } from "..";
 import { loadLevel } from "../util/sceneUtils";
 import { pushPlayer, throttleUpdate } from "../util/socketUtils";
+import { createAnimations } from "../util/characterUtils";
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
   active: false,
@@ -25,7 +27,7 @@ const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
 };
 
 export class GameScene extends Phaser.Scene {
-  public player?: Game.PhysicsRectangle;
+  public player?: Game.PlayerSpriteObject;
   private socket?: Socket;
   private otherPlayers: Game.PlayerGameObject[] = [];
   public map?: Phaser.Tilemaps.Tilemap;
@@ -49,16 +51,18 @@ export class GameScene extends Phaser.Scene {
     this.load.image(TILEMAP.tilesets.yellow.key, "/assets/sprites/Project Mute Tileset V1.png");
     this.load.image(TILEMAP.tilesets.gray.key, "/assets/sprites/Project Mute Tileset V2.png");
     this.load.tilemapTiledJSON("map", "/assets/maps/map.json");
+    this.load.spritesheet(ANIMATIONS.sheets.blue, "/assets/kritafiles/player_blue/player_blue_spritesheet.png", { frameWidth: 14, frameHeight: 14 });
   }
 
   public create() {
     this.cursorKeys = this.input.keyboard.createCursorKeys();
-    this.player = createRectangle(this, new Phaser.Math.Vector2(128, 64), 0x00ff00, this.socket?.id || "");
+    this.player = createPlayer(this, new Phaser.Math.Vector2(128, 64), ANIMATIONS.sheets.blue, this.socket?.id || "");
 
     this.player.body.setGravityY(PLAYER_GRAVITY);
     this.physics.add.collider(this.player, this.otherPlayers);
 
     this.map = loadLevel(this);
+    createAnimations(this);
 
     const mainCamera = this.cameras.main;
     mainCamera.setZoom(2, 2);

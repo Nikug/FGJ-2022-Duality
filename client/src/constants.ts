@@ -39,3 +39,18 @@ export const TILEMAP = {
     player: "PlayerSpawn",
   },
 };
+
+export const ANIMATIONS = {
+  state: {
+    left: "left",
+    right: "right",
+    idle: "idle,",
+    airLeft: "airLeft",
+    airRight: "airRight",
+    air: "air,",
+  },
+  sheets: {
+    blue: "playerBlue",
+    green: "playerGreen",
+  },
+};
