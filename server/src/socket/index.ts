@@ -49,6 +49,7 @@ export const handleSockets = (socket: Socket) => {
   socket.on("startGame", () => {
     startGame(socket);
     setRunning();
+    fillEmptyResourceLocations();
   });
   socket.on(
     "collectResource",
