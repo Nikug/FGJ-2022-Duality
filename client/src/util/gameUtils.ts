@@ -1,6 +1,5 @@
-import type { Game } from "phaser";
 import type { PlayerGameObject, ResourceGameObject, PlayerSpriteObject, ApiPlayerState, Modifier, Team } from "../../types/types";
-import { PLAYER_GRAVITY } from "../constants";
+import { PLAYER_GRAVITY, PLAYER_SIZES } from "../constants";
 import type { GameScene } from "../scenes/main";
 import { getSheet } from "./characterUtils";
 
@@ -38,14 +37,32 @@ export const applyModifiers = (scene: GameScene, newModifiers: Modifier[], oldMo
         applyGravity(scene, oppositeTeam(modifier.team));
         scene.reverseModifierTeam(modifier.type);
       }, modifier.duration / 2);
+    } else if (modifier.type === "bigsmall") {
+      applyBigSmall(scene, modifier.team);
+      setTimeout(() => {
+        applyBigSmall(scene, oppositeTeam(modifier.team));
+        scene.reverseModifierTeam(modifier.type);
+      }, modifier.duration / 2);
     }
   }
 
   for (const modifier of removedModifiers) {
     if (modifier.type === "gravity") {
       removeGravity(scene);
+    } else if (modifier.type === "bigsmall") {
+      removeBigSmall(scene);
     }
   }
+};
+
+const applyBigSmall = (scene: GameScene, team: Team) => {
+  if (scene.player?.team === team) {
+    scene.player?.setStats(PLAYER_SIZES.big);
+  } else {
+    scene.player?.setStats(PLAYER_SIZES.small);
+  }
+
+  scene.otherPlayers.map((player) => player.setScale(player.team === team ? PLAYER_SIZES.big.sizeScale : PLAYER_SIZES.small.sizeScale));
 };
 
 const applyGravity = (scene: GameScene, team: Team) => {
@@ -61,4 +78,8 @@ const applyGravity = (scene: GameScene, team: Team) => {
 const removeGravity = (scene: GameScene) => {
   scene.player?.physicSprite.setGravityY(PLAYER_GRAVITY);
   scene.otherPlayers.map((player) => player.setGravityY(PLAYER_GRAVITY));
+};
+const removeBigSmall = (scene: GameScene) => {
+  scene.player?.setStats(PLAYER_SIZES.normal);
+  scene.otherPlayers.map((player) => player.setScale(PLAYER_SIZES.normal.sizeScale));
 };

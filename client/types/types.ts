@@ -14,6 +14,11 @@ export interface ResourceGameObject extends PhysicsRectangle {
   id: string;
 }
 
+export interface Score {
+  coconut: number;
+  ananas: number;
+}
+
 export interface PlayerSpriteObject extends Phaser.Types.Physics.Arcade.SpriteWithDynamicBody {
   id: string;
   team: Team;

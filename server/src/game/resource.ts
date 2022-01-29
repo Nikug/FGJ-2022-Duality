@@ -1,6 +1,7 @@
-import { getPlayers } from ".";
+import { getGameState, getPlayers } from ".";
 import { io } from "../..";
 import { Resource, ResourceLocation, ResourceType } from "../../types/types";
+import { RESOURCE_POINT } from "../constants";
 import getRandomNumber from "../utils/getRandomNumber";
 
 let globalResourceLocations: ResourceLocation[] = [];
@@ -71,6 +72,15 @@ export const collectResource = (id: string, playerId: string) => {
   const index = globalResources.findIndex((resource) => resource.id === id);
   if (index < 0) return;
   globalResources.splice(index, 1);
+  const players = getPlayers();
+  const pl = players.find((pl) => pl.socket.id === playerId);
+  const state = getGameState();
+  if (pl?.team === "coconut") {
+    state.score.coconut += RESOURCE_POINT;
+  } else {
+    state.score.ananas += RESOURCE_POINT;
+  }
+  io.emit("updateScore", state.score);
   io.emit("updateResources", globalResources);
 };
 
