@@ -38,10 +38,13 @@ export interface GameState {
   running: boolean;
   modifiers: Modifier[];
   score: Score;
+  round: number;
 }
 
+export type ModifierTypes = "gravity" | "bigsmall" | "hunt";
+
 export interface Modifier {
-  type: string;
+  type: ModifierTypes;
   team: Team;
   duration: number;
 }
