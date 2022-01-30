@@ -46,13 +46,20 @@ export class GameScene extends Phaser.Scene {
     this.load.spritesheet(ANIMATIONS.sheets.coconut, "/assets/kritafiles/player_blue/player_blue_spritesheet.png", { frameWidth: 14, frameHeight: 14 });
     this.load.spritesheet(ANIMATIONS.sheets.ananas, "/assets/kritafiles/player_green/player_green_spritesheet.png", { frameWidth: 14, frameHeight: 14 });
     this.load.spritesheet(ANIMATIONS.sheets.resources.basic, "/assets/kritafiles/resource/resource_basic_spritesheet.png", { frameWidth: 12, frameHeight: 12 });
-    this.load.spritesheet(ANIMATIONS.sheets.slaps.coconut, "/assets/kritafiles/whip_demo_2/whip_sprite_sheet_demo.png", { frameWidth: 64, frameHeight: 64 });
-    this.load.spritesheet(ANIMATIONS.sheets.slaps.ananas, "assets/kritafiles/whip_demo_2/whip_sprite_sheet_demo.png", { frameWidth: 64, frameHeight: 64 });
+    this.load.spritesheet(ANIMATIONS.sheets.slaps.coconut, "/assets/kritafiles/tentacte_whip/tentacle_whip_spritesheet.png", {
+      frameWidth: 64,
+      frameHeight: 64,
+    });
+    this.load.spritesheet(ANIMATIONS.sheets.slaps.ananas, "/assets/kritafiles/tentacte_whip/tentacle_whip_spritesheet.png", {
+      frameWidth: 64,
+      frameHeight: 64,
+    });
     this.audioManager?.loadAudio();
   }
 
   public create() {
     this.audioManager?.addAudio();
+    this.events.emit("playMusic");
     console.log("I am", this.socket?.id);
     const { map, worldLayer } = loadLevel(this);
     this.map = map;
@@ -66,6 +73,7 @@ export class GameScene extends Phaser.Scene {
         this.player?.resetGroundContact();
       }
     });
+    this.physics.add.collider(this.otherPlayers, worldLayer);
     this.physics.add.collider(this.player.physicSprite, worldLayer);
     this.cameras.main.startFollow(this.player.physicSprite);
 
@@ -202,8 +210,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   public getRandomPlayerSpawn() {
-    // (async () => {
-    //   while (!this.map) await new Promise((resolve) => setTimeout(resolve, 100));
     const playerSpawnLayer = this.map?.getObjectLayer(TILEMAP.spawns.player);
     const playerSpawnsObjects = playerSpawnLayer?.objects;
     const playerSpawnLocations = playerSpawnsObjects?.map((playerSpawnObj) => {
@@ -215,6 +221,12 @@ export class GameScene extends Phaser.Scene {
     }
     const randomSpawn = playerSpawnLocations[getRandomNumber(0, playerSpawnLocations.length)];
     return randomSpawn;
-    // })();
+  }
+
+  public async victory(team: Game.Team) {
+    this.events.emit("Victory", team);
+    this.events.emit("silence");
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+    location.reload();
   }
 }

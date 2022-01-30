@@ -10,6 +10,7 @@ import {
   addPlayer,
   pushPlayer,
   removePlayer,
+  resetLocation,
   startGame,
   updatePlayerCount,
   updatePlayerPosition,
@@ -68,4 +69,7 @@ export const handleSockets = (socket: Socket) => {
       collectResource(id, playerId);
     },
   );
+  socket.on("resetLocation", () => {
+    resetLocation(socket);
+  });
 };

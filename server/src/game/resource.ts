@@ -1,7 +1,7 @@
-import { getGameState, getPlayers } from ".";
+import { getGameState, getPlayers, setGameState } from ".";
 import { io } from "../..";
 import { Resource, ResourceLocation, ResourceType } from "../../types/types";
-import { RESOURCE_POINT } from "../constants";
+import { RESOURCE_POINT, WIN_POINTS } from "../constants";
 import getRandomNumber from "../utils/getRandomNumber";
 
 let globalResourceLocations: ResourceLocation[] = [];
@@ -82,6 +82,18 @@ export const collectResource = (id: string, playerId: string) => {
   }
   io.emit("updateScore", state.score);
   io.emit("updateResources", globalResources);
+  if (state.score.coconut >= WIN_POINTS) {
+    io.emit("teamVictory", "coconut");
+    state.score.coconut = 0;
+    state.score.ananas = 0;
+    state.running = false;
+  } else if (state.score.ananas >= WIN_POINTS) {
+    io.emit("teamVictory", "ananas");
+    state.score.coconut = 0;
+    state.score.ananas = 0;
+    state.running = false;
+  }
+  setGameState(state);
 };
 
 /**
