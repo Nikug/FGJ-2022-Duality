@@ -1,5 +1,5 @@
 import type { PlayerGameObject, ResourceGameObject, PlayerSpriteObject, ApiPlayerState, Modifier, Team } from "../../types/types";
-import { ANIMATIONS, PLAYER_GRAVITY, PLAYER_SIZES } from "../constants";
+import { ANIMATIONS, CLOUD_SPEED, PLAYER_GRAVITY, PLAYER_SIZES } from "../constants";
 import type { GameScene } from "../scenes/main";
 import { getSheet } from "./characterUtils";
 
@@ -131,4 +131,12 @@ const removeBigSmall = (scene: GameScene) => {
 const removeHunt = (scene: GameScene) => {
   scene.resources.map((resource) => resource.setTint(0xffffff));
   scene.otherPlayers.map((player) => player.setTint(0xffffff));
+};
+
+export const setCloudTargets = (scene: GameScene) => {
+  scene.clouds.map((cloud) => {
+    const target = scene.getRandomPlayerSpawn();
+    const difference = cloud.body.position.clone().subtract(target).normalize();
+    cloud.body.setVelocity(-difference.x * CLOUD_SPEED, -difference.y * CLOUD_SPEED);
+  });
 };
