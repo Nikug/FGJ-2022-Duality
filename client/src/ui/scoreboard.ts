@@ -1,4 +1,5 @@
 import type { Score } from "../../types/types";
+import type { UIScene } from "../scenes/uiScene";
 
 /* Creates UI Scoreboard
     Usage:
@@ -6,8 +7,7 @@ import type { Score } from "../../types/types";
         - debug as needed :]
 */
 export class Scoreboard {
-  private maxScore = 100;
-  private scene: Phaser.Scene;
+  private scene: UIScene;
   private scoreBoardX = 32;
   private scoreBoardY = 32;
   private scoreBoardMarginX = 10;
@@ -18,7 +18,7 @@ export class Scoreboard {
 
   scores: { player: string; score: number; text: Phaser.GameObjects.BitmapText }[] = [];
 
-  constructor(scene: Phaser.Scene) {
+  constructor(scene: UIScene) {
     this.scene = scene;
   }
 
@@ -33,7 +33,7 @@ export class Scoreboard {
       .setScale(0.25);
     this.scene.add
       // Magical numbers to put text in right place. I know. Magic is cool right? And if that's not your thing, call it a science.
-      .bitmapText(this.scoreBoardX - 65 + this.scoreBoardMarginX + 65, this.scoreBoardY + 100 - 15, "atari", `FIRST TO ${this.maxScore} WINS!`)
+      .bitmapText(this.scoreBoardX - 65 + this.scoreBoardMarginX + 65, this.scoreBoardY + 100 - 15, "atari", `FIRST TO ${this.scene.WIN_POINTS} WINS!`)
       .setScale(0.2);
   }
 

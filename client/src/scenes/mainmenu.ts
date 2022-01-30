@@ -51,8 +51,8 @@ export class MainMenu extends Phaser.Scene {
 
   public startGameForEveryone(WIN_POINTS: number) {
     this.events.emit("silence");
-    this.scene.start("Game", { WIN_POINTS });
-    this.scene.start("UIScene");
+    this.scene.start("Game");
+    this.scene.start("UIScene", { WIN_POINTS });
   }
 
   private hColor(hexColor: string) {
