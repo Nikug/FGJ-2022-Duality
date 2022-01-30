@@ -23,6 +23,22 @@ let globalGameState: GameState = {
   score: { coconut: 0, ananas: 0 },
   round: 0,
 };
+
+export const getRandomMods = (amount: number) => {
+  const tmp: ModifierTypes[] = [];
+  const array: ModifierTypes[] = ["gravity", "bigsmall", "hunt"];
+  for (let i = 0; i < amount; i++) {
+    const randomElement = array[Math.floor(Math.random() * array.length)];
+    if (randomElement) {
+      const index = array.findIndex((resource) => resource === randomElement);
+      if (index != -1) {
+        array.splice(index, 1);
+        tmp.push(randomElement);
+      }
+    }
+  }
+  return tmp;
+};
 export const getGameState = () => globalGameState;
 export const setGameState = (newGameState: GameState) =>
   (globalGameState = newGameState);
@@ -59,6 +75,11 @@ export const startGameLoop = async () => {
         createDefaultMod("bigsmall"),
         createDefaultMod("gravity"),
       ];
+    } else if (state.round % 2 === 0) {
+      state.modifiers = [];
+    } else if (state.round % 2 === 1) {
+      const mods = getRandomMods(2);
+      state.modifiers = [createDefaultMod(mods[0]), createDefaultMod(mods[1])];
     }
     state.round++;
     io.emit("updateModifiers", state.modifiers);
