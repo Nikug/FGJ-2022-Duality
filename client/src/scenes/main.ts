@@ -78,6 +78,7 @@ export class GameScene extends Phaser.Scene {
       if (hunter) {
         if (this.team !== otherPlayer.team) {
           otherPlayer.disableBody(true, true);
+          this.events.emit("playEat");
           setTimeout(() => otherPlayer.enableBody(false, 0, 0, true, true), RESURRECT_COOLDOWN);
           this.socket?.emit("hunt", { hunter: this.socket?.id, hunted: otherPlayer.id });
         }
@@ -256,6 +257,7 @@ export class GameScene extends Phaser.Scene {
   public async handleHunted(hunter: string, hunted: string) {
     if (!this.player) return;
 
+    this.events.emit("playEat");
     if (this.player.id === hunted) {
       this.player.physicSprite.disableBody(true, true);
       await new Promise((resolve) => setTimeout(resolve, RESURRECT_COOLDOWN));
