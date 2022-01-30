@@ -5,5 +5,5 @@ export const UPDATE_MODIFIERS = 10 * 1000; // 10s
 
 export const RESOURCE_POINT = 10;
 
-export const WIN_POINTS = 500;
+export const WIN_POINTS = 2000;
 export const RESET_SANCTION = 10;

@@ -177,11 +177,13 @@ export class GameScene extends Phaser.Scene {
     }
 
     const resourceObjects: Game.ResourceGameObject[] = [];
+    const redTint = 0xff0000;
 
     for (let i = 0, len = resources.length; i < len; i++) {
       const resource = resources[i];
       const newResourceObject = createResource(this, new Phaser.Math.Vector2(resource.x, resource.y), 0xf5d442, resource.id);
       newResourceObject.anims.play(ANIMATIONS.sheets.resources.basic);
+      if (this.isHunter()) newResourceObject.setTint(redTint);
       resourceObjects.push(newResourceObject);
     }
 
