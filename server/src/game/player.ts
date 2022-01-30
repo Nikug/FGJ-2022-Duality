@@ -2,6 +2,7 @@ import { Socket } from "socket.io";
 import { getGameState, getPlayerById, getPlayers, setPlayers } from ".";
 import { io } from "../..";
 import { Player, Team, Vector2 } from "../../types/types";
+import { RESET_SANCTION } from "../constants";
 import { flipCoin } from "../utils/getRandomNumber";
 import { setNotRunning } from "./gameState";
 import { getResources } from "./resource";
@@ -93,6 +94,13 @@ export const pushPlayer = (
   }
 };
 
+export const resetLocation = (socket: Socket) => {
+  const player = getPlayerById(socket.id);
+  const gameState = getGameState();
+  gameState.score[player?.team!] -= RESET_SANCTION;
+  io.emit("updateScore", gameState.score);
+};
+
 export const updatePlayerCount = (socket: Socket) => {
   const players = getPlayers();
   socket.emit("playerCount", players.length);
@@ -101,6 +109,8 @@ export const updatePlayerCount = (socket: Socket) => {
 export const startGame = (socket: Socket) => {
   const gameState = getGameState();
   if (!gameState.running) {
+    gameState.score.ananas = 0;
+    gameState.score.coconut = 0;
     socket.broadcast.emit("startGameForEveryone");
     socket.emit("startGameForEveryone");
   }
