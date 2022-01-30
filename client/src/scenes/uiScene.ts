@@ -11,14 +11,14 @@ export class UIScene extends Phaser.Scene {
   victoryNotifcation: VictoryNotification | undefined;
 
   constructor() {
-    super({ key: "UIScene", active: true });
+    super({ key: "UIScene", active: false });
     this.timer = new Timer(this);
     this.scoreboard = new Scoreboard(this);
     this.victoryNotifcation = new VictoryNotification(this);
   }
 
   preload() {
-    this.load.bitmapFont("atari", "assets/fonts/atari-classic.png", "assets/fonts/atari-classic.xml");
+    //this.load.bitmapFont("atari", "assets/fonts/atari-classic.png", "assets/fonts/atari-classic.xml");
     this.load.image("gravityEmoji", gravityEmoji);
     this.load.image("bigsmallEmoji", bigsmallEmoji);
   }

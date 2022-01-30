@@ -19,15 +19,15 @@ export class MainMenu extends Phaser.Scene {
   public preload() {
     this.load.image("button", "/assets/tempButton.png");
     this.audioManager?.loadAudio();
-    // this.load.bitmapFont("atari2", "assets/fonts/atari-classic2.png", "assets/fonts/atari-classic2.xml");
+    this.load.bitmapFont("atari", "assets/fonts/atari-classic2.png", "assets/fonts/atari-classic2.xml");
   }
 
   public create() {
     const playButton = this.add.rectangle(this.scale.width / 2, this.scale.height / 2, 300, 100, this.buttonBackground);
     playButton.setInteractive({ useHandCursor: true });
     playButton.on("pointerdown", () => startGame());
-    // this.add.bitmapText(this.scale.width / 2 - 128, this.scale.height / 2 - 30, "atari2", "PLAY").setScale(1);
-    // this.playerCountText = this.add.bitmapText(this.scale.width / 2 - 220, this.scale.height / 2 + 100, "atari2", "Getting other players..").setScale(0.5);
+    this.add.bitmapText(this.scale.width / 2 - 128, this.scale.height / 2 - 30, "atari", "PLAY").setScale(1);
+    this.playerCountText = this.add.bitmapText(this.scale.width / 2 - 220, this.scale.height / 2 + 100, "atari", "Getting other players..").setScale(0.5);
 
     this.playerUpdateInterval = setInterval(() => {
       playerCount();
@@ -43,12 +43,13 @@ export class MainMenu extends Phaser.Scene {
   }
 
   public setPlayerCount(playerCount: integer) {
-    // this.playerCountText?.setText("Player count:" + playerCount);
+    this.playerCountText?.setText("Player count:" + playerCount);
   }
 
   public startGameForEveryone() {
     this.events.emit("silence");
     this.scene.start("Game");
+    this.scene.start("UIScene");
   }
 
   private hColor(hexColor: string) {
