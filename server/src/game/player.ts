@@ -105,3 +105,9 @@ export const startGame = (socket: Socket) => {
     socket.emit("startGameForEveryone");
   }
 };
+
+export const handleHunt = (socket: Socket, hunted: string) => {
+  const player = getPlayerById(hunted);
+  if (!player) return;
+  socket.broadcast.emit("hunted", { hunter: socket.id, hunted: hunted });
+};

@@ -8,6 +8,7 @@ import {
 import { Vector2 } from "../../types/types";
 import {
   addPlayer,
+  handleHunt,
   pushPlayer,
   removePlayer,
   startGame,
@@ -66,6 +67,13 @@ export const handleSockets = (socket: Socket) => {
     "collectResource",
     ({ id, playerId }: { id: string; playerId: string }) => {
       collectResource(id, playerId);
+    },
+  );
+
+  socket.on(
+    "hunt",
+    ({ hunter, hunted }: { hunter: string; hunted: string }) => {
+      handleHunt(socket, hunted);
     },
   );
 };

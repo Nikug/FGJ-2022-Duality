@@ -48,6 +48,13 @@ export const applyModifiers = (scene: GameScene, newModifiers: Modifier[], oldMo
         applyBigSmall(scene, oppositeTeam(modifier.team));
         scene.reverseModifierTeam(modifier.type);
       }, modifier.duration / 2);
+    } else if (modifier.type === "hunt") {
+      scene.events.emit("addTimer", modifier.duration / 1000, modifier.team);
+      applyHunt(scene, modifier.team);
+      setTimeout(() => {
+        applyHunt(scene, oppositeTeam(modifier.team));
+        scene.reverseModifierTeam(modifier.type);
+      }, modifier.duration / 2);
     }
   }
 
@@ -56,6 +63,8 @@ export const applyModifiers = (scene: GameScene, newModifiers: Modifier[], oldMo
       removeGravity(scene);
     } else if (modifier.type === "bigsmall") {
       removeBigSmall(scene);
+    } else if (modifier.type === "hunt") {
+      removeHunt(scene);
     }
   }
 };
@@ -85,6 +94,19 @@ const applyGravity = (scene: GameScene, team: Team) => {
   });
 };
 
+const applyHunt = (scene: GameScene, team: Team) => {
+  if (scene.player?.team === team) {
+    // Do some kind of visual change here
+    // scene.player.physicSprite.setGravityY(-PLAYER_GRAVITY);
+  } else {
+    // and here
+  }
+
+  scene.otherPlayers.map((player) => {
+    // and here
+  });
+};
+
 const removeGravity = (scene: GameScene) => {
   scene.player?.physicSprite.setGravityY(PLAYER_GRAVITY);
   scene.player?.physicSprite.resetFlip();
@@ -93,7 +115,12 @@ const removeGravity = (scene: GameScene) => {
     player.resetFlip();
   });
 };
+
 const removeBigSmall = (scene: GameScene) => {
   scene.player?.setStats(PLAYER_SIZES.normal);
   scene.otherPlayers.map((player) => player.setScale(PLAYER_SIZES.normal.sizeScale));
+};
+
+const removeHunt = (scene: GameScene) => {
+  // do the removing
 };

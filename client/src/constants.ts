@@ -16,6 +16,7 @@ export const CAN_DASH_DURATION = 100;
 export const DASH_CANT_MOVE_DURATION = 100;
 export const DASH_TIMEOUT_DURATION = 900;
 export const DASH_VELOCITY = 900;
+export const RESURRECT_COOLDOWN = 3000;
 
 export const PLAYER_SIZES: PlayerSizes = {
   normal: {
