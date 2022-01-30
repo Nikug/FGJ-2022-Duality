@@ -36,14 +36,14 @@ export const applyModifiers = (scene: GameScene, newModifiers: Modifier[], oldMo
   for (const modifier of addedModifiers) {
     if (modifier.type === "gravity") {
       applyGravity(scene, modifier.team);
-      scene.events.emit("addTimer", modifier.duration / 1000, modifier.team);
+      scene.events.emit("addTimer", modifier.duration / 1000, modifier.team, modifier.type);
       setTimeout(() => {
         applyGravity(scene, oppositeTeam(modifier.team));
         scene.reverseModifierTeam(modifier.type);
       }, modifier.duration / 2);
     } else if (modifier.type === "bigsmall") {
       applyBigSmall(scene, modifier.team);
-      scene.events.emit("addTimer", modifier.duration / 1000, modifier.team);
+      scene.events.emit("addTimer", modifier.duration / 1000, modifier.team, modifier.type);
       setTimeout(() => {
         applyBigSmall(scene, oppositeTeam(modifier.team));
         scene.reverseModifierTeam(modifier.type);

@@ -11,6 +11,7 @@ import {
   handleHunt,
   pushPlayer,
   removePlayer,
+  resetLocation,
   startGame,
   updatePlayerCount,
   updatePlayerPosition,
@@ -76,4 +77,8 @@ export const handleSockets = (socket: Socket) => {
       handleHunt(socket, hunted);
     },
   );
+
+  socket.on("resetLocation", () => {
+    resetLocation(socket);
+  });
 };
