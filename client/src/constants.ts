@@ -47,7 +47,7 @@ export const PLAYER_SIZES: PlayerSizes = {
     dashVelocity: 500,
     pushPower: 900,
     dashCantMoveDuration: 100,
-    jumpVelocity: 400,
+    jumpVelocity: 450,
     dashTimeout: 1300,
   },
   small: {
@@ -61,7 +61,7 @@ export const PLAYER_SIZES: PlayerSizes = {
     dashVelocity: 900,
     pushPower: 200,
     dashCantMoveDuration: 100,
-    jumpVelocity: 300,
+    jumpVelocity: 350,
     dashTimeout: 700,
   },
 };

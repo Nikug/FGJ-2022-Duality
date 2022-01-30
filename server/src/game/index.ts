@@ -83,7 +83,7 @@ export const startGameLoop = async () => {
     }
     state.round++;
     io.emit("updateModifiers", state.modifiers);
-    if (getResources().length < getResourceLocations().length / 2) {
+    if (getResources().length < getResourceLocations().length / 4) {
       fillEmptyResourceLocations();
     }
     console.log("current modifiers", state.modifiers);

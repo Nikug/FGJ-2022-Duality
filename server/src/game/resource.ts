@@ -100,13 +100,33 @@ export const collectResource = (
   setGameState(state);
 };
 
+function shuffle<T>(array: T[]) {
+  let currentIndex = array.length,
+    randomIndex;
+
+  // While there remain elements to shuffle...
+  while (currentIndex != 0) {
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    // And swap it with the current element.
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex],
+      array[currentIndex],
+    ];
+  }
+
+  return array;
+}
+
 /**
  * Add resources by given amount. If amount is not given, fills every empty resource location. Will add only as many resources as there is empty locations.
  * @param {number | undefined} amount - Number of resources to be added.
  */
 export const addResources = (amount?: number) => {
   //   const { basicAmount } = getAmountsByResourceType();
-  const emptyLocations = getEmptyResourceLocations();
+  const emptyLocations = shuffle(getEmptyResourceLocations().slice());
   const emptyLocationsLength = emptyLocations.length;
   const amountToAdd =
     amount === undefined
@@ -137,6 +157,16 @@ export const addResources = (amount?: number) => {
 
 export const fillEmptyResourceLocations = () => {
   const players = getPlayers();
+
+  const resourceLocations = getResourceLocations();
+  const resources = getResources();
+  const diff = resourceLocations.length - resources.length;
+
+  if (resourceLocations.length > 0) {
+    addResources(getRandomNumber(1, diff));
+    return;
+  }
+
   const length = players.length;
 
   if (length === 0) {
