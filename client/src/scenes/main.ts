@@ -47,12 +47,12 @@ export class GameScene extends Phaser.Scene {
     this.load.spritesheet(ANIMATIONS.sheets.coconut, "/assets/kritafiles/player_blue/player_blue_spritesheet.png", { frameWidth: 14, frameHeight: 14 });
     this.load.spritesheet(ANIMATIONS.sheets.ananas, "/assets/kritafiles/player_green/player_green_spritesheet.png", { frameWidth: 14, frameHeight: 14 });
     this.load.spritesheet(ANIMATIONS.sheets.resources.basic, "/assets/kritafiles/resource/resource_basic_spritesheet.png", { frameWidth: 12, frameHeight: 12 });
-    this.load.spritesheet(ANIMATIONS.sheets.slaps.coconut, "/assets/kritafiles/tentacte_whip/tentacle_whip_spritesheet.png", {
-      frameWidth: 64,
+    this.load.spritesheet(ANIMATIONS.sheets.slaps.coconut, "/assets/kritafiles/tentacle_whip_portal/whip_spritesheet.png", {
+      frameWidth: 74,
       frameHeight: 64,
     });
-    this.load.spritesheet(ANIMATIONS.sheets.slaps.ananas, "/assets/kritafiles/tentacte_whip/tentacle_whip_spritesheet.png", {
-      frameWidth: 64,
+    this.load.spritesheet(ANIMATIONS.sheets.slaps.ananas, "/assets/kritafiles/tentacle_whip_portal/whip_spritesheet.png", {
+      frameWidth: 74,
       frameHeight: 64,
     });
     this.audioManager?.loadAudio();
