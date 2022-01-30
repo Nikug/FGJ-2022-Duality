@@ -28,6 +28,7 @@ export class MainMenu extends Phaser.Scene {
     playButton.on("pointerdown", () => startGame());
     this.add.bitmapText(this.scale.width / 2 - 128, this.scale.height / 2 - 30, "atari", "PLAY").setScale(1);
     this.playerCountText = this.add.bitmapText(this.scale.width / 2 - 220, this.scale.height / 2 + 100, "atari", "Getting other players..").setScale(0.5);
+    this.add.bitmapText(this.scale.width / 2 - 220, this.scale.height / 2 + 170, "atari", "Arrow keys, Q, W, R").setScale(0.5);
 
     this.playerUpdateInterval = setInterval(() => {
       playerCount();
@@ -42,16 +43,16 @@ export class MainMenu extends Phaser.Scene {
     }
   }
 
-  public setPlayerCount(playerCount: integer) {
+  public setPlayerCount(playerCount: number) {
     if (this.scene.isActive()) {
       this.playerCountText?.setText("Player count:" + playerCount);
     }
   }
 
-  public startGameForEveryone() {
+  public startGameForEveryone(WIN_POINTS: number) {
     this.events.emit("silence");
     this.scene.start("Game");
-    this.scene.start("UIScene");
+    this.scene.start("UIScene", { WIN_POINTS });
   }
 
   private hColor(hexColor: string) {

@@ -6,12 +6,18 @@ export class UIScene extends Phaser.Scene {
   timer: Timer | undefined;
   scoreboard: Scoreboard | undefined;
   victoryNotifcation: VictoryNotification | undefined;
+  public WIN_POINTS: number;
 
   constructor() {
     super({ key: "UIScene", active: false });
     this.timer = new Timer(this);
     this.scoreboard = new Scoreboard(this);
     this.victoryNotifcation = new VictoryNotification(this);
+    this.WIN_POINTS = 500;
+  }
+
+  public init(data: { WIN_POINTS: number }) {
+    this.WIN_POINTS = data.WIN_POINTS;
   }
 
   preload() {
