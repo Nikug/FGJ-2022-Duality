@@ -43,7 +43,9 @@ export class MainMenu extends Phaser.Scene {
   }
 
   public setPlayerCount(playerCount: integer) {
-    this.playerCountText?.setText("Player count:" + playerCount);
+    if (this.scene.isActive()) {
+      this.playerCountText?.setText("Player count:" + playerCount);
+    }
   }
 
   public startGameForEveryone() {
