@@ -20,13 +20,19 @@ export class Timer {
   private greenColor = this.hColor("#4ea832");
   private frameColor = this.hColor("#000000");
 
-  private timerObjects: { blueRect: Phaser.GameObjects.Rectangle; greenRect: Phaser.GameObjects.Rectangle; frameRect: Phaser.GameObjects.Rectangle }[] = [];
+  private timerObjects: {
+    blueRect: Phaser.GameObjects.Rectangle;
+    greenRect: Phaser.GameObjects.Rectangle;
+    frameRect: Phaser.GameObjects.Rectangle;
+    emojiLeft: Phaser.GameObjects.Image;
+    emojiRight: Phaser.GameObjects.Image;
+  }[] = [];
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
   }
 
-  public async addTimer(timeSeconds: number, team: Team) {
+  public async addTimer(timeSeconds: number, team: Team, type: string) {
     // Making sure scene has been created
     if (this.scene) {
       // Init
@@ -34,7 +40,16 @@ export class Timer {
       this.activeTimers += 1;
 
       // Fuck interval, for loop wins
-      const newFrame = this.createTimerFrame(team, position);
+      let emojiName;
+      if (type === "gravity") {
+        emojiName = "gravityEmoji";
+      } else if (type === "bigsmall") {
+        emojiName = "bigsmallEmoji";
+      } else {
+        emojiName = "";
+      }
+
+      const newFrame = this.createTimerFrame(team, position, emojiName);
 
       if (team === "ananas") {
         await this.setTimer(timeSeconds, position, newFrame.greenRect, this.greenColor);
@@ -48,12 +63,14 @@ export class Timer {
       newFrame.greenRect.destroy();
       newFrame.blueRect.destroy();
       newFrame.frameRect.destroy();
+      newFrame.emojiLeft.destroy();
+      newFrame.emojiRight.destroy();
 
       this.activeTimers = this.activeTimers - 1;
     }
   }
 
-  private createTimerFrame(team: Team, position: number) {
+  private createTimerFrame(team: Team, position: number, emojiName: string) {
     // This just gets one in front of other, could use just another func for it aaa
     let blueRect, greenRect;
     if (team === "ananas") {
@@ -96,7 +113,21 @@ export class Timer {
     );
     frameRect.setStrokeStyle(this.timerFrameSize, this.frameColor);
 
-    return { blueRect: blueRect, greenRect: greenRect, frameRect: frameRect };
+    const emojiLeft = this.scene.add.image(
+      // 16 = half emoji size
+      this.scene.scale.width - this.timerOffsetX - this.timerWidth / 2 - 16 - this.timerFrameSize,
+      this.timerOffsetY + position * this.timerPaddingY,
+      emojiName,
+    );
+    const emojiRight = this.scene.add.image(
+      // 16 = half emoji size
+      this.scene.scale.width - this.timerOffsetX + this.timerWidth / 2 + 16 + this.timerFrameSize,
+      this.timerOffsetY + position * this.timerPaddingY,
+      emojiName,
+    );
+    frameRect.setStrokeStyle(this.timerFrameSize, this.frameColor);
+
+    return { blueRect: blueRect, greenRect: greenRect, frameRect: frameRect, emojiLeft: emojiLeft, emojiRight: emojiRight };
   }
 
   private hColor(hexColor: string) {
