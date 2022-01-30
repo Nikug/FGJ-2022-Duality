@@ -42,8 +42,8 @@ export const startGame = () => {
   socket.emit("startGame");
 };
 
-export const collectResource = (id: string, playerId?: string, socket?: Socket) => {
-  socket?.emit("collectResource", { id, playerId });
+export const collectResource = (id: string, multiplier: number, playerId?: string, socket?: Socket) => {
+  socket?.emit("collectResource", { id, multiplier, playerId });
 };
 
 export const resetLocation = () => {

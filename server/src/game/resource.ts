@@ -68,7 +68,11 @@ export const updateResourceLocations = (
   addResources();
 };
 
-export const collectResource = (id: string, playerId: string) => {
+export const collectResource = (
+  id: string,
+  multiplier: number,
+  playerId: string,
+) => {
   const index = globalResources.findIndex((resource) => resource.id === id);
   if (index < 0) return;
   globalResources.splice(index, 1);
@@ -76,9 +80,9 @@ export const collectResource = (id: string, playerId: string) => {
   const pl = players.find((pl) => pl.socket.id === playerId);
   const state = getGameState();
   if (pl?.team === "coconut") {
-    state.score.coconut += RESOURCE_POINT;
+    state.score.coconut += RESOURCE_POINT * multiplier;
   } else {
-    state.score.ananas += RESOURCE_POINT;
+    state.score.ananas += RESOURCE_POINT * multiplier;
   }
   io.emit("updateScore", state.score);
   io.emit("updateResources", globalResources);
