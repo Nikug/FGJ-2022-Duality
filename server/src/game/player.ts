@@ -120,6 +120,7 @@ export const startGame = (socket: Socket) => {
   if (!gameState.running) {
     gameState.score.ananas = 0;
     gameState.score.coconut = 0;
+    gameState.round = 0;
     socket.broadcast.emit("startGameForEveryone", WIN_POINTS);
     socket.emit("startGameForEveryone", WIN_POINTS);
   }
