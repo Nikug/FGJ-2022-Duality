@@ -49,7 +49,7 @@ export const applyModifiers = (scene: GameScene, newModifiers: Modifier[], oldMo
         scene.reverseModifierTeam(modifier.type);
       }, modifier.duration / 2);
     } else if (modifier.type === "hunt") {
-      scene.events.emit("addTimer", modifier.duration / 1000, modifier.team);
+      scene.events.emit("addTimer", modifier.duration / 1000, modifier.team, modifier.type);
       applyHunt(scene, modifier.team);
       setTimeout(() => {
         applyHunt(scene, oppositeTeam(modifier.team));
