@@ -73,6 +73,7 @@ export class GameScene extends Phaser.Scene {
         this.player?.resetGroundContact();
       }
     });
+    this.physics.add.collider(this.otherPlayers, worldLayer);
     this.physics.add.collider(this.player.physicSprite, worldLayer);
     this.cameras.main.startFollow(this.player.physicSprite);
 

@@ -1,9 +1,9 @@
 import Phaser from "phaser";
 import type { Socket } from "socket.io-client";
-import { ANIMATIONS, PLAYER_GRAVITY, PLAYER_SIZES } from "../constants";
+import { ANIMATIONS, PLAYER_GRAVITY, PLAYER_RESET_TIME, PLAYER_SIZES } from "../constants";
 import type { GameScene } from "../scenes/main";
 import type { PlayerSpriteObject, Team, PlayerStats } from "../../types/types";
-import { pushPlayer, throttleUpdate } from "../util/socketUtils";
+import { pushPlayer, resetLocation, throttleUpdate } from "../util/socketUtils";
 import { getAnimationKey, getSheet } from "../util/characterUtils";
 
 export class PlayerObject {
@@ -17,10 +17,12 @@ export class PlayerObject {
   private canPush = true;
   private timeFromGroundContact = 0;
   private timeFromDash = 0;
+  private timeFromLocationReset = 0;
   private canMove = true;
   public team: Team;
   private keyQ: Phaser.Input.Keyboard.Key;
   private keyW: Phaser.Input.Keyboard.Key;
+  private keyR: Phaser.Input.Keyboard.Key;
 
   constructor(scene: GameScene, position: Phaser.Math.Vector2, key: string, id: string, socket?: Socket) {
     this.scene = scene;
@@ -32,8 +34,8 @@ export class PlayerObject {
     this.team = "coconut";
     this.keyQ = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
     this.keyW = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
-    this.stats = PLAYER_SIZES.big;
-    this.setStats(PLAYER_SIZES.big);
+    this.keyR = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+    this.stats = PLAYER_SIZES.normal;
   }
 
   public resetGroundContact = () => (this.timeFromGroundContact = this.stats.canJumpDuration);
@@ -160,6 +162,23 @@ export class PlayerObject {
     }
   }
 
+  public checkLocationReset(delta: number) {
+    if (!this.cursorKeys) return;
+    if (!this.physicSprite) return;
+    if (!this.canMove) return;
+
+    if (this.timeFromLocationReset > 0) {
+      this.timeFromLocationReset -= delta;
+    }
+
+    if (this.keyR.isDown && this.timeFromLocationReset <= 0) {
+      resetLocation();
+      const randomSpawn = this.scene.getRandomPlayerSpawn();
+      this.physicSprite.setPosition(randomSpawn.x, randomSpawn.y);
+      this.timeFromLocationReset = PLAYER_RESET_TIME;
+    }
+  }
+
   public checkActions(delta: number, isUpsideDown: boolean) {
     this.checkMovement();
     if (this.disabledTime > 0) {
@@ -169,6 +188,7 @@ export class PlayerObject {
     }
     this.checkJump(delta, isUpsideDown);
     this.checkDash(delta);
+    this.checkLocationReset(delta);
     throttleUpdate({
       x: this.physicSprite.body.position.x,
       y: this.physicSprite.body.position.y,
