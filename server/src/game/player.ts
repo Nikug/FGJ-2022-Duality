@@ -2,7 +2,7 @@ import { Socket } from "socket.io";
 import { getGameState, getPlayerById, getPlayers, setPlayers } from ".";
 import { io } from "../..";
 import { Player, Team, Vector2 } from "../../types/types";
-import { RESET_SANCTION } from "../constants";
+import { RESET_SANCTION, WIN_POINTS } from "../constants";
 import { flipCoin } from "../utils/getRandomNumber";
 import { setNotRunning } from "./gameState";
 import { getResources } from "./resource";
@@ -111,7 +111,7 @@ export const startGame = (socket: Socket) => {
   if (!gameState.running) {
     gameState.score.ananas = 0;
     gameState.score.coconut = 0;
-    socket.broadcast.emit("startGameForEveryone");
-    socket.emit("startGameForEveryone");
+    socket.broadcast.emit("startGameForEveryone", WIN_POINTS);
+    socket.emit("startGameForEveryone", WIN_POINTS);
   }
 };

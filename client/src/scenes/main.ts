@@ -25,6 +25,7 @@ export class GameScene extends Phaser.Scene {
   public map?: Phaser.Tilemaps.Tilemap;
   public gameState: Game.GameState;
   private audioManager: AudioManager | undefined;
+  public WIN_POINTS: number;
 
   constructor() {
     super(sceneConfig);
@@ -33,6 +34,11 @@ export class GameScene extends Phaser.Scene {
     this.map = undefined;
     this.gameState = { modifiers: [] };
     this.audioManager = new AudioManager(this);
+    this.WIN_POINTS = 500;
+  }
+
+  public init(data: { WIN_POINTS: number }) {
+    this.WIN_POINTS = data.WIN_POINTS;
   }
 
   public preload() {
