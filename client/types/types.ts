@@ -80,10 +80,12 @@ export interface Resource {
   type: string;
 }
 
+export type ModifierTypes = "gravity" | "bigsmall" | "hunt";
+
 export type PlayerColors = "blue" | "green";
 
 export interface Modifier {
-  type: string;
+  type: ModifierTypes;
   team: Team;
   duration: number;
 }

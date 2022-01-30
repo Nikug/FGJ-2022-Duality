@@ -50,9 +50,9 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
     scene.setPlayerCount(playerCount);
   });
 
-  socket.on("startGameForEveryone", () => {
+  socket.on("startGameForEveryone", (WIN_POINTS) => {
     const scene = game.scene.getScene("MainMenu") as MainMenu;
-    scene.startGameForEveryone();
+    scene.startGameForEveryone(WIN_POINTS);
   });
   socket.on("updateScore", (score: Score) => {
     const scene = game.scene.getScene("Game") as MainMenu;

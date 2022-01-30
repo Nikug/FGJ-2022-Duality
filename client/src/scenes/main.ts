@@ -25,6 +25,7 @@ export class GameScene extends Phaser.Scene {
   public map?: Phaser.Tilemaps.Tilemap;
   public gameState: Game.GameState;
   private audioManager: AudioManager | undefined;
+  public clouds: Phaser.Types.Physics.Arcade.ImageWithDynamicBody[] = [];
 
   constructor() {
     super(sceneConfig);

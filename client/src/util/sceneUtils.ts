@@ -1,5 +1,6 @@
 import { RENDERING_ORDER, TILEMAP } from "../constants";
 import type { GameScene } from "../scenes/main";
+import { setCloudTargets } from "./gameUtils";
 
 export const loadLevel = (scene: GameScene) => {
   const map = scene.make.tilemap({
@@ -8,10 +9,15 @@ export const loadLevel = (scene: GameScene) => {
     tileHeight: TILEMAP.tileSize,
   });
 
-  const happyCloud = scene.add.image(370, 0, "clouds");
-  const sadCloud = scene.add.image(460, -210, "clouds2");
+  const happyCloud = scene.physics.add.image(370, 0, "clouds");
+  const sadCloud = scene.physics.add.image(460, -210, "clouds2");
   happyCloud.setDepth(RENDERING_ORDER.farBackground);
   sadCloud.setDepth(RENDERING_ORDER.farBackground);
+  scene.clouds.push(happyCloud, sadCloud);
+  setCloudTargets(scene);
+  setInterval(() => {
+    setCloudTargets(scene);
+  }, 10000);
 
   const tileset = map.addTilesetImage(TILEMAP.tilesets.purple.name, TILEMAP.tilesets.purple.key);
   const frontTileset = map.addTilesetImage(TILEMAP.tilesets.yellow.name, TILEMAP.tilesets.yellow.key);
