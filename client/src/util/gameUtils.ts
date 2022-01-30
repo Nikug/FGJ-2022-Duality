@@ -48,6 +48,13 @@ export const applyModifiers = (scene: GameScene, newModifiers: Modifier[], oldMo
         applyBigSmall(scene, oppositeTeam(modifier.team));
         scene.reverseModifierTeam(modifier.type);
       }, modifier.duration / 2);
+    } else if (modifier.type === "hunt") {
+      scene.events.emit("addTimer", modifier.duration / 1000, modifier.team);
+      applyHunt(scene, modifier.team);
+      setTimeout(() => {
+        applyHunt(scene, oppositeTeam(modifier.team));
+        scene.reverseModifierTeam(modifier.type);
+      }, modifier.duration / 2);
     }
   }
 
@@ -56,6 +63,8 @@ export const applyModifiers = (scene: GameScene, newModifiers: Modifier[], oldMo
       removeGravity(scene);
     } else if (modifier.type === "bigsmall") {
       removeBigSmall(scene);
+    } else if (modifier.type === "hunt") {
+      removeHunt(scene);
     }
   }
 };
@@ -85,6 +94,26 @@ const applyGravity = (scene: GameScene, team: Team) => {
   });
 };
 
+const applyHunt = (scene: GameScene, team: Team) => {
+  const redTint = 0xff0000;
+  const targetTint = 0xff55ff;
+  if (scene.player?.team === team) {
+    scene.resources.map((resource) => resource.setTint(redTint));
+    scene.otherPlayers.map((player) => {
+      if (player.team !== team) {
+        player.setTint(targetTint);
+      }
+    });
+  } else {
+    scene.resources.map((resource) => resource.setTint(0xffffff));
+    scene.otherPlayers.map((player) => {
+      if (player.team === team) {
+        player.setTint(redTint);
+      }
+    });
+  }
+};
+
 const removeGravity = (scene: GameScene) => {
   scene.player?.physicSprite.setGravityY(PLAYER_GRAVITY);
   scene.player?.physicSprite.resetFlip();
@@ -93,7 +122,13 @@ const removeGravity = (scene: GameScene) => {
     player.resetFlip();
   });
 };
+
 const removeBigSmall = (scene: GameScene) => {
   scene.player?.setStats(PLAYER_SIZES.normal);
   scene.otherPlayers.map((player) => player.setScale(PLAYER_SIZES.normal.sizeScale));
+};
+
+const removeHunt = (scene: GameScene) => {
+  scene.resources.map((resource) => resource.setTint(0xffffff));
+  scene.otherPlayers.map((player) => player.setTint(0xffffff));
 };

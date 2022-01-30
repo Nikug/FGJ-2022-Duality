@@ -33,13 +33,18 @@ export const startGameLoop = async () => {
       state.modifiers = [];
     } else {
       state.modifiers = [
+        // {
+        //   type: "gravity",
+        //   team: flipCoin() ? "coconut" : "ananas",
+        //   duration: UPDATE_MODIFIERS,
+        // },
+        // {
+        //   type: "bigsmall",
+        //   team: flipCoin() ? "coconut" : "ananas",
+        //   duration: UPDATE_MODIFIERS,
+        // },
         {
-          type: "gravity",
-          team: flipCoin() ? "coconut" : "ananas",
-          duration: UPDATE_MODIFIERS,
-        },
-        {
-          type: "bigsmall",
+          type: "hunt",
           team: flipCoin() ? "coconut" : "ananas",
           duration: UPDATE_MODIFIERS,
         },

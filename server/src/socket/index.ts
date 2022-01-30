@@ -8,6 +8,7 @@ import {
 import { Vector2 } from "../../types/types";
 import {
   addPlayer,
+  handleHunt,
   pushPlayer,
   removePlayer,
   resetLocation,
@@ -65,10 +66,26 @@ export const handleSockets = (socket: Socket) => {
   });
   socket.on(
     "collectResource",
-    ({ id, playerId }: { id: string; playerId: string }) => {
-      collectResource(id, playerId);
+    ({
+      id,
+      multiplier,
+      playerId,
+    }: {
+      id: string;
+      multiplier: number;
+      playerId: string;
+    }) => {
+      collectResource(id, multiplier, playerId);
     },
   );
+
+  socket.on(
+    "hunt",
+    ({ hunter, hunted }: { hunter: string; hunted: string }) => {
+      handleHunt(socket, hunted);
+    },
+  );
+
   socket.on("resetLocation", () => {
     resetLocation(socket);
   });

@@ -1,4 +1,4 @@
-import { ANIMATIONS, ONLINE_SPEED_SCALE, TILEMAP } from "../constants";
+import { ANIMATIONS, ONLINE_SPEED_SCALE, RESURRECT_COOLDOWN, TILEMAP } from "../constants";
 
 import type * as Game from "../../types/types";
 import type { Socket } from "socket.io-client";
@@ -18,7 +18,7 @@ const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
 export class GameScene extends Phaser.Scene {
   public player?: PlayerObject;
   private socket?: Socket;
-  private resources: Game.ResourceGameObject[] = [];
+  public resources: Game.ResourceGameObject[] = [];
   private team?: Game.Team;
   public otherPlayers: Game.PlayerSpriteObject[] = [];
   private apiPlayers?: Game.ApiPlayerState[];
@@ -73,8 +73,21 @@ export class GameScene extends Phaser.Scene {
     this.player = new PlayerObject(this, new Phaser.Math.Vector2(randomSpawn.x, randomSpawn.y), ANIMATIONS.sheets.coconut, this.socket?.id || "", this.socket);
     this.player?.setTeam(this.team ? this.team : "coconut");
     this.generatePlayers();
+
     this.physics.add.collider(this.player.physicSprite, this.otherPlayers, (me, other) => {
       const upsideDown = this.isUpsideDown();
+      const hunter = this.isHunter();
+
+      const otherPlayer = other as Game.PlayerSpriteObject;
+
+      if (hunter) {
+        if (this.team !== otherPlayer.team) {
+          otherPlayer.disableBody(true, true);
+          setTimeout(() => otherPlayer.enableBody(false, 0, 0, true, true), RESURRECT_COOLDOWN);
+          this.socket?.emit("hunt", { hunter: this.socket?.id, hunted: otherPlayer.id });
+        }
+      }
+
       if ((!upsideDown && me.body.touching.down && other.body.touching.up) || (upsideDown && me.body.touching.up && other.body.touching.down)) {
         this.player?.resetGroundContact();
       }
@@ -154,6 +167,11 @@ export class GameScene extends Phaser.Scene {
     return this.player?.team === gravityModifier?.team;
   }
 
+  private isHunter() {
+    const huntModifier = this.gameState.modifiers.find((modifier) => modifier.type === "hunt");
+    return this.player?.team === huntModifier?.team;
+  }
+
   public updateResources(resources: Game.Resource[] = []) {
     const oldResources = this.resources;
 
@@ -180,7 +198,9 @@ export class GameScene extends Phaser.Scene {
 
       if (!this.player) return;
 
-      collectResource((resource as Game.ResourceGameObject).id, this.player.id, this.socket);
+      const multiplier = this.isHunter() ? -1 : 1;
+
+      collectResource((resource as Game.ResourceGameObject).id, multiplier, this.player.id, this.socket);
       this.events.emit("playCollect");
     });
   }
@@ -234,5 +254,24 @@ export class GameScene extends Phaser.Scene {
     this.events.emit("silence");
     await new Promise((resolve) => setTimeout(resolve, 5000));
     location.reload();
+  }
+
+  public async handleHunted(hunter: string, hunted: string) {
+    if (!this.player) return;
+
+    if (this.player.id === hunted) {
+      this.player.physicSprite.disableBody(true, true);
+      await new Promise((resolve) => setTimeout(resolve, RESURRECT_COOLDOWN));
+      const randomSpawn = this.getRandomPlayerSpawn();
+      this.player.physicSprite.enableBody(true, randomSpawn.x || 0, randomSpawn.y || 0, true, true);
+      return;
+    }
+
+    const target = this.otherPlayers.find((player) => player.id === hunted);
+    if (target) {
+      target.disableBody(true, true);
+      await new Promise((resolve) => setTimeout(resolve, RESURRECT_COOLDOWN));
+      target.enableBody(false, 0, 0, true, true);
+    }
   }
 }

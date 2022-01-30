@@ -62,4 +62,9 @@ export const handleRoutes = (socket: Socket, game: Phaser.Game) => {
     const scene = game.scene.getScene("Game") as GameScene;
     scene.victory(team);
   });
+
+  socket.on("hunted", ({ hunter, hunted }: { hunter: string; hunted: string }) => {
+    const scene = game.scene.getScene("Game") as GameScene;
+    scene.handleHunted(hunter, hunted);
+  });
 };
