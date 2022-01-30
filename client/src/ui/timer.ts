@@ -40,16 +40,31 @@ export class Timer {
       this.activeTimers += 1;
 
       // Fuck interval, for loop wins
-      let emojiName;
+      let emojiLeftName, emojiRightName, animationRightName, animationLeftName;
       if (type === "gravity") {
-        emojiName = "gravityEmoji";
+        emojiLeftName = "upsideDownNormalSheet";
+        emojiRightName = "upsideDownUpsideDownSheet";
+        animationLeftName = "upsideDownNormal";
+        animationRightName = "upsideDownUpsideDown";
       } else if (type === "bigsmall") {
-        emojiName = "bigsmallEmoji";
+        emojiLeftName = "bigSheet";
+        emojiRightName = "smallSheet";
+        animationLeftName = "big";
+        animationRightName = "small";
+      } else if (type === "hunt") {
+        emojiLeftName = "hunterSheet";
+        emojiRightName = "preySheet";
+        animationLeftName = "hunter";
+        animationRightName = "prey";
       } else {
-        emojiName = "";
+        // Default
+        emojiLeftName = "bigSheet";
+        emojiRightName = "smallSheet";
+        animationLeftName = "big";
+        animationRightName = "small";
       }
 
-      const newFrame = this.createTimerFrame(team, position, emojiName);
+      const newFrame = this.createTimerFrame(team, position, emojiLeftName, emojiRightName, animationRightName, animationLeftName);
 
       if (team === "ananas") {
         await this.setTimer(timeSeconds, position, newFrame.greenRect, this.greenColor);
@@ -70,7 +85,7 @@ export class Timer {
     }
   }
 
-  private createTimerFrame(team: Team, position: number, emojiName: string) {
+  private createTimerFrame(team: Team, position: number, emojiLeftName: string, emojiRightName: string, animationLeftName: string, animationRightName: string) {
     // This just gets one in front of other, could use just another func for it aaa
     let blueRect, greenRect;
     if (team === "ananas") {
@@ -113,18 +128,35 @@ export class Timer {
     );
     frameRect.setStrokeStyle(this.timerFrameSize, this.frameColor);
 
+    const emojiLeft = this.scene.add.sprite(
+      this.scene.scale.width - this.timerOffsetX - this.timerWidth / 2 - 16 - this.timerFrameSize,
+      this.timerOffsetY + position * this.timerPaddingY,
+      emojiLeftName,
+    );
+    emojiLeft.play(animationLeftName);
+    const emojiRight = this.scene.add.sprite(
+      this.scene.scale.width - this.timerOffsetX + this.timerWidth / 2 + 16 + this.timerFrameSize,
+      this.timerOffsetY + position * this.timerPaddingY,
+      emojiRightName,
+    );
+    emojiRight.play(animationRightName);
+
+    /*
     const emojiLeft = this.scene.add.image(
       // 16 = half emoji size
       this.scene.scale.width - this.timerOffsetX - this.timerWidth / 2 - 16 - this.timerFrameSize,
       this.timerOffsetY + position * this.timerPaddingY,
       emojiName,
+      "__BASE",
     );
     const emojiRight = this.scene.add.image(
       // 16 = half emoji size
       this.scene.scale.width - this.timerOffsetX + this.timerWidth / 2 + 16 + this.timerFrameSize,
       this.timerOffsetY + position * this.timerPaddingY,
       emojiName,
+      "__BASE",
     );
+    */
     frameRect.setStrokeStyle(this.timerFrameSize, this.frameColor);
 
     return { blueRect: blueRect, greenRect: greenRect, frameRect: frameRect, emojiLeft: emojiLeft, emojiRight: emojiRight };
