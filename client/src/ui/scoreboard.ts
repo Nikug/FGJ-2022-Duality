@@ -6,6 +6,7 @@ import type { Score } from "../../types/types";
         - debug as needed :]
 */
 export class Scoreboard {
+  private maxScore = 100;
   private scene: Phaser.Scene;
   private scoreBoardX = 32;
   private scoreBoardY = 32;
@@ -24,12 +25,16 @@ export class Scoreboard {
   public addScoreBoard() {
     const graphics = this.scene.add.graphics();
     graphics.fillStyle(this.backgroundColor, 0.9);
-    graphics.fillRoundedRect(this.scoreBoardX, this.scoreBoardY, 250, 80, 16);
+    graphics.fillRoundedRect(this.scoreBoardX, this.scoreBoardY, 250, 100, 16);
     this.scene.add.bitmapText(this.scoreBoardX + this.scoreBoardMarginX + 65, this.scoreBoardY + 5, "atari", "SCORES").setScale(0.25);
     this.scoresText1 = this.scene.add.bitmapText(this.scoreBoardX + this.scoreBoardMarginX, this.scoreBoardY + 30, "atari", `Ananas: 0`).setScale(0.25);
     this.scoresText2 = this.scene.add
       .bitmapText(this.scoreBoardX + this.scoreBoardMarginX, this.scoreBoardY + 30 + this.scoreBoardMarginY, "atari", `Coconut: 0`)
       .setScale(0.25);
+    this.scene.add
+      // Magical numbers to put text in right place. I know. Magic is cool right? And if that's not your thing, call it a science.
+      .bitmapText(this.scoreBoardX - 65 + this.scoreBoardMarginX + 65, this.scoreBoardY + 100 - 15, "atari", `FIRST TO ${this.maxScore} WINS!`)
+      .setScale(0.2);
   }
 
   public addScore(Score: Score) {
