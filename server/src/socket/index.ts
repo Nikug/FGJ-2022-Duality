@@ -66,8 +66,16 @@ export const handleSockets = (socket: Socket) => {
   });
   socket.on(
     "collectResource",
-    ({ id, playerId }: { id: string; playerId: string }) => {
-      collectResource(id, playerId);
+    ({
+      id,
+      multiplier,
+      playerId,
+    }: {
+      id: string;
+      multiplier: number;
+      playerId: string;
+    }) => {
+      collectResource(id, multiplier, playerId);
     },
   );
 

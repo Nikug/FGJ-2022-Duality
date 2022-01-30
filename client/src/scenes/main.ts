@@ -192,7 +192,9 @@ export class GameScene extends Phaser.Scene {
 
       if (!this.player) return;
 
-      collectResource((resource as Game.ResourceGameObject).id, this.player.id, this.socket);
+      const multiplier = this.isHunter() ? -1 : 1;
+
+      collectResource((resource as Game.ResourceGameObject).id, multiplier, this.player.id, this.socket);
       this.events.emit("playCollect");
     });
   }
