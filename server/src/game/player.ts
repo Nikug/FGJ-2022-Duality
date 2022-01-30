@@ -1,7 +1,14 @@
 import { Socket } from "socket.io";
-import { getGameState, getPlayerById, getPlayers, setPlayers } from ".";
+import {
+  getGameState,
+  getPlayerById,
+  getPlayers,
+  setGameState,
+  setPlayers,
+} from ".";
 import { io } from "../..";
 import { Player, Team, Vector2 } from "../../types/types";
+import { RESOURCE_POINT } from "../constants";
 import { flipCoin } from "../utils/getRandomNumber";
 import { setNotRunning } from "./gameState";
 import { getResources } from "./resource";
@@ -109,5 +116,20 @@ export const startGame = (socket: Socket) => {
 export const handleHunt = (socket: Socket, hunted: string) => {
   const player = getPlayerById(hunted);
   if (!player) return;
+  const state = getGameState();
+
+  const hunter = getPlayerById(socket.id);
+  if (hunter) {
+    if (hunter.team === "ananas") {
+      state.score.ananas += RESOURCE_POINT;
+      state.score.coconut -= RESOURCE_POINT;
+    } else {
+      state.score.coconut += RESOURCE_POINT;
+      state.score.ananas -= RESOURCE_POINT;
+    }
+    setGameState(state);
+    io.emit("updateScore", state.score);
+  }
+
   socket.broadcast.emit("hunted", { hunter: socket.id, hunted: hunted });
 };
