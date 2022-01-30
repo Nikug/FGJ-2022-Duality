@@ -18,7 +18,7 @@ const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
 export class GameScene extends Phaser.Scene {
   public player?: PlayerObject;
   private socket?: Socket;
-  private resources: Game.ResourceGameObject[] = [];
+  public resources: Game.ResourceGameObject[] = [];
   private team?: Game.Team;
   public otherPlayers: Game.PlayerSpriteObject[] = [];
   private apiPlayers?: Game.ApiPlayerState[];

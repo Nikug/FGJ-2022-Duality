@@ -95,16 +95,23 @@ const applyGravity = (scene: GameScene, team: Team) => {
 };
 
 const applyHunt = (scene: GameScene, team: Team) => {
+  const redTint = 0xff0000;
+  const targetTint = 0xff55ff;
   if (scene.player?.team === team) {
-    // Do some kind of visual change here
-    // scene.player.physicSprite.setGravityY(-PLAYER_GRAVITY);
+    scene.resources.map((resource) => resource.setTint(redTint));
+    scene.otherPlayers.map((player) => {
+      if (player.team !== team) {
+        player.setTint(targetTint);
+      }
+    });
   } else {
-    // and here
+    scene.resources.map((resource) => resource.setTint(0xffffff));
+    scene.otherPlayers.map((player) => {
+      if (player.team === team) {
+        player.setTint(redTint);
+      }
+    });
   }
-
-  scene.otherPlayers.map((player) => {
-    // and here
-  });
 };
 
 const removeGravity = (scene: GameScene) => {
@@ -122,5 +129,6 @@ const removeBigSmall = (scene: GameScene) => {
 };
 
 const removeHunt = (scene: GameScene) => {
-  // do the removing
+  scene.resources.map((resource) => resource.setTint(0xffffff));
+  scene.otherPlayers.map((player) => player.setTint(0xffffff));
 };
