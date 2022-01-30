@@ -8,8 +8,12 @@ import {
 } from ".";
 import { io } from "../..";
 import { Player, Team, Vector2 } from "../../types/types";
-import { RESET_SANCTION, WIN_POINTS } from "../constants";
-import { RESOURCE_POINT } from "../constants";
+import {
+  HUNT_POINTS,
+  RESET_SANCTION,
+  SLAP_POINT,
+  WIN_POINTS,
+} from "../constants";
 import { flipCoin } from "../utils/getRandomNumber";
 import { setNotRunning } from "./gameState";
 import { getResources } from "./resource";
@@ -92,6 +96,16 @@ export const pushPlayer = (
   direction: Vector2,
 ) => {
   const player = getPlayerById(targetId);
+  const state = getGameState();
+  if (player?.team === "coconut") {
+    state.score.coconut += SLAP_POINT;
+    state.score.ananas -= SLAP_POINT;
+  } else {
+    state.score.coconut -= SLAP_POINT;
+    state.score.ananas += SLAP_POINT;
+  }
+  io.emit("updateScore", state.score);
+
   if (player) {
     socket.broadcast.emit("getPushed", {
       slapperId: playerId,
@@ -134,11 +148,11 @@ export const handleHunt = (socket: Socket, hunted: string) => {
   const hunter = getPlayerById(socket.id);
   if (hunter) {
     if (hunter.team === "ananas") {
-      state.score.ananas += RESOURCE_POINT;
-      state.score.coconut -= RESOURCE_POINT;
+      state.score.ananas += HUNT_POINTS;
+      state.score.coconut -= HUNT_POINTS;
     } else {
-      state.score.coconut += RESOURCE_POINT;
-      state.score.ananas -= RESOURCE_POINT;
+      state.score.coconut += HUNT_POINTS;
+      state.score.ananas -= HUNT_POINTS;
     }
     setGameState(state);
     io.emit("updateScore", state.score);
